@@ -1,0 +1,20 @@
+
+//:Include Vulkan:
+#include "V:/VK_HEAD/include/vulkan/vulkan.h" 
+
+#include <stdio.h> //:for: printf(...)
+
+struct TEAR{
+    //:IDEA: Try to keep as coarse grain as
+    //:      possible. Subdivide later if needed.
+    
+    int unused;
+
+}TEAR;
+
+
+
+int TEAR_Demo(){
+    printf("[TEAR_Demo()...]\n");
+    return( 0 );
+}

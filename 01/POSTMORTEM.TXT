@@ -1,0 +1,5 @@
+
+Just... Fuck GLFW...
+It has dependencies and needs CMAKE + MAKE
+just to compile it. Way too complex. I want
+something that works out of the box.

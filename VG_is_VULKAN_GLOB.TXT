@@ -1,0 +1,21 @@
+
+
+Better to write lots of throwaway code than
+try to do it all perfect the first time.
+Takes a few iterations anyhow.
+
+Will name folders with numbers based on what
+current iteration I am on.
+
+Namespace will be:
+    VG1 for 01 folder
+    VG2 for 02 folder
+    VG3 for 03 folder
+    ....
+    VG10 for 10 folder
+    VG11 for 11 folder
+    VG12 for 12 folder
+    ....
+    VG100 for 100 folder
+    ....
+    ETC.
