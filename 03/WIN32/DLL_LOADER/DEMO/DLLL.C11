@@ -1,44 +1,22 @@
 
 #include "../DLLL.H"
 
+
+
 int main()
 {
 
-    TYPEDEF_HMODULE 
-    hKernel32 =(
-        JMIM_GetModuleBaseAddress(
-            L"KERNEL32.DLL"
-        )
+    DLLL_DLIB  hUser32;
+    DLLL_FUNC  pMessageBox;
+
+    hUser32 = DLLL_LoadLibraryA("user32.dll");
+
+    pMessageBox=(
+    DLLL_GetProcAddress( hUser32, "MessageBoxW")
     );;
 
-	LoadLibraryAF 
-    pLoadLibraryA =(
-        (LoadLibraryAF)
-        JMIM_GetExportAddress(
-            hKernel32
-        ,  "LoadLibraryA"
-        )
-    );;
-
-	GetProcAddressF 
-    pGetProcAddress =(
-        (GetProcAddressF)
-        JMIM_GetExportAddress(
-            hKernel32
-        ,   "GetProcAddress"
-        )
-    );;
-
-	TYPEDEF_HMODULE 
-    hUser32 = pLoadLibraryA("user32.dll");
-
-	TYPEDEF_FARPROC 
-    pMessageBox =(
-        pGetProcAddress(hUser32, "MessageBoxW")
-    );;
-
-	pMessageBox(
-        NULL
+    pMessageBox(
+    /**/NULL
     ,   L"It works!"
     ,   L"Hello World!"
     ,   MACRO_WINDOWS_xxx_MB_OK

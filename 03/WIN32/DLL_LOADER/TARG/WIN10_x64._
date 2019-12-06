@@ -103,6 +103,14 @@ typedef
 
 //|FTFTFTFTFTFTFTFTFTFTFTFTFTFTFTFTFTFTFTFTFTFT|//
 
+//////////////////////////////////////////////////
+
+LoadLibraryAF
+dll_LoadLibraryA   =NULL;
+
+GetProcAddressF
+dll_GetProcAddress =NULL;
+//////////////////////////////////////////////////
 
 
 
@@ -625,7 +633,7 @@ JMIM_ASM_GetBaseAddr_PEB_x64()
         :[sym_out] "=r"  (var_out) //:OUTPUTS
     );
 
-    printf("[var_out]:%d\n", (int)var_out);
+    //: printf("[var_out]:%d\n", (int)var_out);
 
     base_address=(void*)var_out;
     return( base_address );
@@ -798,7 +806,7 @@ JMIM_GetExportAddress(
 
     void* p;
 
-    printf("[helllooooo]");
+    //: printf("[helllooooo]");
 
 	char *pBaseAddress = (char *)hMod;
 
@@ -1009,7 +1017,7 @@ JMIM_GetExportAddress(
 	}
 	else
 	{
-        printf("[BOT:SELECTED]");
+        //: printf("[BOT:SELECTED]");
 
         #define U unsigned long long /////////////
 
