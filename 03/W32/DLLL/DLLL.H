@@ -9,8 +9,7 @@
 
 
 
-//| Only choose one to set to 1 |//
-#define COMPILE_FOR_windows_10_64bit 1
+
 
 //: typedef 
 //:     void (*DLLL_GENERIC_FUNCTION_POINTER)
@@ -21,7 +20,9 @@
 
 #if( COMPILE_FOR_windows_10_64bit >= 1 )
 
-    #include "./TARG/WIN10_x64._"
+    //: #include "./TARG/WIN10_x64._"
+
+    //: #include "V:/VG/03/W32/DLLL/TARG/W10.X64"
 
     typedef
         TYPEDEF_HMODULE
@@ -127,6 +128,13 @@ DLLL_LoadLibraryA(
     /**/    )
     );;
 
+    if(NULL==ret){
+        printf(
+            "[DLLL_LoadLibraryA:FAIL]:%s\n"
+        ,   name
+        );;
+    };;
+
     return( ret );
 
 }//[;]//
@@ -144,6 +152,14 @@ DLLL_GetProcAddress(
     /**/    ,   name
     /**/    )
     );;
+
+    if(NULL==ret){
+        printf(
+            "[DLLL_GetProcAddress:FAIL]:%s\n"
+        ,   name
+        );;
+    };;
+
 
     return( ret );
 

@@ -1,0 +1,72 @@
+
+
+1: LIBS_DONT_GOSSIP
+2: BASH_AGGLIMATION
+3: F_NUMBER_FOLDERS
+4: MACRO_SPACE_SAVE
+5: FILE_IMPLIES_FUN
+
+////////////////////////////////////////////////////////////////
+
+#LIBS_DONT_GOSSIP#
+#NO_LIBRARY_MENTIONS_ANY_OTHER_LIBRARY#
+    None of your source files will directly include
+    your other source files.
+
+////////////////////////////////////////////////////////////////
+
+#BASH_AGGLIMATION#
+    A bash file will be used to create the master
+    source file.
+
+    This way, finding compilation errors, and seeing
+    the big picture of how it all connects together
+    will be pretty obvious.
+
+////////////////////////////////////////////////////////////////
+##F_NUMBER_FOLDERS##
+    F##: Folders:
+        F01 means "Folder # 01"
+        Take a shot at organizing code with numbers based on
+        connection when the code was added. What it means 
+        has no to the number.
+
+##MACRO_SPACE_SAVE##
+Only use macros if they drastically reduce how much
+code you have to write. Don't get fancy with macros for 
+any other reason.
+
+    DONT#1: void FN(MemberFunction)( arg1, arg2 ){ .... }
+    DONT#2: #define H  MYLIB_Halt 
+    DONT#3: #define TERSE NOT_SO_TERSE_VARIABLE
+
+        #1: It's nice to shorten names like this, but it
+            adds mental indirection. Also harder to search
+            for all instances of specific function.
+
+        #2: Same as #1
+
+        #3: Keep the variable terse in the first place
+            so you don't have to do this.
+
+##FILE_IMPLIES_FUN##
+
+    FILE_IMPLIES_FUNCTION_DETAILS:
+
+    Each file is a mini library. It should do one thing,
+    and do one thing well. Thus, the name of a function
+    in said file can be terse, because the details of the
+    function can be implied from the library file it is in.
+
+    EXAMPLE:
+        In StringCompare.H
+        YES: StringCompare_Same(...)
+         NO: StringCompare_AreBothStringsTheSame(...)
+
+        In: F01 that only has one comparison function, and
+                it works by comparing strings.
+
+            YES: F01_Same(...)
+             NO: F01_AreBothStringsTheSame(...)
+        
+////////////////////////////////////////////////////////////////

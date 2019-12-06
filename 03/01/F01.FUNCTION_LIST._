@@ -1,0 +1,6 @@
+
+//:The function you want, and the DLL file
+//:it comes from.
+
+MAC( RegisterClassExW , user32  )
+MAC( CreateWindowExW  , user32  )
