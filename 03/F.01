@@ -1,130 +1,34 @@
 
-//[ F01: DOTADIW: Gather_Function_Pointers_From_DLL_Files ---]//
-//[     (DLL files or linux equivalent)                      ]//
+//# DOTADIW:DLL_FUNC_LIST -----------------------------------]//
 
-#include <string.h> //: strcmp
+//[ The function you want, and the DLL file it comes from. --]//
 
-//:Generic_Function_Pointer
-typedef void (*F01_VOF)(void);
+//# NOTE: Using different cases like "User32 & usEr32" ------#//
+//# Will screw up your DLL caching code!               ------#//
+//! NODOC: Missing MSDN documentation. --------------------- !//
 
-//     //:The hacky way out seems like it will be just as much
-//     //:code as the proper way out... Create proper typedefs
-//     //:for your functions.
-// typedef                                    
-//     ATOM_u16_2B                            
-//     (*gleb_swin_pfn_RegisterClassExW)(     
-//         const gleb_swin_WNDCLASSEXW *Arg1  
-//     );                                     
-
-
-
-//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
-
-void F01_Halt( const char* msg ){ 
-    printf( "[F01_Halt]:%s\n", msg ); 
-    fflush(stdout); exit(666);
-}//[;]//
-
-int F01_Same( const char* str_01, const char* str_02 ){
-    return( 0 == strcmp( str_01, str_02 ) );
-}//[;]//
-
-//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
-
-    
-
-    //[ STRATEGY: VOID: Cast At Call Time ------------------ ]//
-    #define MAC(f,d) F01_VOF  F01_  ##  f ;
-            #include "01/F01.FUNCTION_LIST._"
-    #undef  MAC
-
-    //[ STRATEGY: PROTO: Pre-Make all f01_pfn_ types ------- ]//
-//  #define MAC(f,d) f01_pfn_ ## f   F01_ ## f ;
-//      #include "01/F01.FUNCTION_LIST._"
-//  #undef  MAC
-        
+F02_F01_MACRO( RegisterClassExW , user32  )  //[ 01 ]//
+F02_F01_MACRO( CreateWindowExW  , user32  )  //[ 02 ]//
+F02_F01_MACRO( DestroyWindow    , user32  )  //[ 03 ]//
+F02_F01_MACRO( PostQuitMessage  , user32  )  //[ 04 ]//
+F02_F01_MACRO( DefWindowProcW   , user32  )  //[ 05 ]//
+F02_F01_MACRO( LoadIconA        , user32  )  //[ 06 ]//
+F02_F01_MACRO( LoadCursorA      , user32  )  //[ 07 ]//
+F02_F01_MACRO( GetWindowDC      , user32  )  //[ 08 ]//
+F02_F01_MACRO( ChoosePixelFormat, gdi32   )  //[ 09 ]//
+F02_F01_MACRO( SetPixelFormat   , gdi32   )  //[ 10 ]//
+F02_F01_MACRO( GetModuleHandleW , kernel32)  //[ 11 ]//
+F02_F01_MACRO( GetDesktopWindow , user32  )  //[ 12 ]//
+F02_F01_MACRO( TranslateMessage , user32  )  //[ 13 ]//
+F02_F01_MACRO( DispatchMessageW , user32  )  //[ 14 ]//
+F02_F01_MACRO( PeekMessageW     , user32  )  //[ 15 ]//
+F02_F01_MACRO( ShowWindow       , user32  )  //[ 16 ]//
+F02_F01_MACRO( UpdateWindow     , user32  )  //[ 17 ]//
+F02_F01_MACRO( SetFocus         , user32  )  //[ 18 ]//
+F02_F01_MACRO( Sleep            , kernel32)  //[ 19 ]//
 
 
-////////////////////////////////////////////////////////////////
-//:Positive: The index of the loaded dll address in array.
-//:Negative: The index to insert/cache next dll.
-//:DO NOT USE TO PEEK! When returning negative, expects you
-//:to add to the cache array.
-#define MACRO_STR const char * /////////////////////////////////
-static DLLL_DLIB F01_Cache_ADDR[1+10]={0}; //:DLL_CACHE.address
-static MACRO_STR F01_Cache_NAME[1+10]={0}; //:DLL_CACHE.name
-int F01_GetCacheIndex( const char* dlib_name ){
+//!( RegisterWindow   , user32  )  YOU_MADE_THIS_ONE_UP      !//
 
-    int i = 0;while(1){ i++;
-        
-        assert( 0 != i ); //:Invalid_Cache_Index
-        assert( i <= 10); //:Out_Of_Pre_Allocated_Slots
-
-        if( NULL ==    F01_Cache_ADDR[i]){ return(  0-i  ); }
-        if( F01_Same(  F01_Cache_NAME[i], dlib_name  )   ){
-            return( i );
-        };;
-
-    };;
-
-    assert( 0 ); //:CRASH! Should have returned already!
-    return( 0 ); //:Return invalid index.
-
-}//[;]//
-#undef MACRO_STR ///////////////////////////////////////////////
-
-int F01_GF_total_number_of_functions_fetched=0;
-static F01_VOF F01_GF( //:GF:Get_Function(Pointer)
-/**/    const char* func_name //:EX:"ShowWindow"
-/**/,   const char* dlib_name //:EX:"user32.dll" | "user32"
-){
-    DLLL_DLIB  dlib_addr; //:DLL Module   Address
-    DLLL_FUNC  func_addr; //:DLL Function Address
-    ////////////////////////////////////////////////////////////
-    //:GET DLL Module:
-    ////////////////////////////////////////////////////////////
-    int cac_dex = F01_GetCacheIndex( dlib_name );
-    if( cac_dex > 0 ){
-
-        dlib_addr = F01_Cache_ADDR[ cac_dex ];
-
-    }else
-    if( cac_dex < 0 ){
-
-        dlib_addr = DLLL_LoadLibraryA(
-        dlib_name );;
-
-        F01_Cache_ADDR[ 0-cac_dex ] = dlib_addr;
-        F01_Cache_NAME[ 0-cac_dex ] = dlib_name;
-
-    }else{
-        F01_Halt( "[EUBOC:ZERO_IS_INVALID_CACHE_INDEX]" );
-    };;
-    ////////////////////////////////////////////////////////////
-    //:PULL Function From DLL:
-    ////////////////////////////////////////////////////////////
-
-        func_addr = DLLL_GetProcAddress( dlib_addr, func_name );
-
-    ////////////////////////////////////////////////////////////
-
-    F01_GF_total_number_of_functions_fetched++;
-    return( (F01_VOF)func_addr );
-
-}//[;]//
-
-//:Load Function Pointers: EX: F01_ShowWindow
-void F01_Init(){
-    #define MAC(f,d) F01_ ## f = F01_GF(#f,#d);
-            #include "01/F01.FUNCTION_LIST._"
-    #undef  MAC
-
-    if( F01_GF_total_number_of_functions_fetched != 19 ){
-        F01_Halt("[Expected_This_Many_Fetched_Funcs]");
-    };;
-
-}//[;]//
-
-
-
-//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+//[¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯]//
+//[__________________________________________________________]//

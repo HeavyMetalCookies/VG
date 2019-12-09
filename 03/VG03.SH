@@ -26,10 +26,15 @@ cat "./W32/DLLL/TARG/W10.X64" >> "VG03.ALL"
 cat "./W32/DLLL/DLLL.H"       >> "VG03.ALL" 
 
 ##GATHER_FUNCTION_POINTERS:
-cat "./F.01"              >> "VG03.ALL"
+##cat "./F.01"              >> "VG03.ALL"
+
 cat "./F.02"              >> "VG03.ALL"
-##cat "./F.03"              >> "VG03.ALL"
-cat "./F.04"              >> "VG03.ALL"
+
+cat "./F.03"              >> "VG03.ALL"
+
+
+cat "./F.06"              >> "VG03.ALL"
+cat "./F.07"              >> "VG03.ALL"
 
 cat "./VG03.H"                >> "VG03.ALL"
 

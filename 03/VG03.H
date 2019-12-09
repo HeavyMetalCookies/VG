@@ -25,7 +25,7 @@ VG03_Demo( void ){
 
     VG03_Init();
 
-    F04_Demo_SingleThreaded();
+    F07_Demo_SingleThreaded();
 
     printf("[END:VG03_DEMO]\n");
 

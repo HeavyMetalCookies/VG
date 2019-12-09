@@ -1396,23 +1396,17 @@ DLLL_GetProcAddress(
 
 //////////////////////////////////////////////////
 
-//[ F01: DOTADIW: Gather_Function_Pointers_From_DLL_Files ---]//
-//[     (DLL files or linux equivalent)                      ]//
+//[ DOTADIW: Gather_Function_Pointers_From_DLL_Files --------]//
+//[         (DLL files or linux equivalent)                  ]//
+//[                                                          ]//
+//[ Example Function Pointer Created By This File:           ]//
+//[                                                          ]//
+//[         F02_VOF F02_DestroyWindow =<SomeDLLAddress>      ]//
 
 #include <string.h> //: strcmp
 
 //:Generic_Function_Pointer
-typedef void (*F01_VOF)(void);
-
-//     //:The hacky way out seems like it will be just as much
-//     //:code as the proper way out... Create proper typedefs
-//     //:for your functions.
-// typedef                                    
-//     ATOM_u16_2B                            
-//     (*gleb_swin_pfn_RegisterClassExW)(     
-//         const gleb_swin_WNDCLASSEXW *Arg1  
-//     );                                     
-
+typedef void (*F02_VOF)(void);
 
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
@@ -1430,17 +1424,19 @@ int F01_Same( const char* str_01, const char* str_02 ){
 
     
 
-    //[ STRATEGY: VOID: Cast At Call Time ------------------ ]//
-    #define MAC(f,d) F01_VOF  F01_  ##  f ;
-            #include "01/F01.FUNCTION_LIST._"
-    #undef  MAC
+    //[ Declare void pointers for every single DLL function  ]//
+    //[ you want to call. They will be wrapped by functions  ]//
+    //[ in a later file. Or called by casting to correct     ]//
+    //[ signature on the fly.                                ]//
+    #define F02_F01_MACRO(f,d) F02_VOF  F02_  ##  f ;
+            #include "./F.01" //:<--[[[DOTADIW:DLL_FUNC_LIST]]]
+    #undef  F02_F01_MACRO
 
-    //[ STRATEGY: PROTO: Pre-Make all f01_pfn_ types ------- ]//
-//  #define MAC(f,d) f01_pfn_ ## f   F01_ ## f ;
-//      #include "01/F01.FUNCTION_LIST._"
-//  #undef  MAC
-        
-
+    //:Create dummy F01_ functions to let you know
+    //:you are wrong and should be calling F02_ functions.
+    #define F02_F01_MACRO(f,d) F02_VOF  F01_  ##  f ;
+        #include "./F.01" //:<--[[[DOTADIW:DLL_FUNC_LIST]]]
+    #undef  F02_F01_MACRO
 
 ////////////////////////////////////////////////////////////////
 //:Positive: The index of the loaded dll address in array.
@@ -1471,7 +1467,7 @@ int F01_GetCacheIndex( const char* dlib_name ){
 #undef MACRO_STR ///////////////////////////////////////////////
 
 int F01_GF_total_number_of_functions_fetched=0;
-static F01_VOF F01_GF( //:GF:Get_Function(Pointer)
+static F02_VOF F02_GF( //:GF:Get_Function(Pointer)
 /**/    const char* func_name //:EX:"ShowWindow"
 /**/,   const char* dlib_name //:EX:"user32.dll" | "user32"
 ){
@@ -1506,15 +1502,35 @@ static F01_VOF F01_GF( //:GF:Get_Function(Pointer)
     ////////////////////////////////////////////////////////////
 
     F01_GF_total_number_of_functions_fetched++;
-    return( (F01_VOF)func_addr );
+    return( (F02_VOF)func_addr );
 
 }//[;]//
 
-//:Load Function Pointers: EX: F01_ShowWindow
+void F02_WRONGNAME(void){
+
+    printf("[Raw_Function_Pointers_Are_Named]\n");
+    printf("[After_The_File_They_Are_Created]\n");
+    printf("[in.(F.02)not_the_file_the_func_]\n");
+    printf("[name_list_lives_in(F.01).------]\n");
+    printf("[TL;DR::::::::::::::::::::::::::]\n");
+    printf("[   YES: F02_SomeRawDLLFunction ]\n");
+    printf("[    NO: F01_SomeRawDLLFunction ]\n");
+
+    fflush(stdout);
+    exit(666);
+
+}//[;]//
+
+//:Load Function Pointers: EX: F02_ShowWindow
 void F01_Init(){
-    #define MAC(f,d) F01_ ## f = F01_GF(#f,#d);
-            #include "01/F01.FUNCTION_LIST._"
-    #undef  MAC
+    #define F02_F01_MACRO(f,d) F02_ ## f = F02_GF(#f,#d);
+            #include "./F.01" //:<--[[[DOTADIW:DLL_FUNC_LIST]]]
+    #undef  F02_F01_MACRO
+
+    //:In case you think the functions start with "F01_"
+    #define F02_F01_MACRO(f,d) F01_ ## f = &(F02_WRONGNAME);
+            #include "./F.01" //:<--[[[DOTADIW:DLL_FUNC_LIST]]]
+    #undef  F02_F01_MACRO
 
     if( F01_GF_total_number_of_functions_fetched != 19 ){
         F01_Halt("[Expected_This_Many_Fetched_Funcs]");
@@ -1541,27 +1557,27 @@ void F01_Init(){
 #define  d void* ///////////////////////////////////////////////
 #define  e void* ///////////////////////////////////////////////
 
-typedef  V (* F02_00)( void );
-typedef  V (* F02_01)( a                                      );
-typedef  V (* F02_02)( a,a                                    );
-typedef  V (* F02_03)( a,a,a                                  );
-typedef  V (* F02_04)( a,a,a,a                                );
-typedef  V (* F02_05)( a,a,a,a,b                              );
-typedef  V (* F02_06)( a,a,a,a,b,b                            );
-typedef  V (* F02_07)( a,a,a,a,b,b,b                          );
-typedef  V (* F02_08)( a,a,a,a,b,b,b,b                        );
-typedef  V (* F02_09)( a,a,a,a,b,b,b,b,c                      );
-typedef  V (* F02_10)( a,a,a,a,b,b,b,b,c,c                    );
-typedef  V (* F02_11)( a,a,a,a,b,b,b,b,c,c,c                  );
-typedef  V (* F02_12)( a,a,a,a,b,b,b,b,c,c,c,c                );
-typedef  V (* F02_13)( a,a,a,a,b,b,b,b,c,c,c,c,d              );
-typedef  V (* F02_14)( a,a,a,a,b,b,b,b,c,c,c,c,d,d            );
-typedef  V (* F02_15)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d          );
-typedef  V (* F02_16)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d        );
-typedef  V (* F02_17)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e      );
-typedef  V (* F02_18)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e    );
-typedef  V (* F02_19)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e  );
-typedef  V (* F02_20)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e,e);
+typedef  V (* F03_00)( void );
+typedef  V (* F03_01)( a                                      );
+typedef  V (* F03_02)( a,a                                    );
+typedef  V (* F03_03)( a,a,a                                  );
+typedef  V (* F03_04)( a,a,a,a                                );
+typedef  V (* F03_05)( a,a,a,a,b                              );
+typedef  V (* F03_06)( a,a,a,a,b,b                            );
+typedef  V (* F03_07)( a,a,a,a,b,b,b                          );
+typedef  V (* F03_08)( a,a,a,a,b,b,b,b                        );
+typedef  V (* F03_09)( a,a,a,a,b,b,b,b,c                      );
+typedef  V (* F03_10)( a,a,a,a,b,b,b,b,c,c                    );
+typedef  V (* F03_11)( a,a,a,a,b,b,b,b,c,c,c                  );
+typedef  V (* F03_12)( a,a,a,a,b,b,b,b,c,c,c,c                );
+typedef  V (* F03_13)( a,a,a,a,b,b,b,b,c,c,c,c,d              );
+typedef  V (* F03_14)( a,a,a,a,b,b,b,b,c,c,c,c,d,d            );
+typedef  V (* F03_15)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d          );
+typedef  V (* F03_16)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d        );
+typedef  V (* F03_17)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e      );
+typedef  V (* F03_18)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e    );
+typedef  V (* F03_19)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e  );
+typedef  V (* F03_20)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e,e);
 
 #undef   V /////////////////////////////////////////////////////
 #undef   a /////////////////////////////////////////////////////
@@ -1571,37 +1587,54 @@ typedef  V (* F02_20)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e,e);
 #undef   e /////////////////////////////////////////////////////
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+//[ DOTADIW: Make wrapper functions for DLL func pointers.   ]//
+
+
+#define F06_F05_MACRO_RETURNTYPE void*  ////////////////////////
+#define F06_F04_MACRO_CreateWindowExW 1  ///////////////////////
+
+    #define F05_MACRO_wrapper   F06_CreateWindowExW
+    #define F05_MACRO_wrapped   F02_CreateWindowExW
+
+        #include "./F.05" //:<<--#DOTADIW:WRAPPER_FUNC_TEMPLATE#
+    
+    #undef  F05_MACRO_wrapper
+    #undef  F05_MACRO_wrapped
+
+#undef  F06_F05_MACRO_RETURNTYPE  //////////////////////////////
+#undef  F06_F04_MACRO_CreateWindowExW ////////////////////////// 
+//#DOTADIW: Create_A_Window                                  #//
 
 //[V:Variables. #VARS_TOP_OF_FILE_BIG_PICTURE#               ]//
 //[VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV]//
 
 //:Initial_Window_Size_And_Position:
 ////////////////////////////////////////////
-int f04_X    = 22  ; /**  GLEB_SWIN.X    **/
-int f04_Y    = 22  ; /**  GLEB_SWIN.Y    **/
-int f04_WID  = 1024; /**  GLEB_SWIN.WID  **/
-int f04_HIG  = 512 ; /**  GLEB_SWIN.HIG  **/
+int f07_X    = 22  ; /**  GLEB_SWIN.X    **/
+int f07_Y    = 22  ; /**  GLEB_SWIN.Y    **/
+int f07_WID  = 1024; /**  GLEB_SWIN.WID  **/
+int f07_HIG  = 512 ; /**  GLEB_SWIN.HIG  **/
 ////////////////////////////////////////////
 
-    signed char f04_window_created     = 0;
-    signed char f04_window_just_closed = 0;
+    signed char f07_window_created     = 0;
+    signed char f07_window_just_closed = 0;
       
-    void* f04_handle_to_window      = NULL; //:HWND
-    void* f04_window_device_context = NULL; //:HDC
+    void* f07_handle_to_window      = NULL; //:HWND
+    void* f07_window_device_context = NULL; //:HDC
     
     //:Forward declare so we can keep variables
     //:at top of file.
-    struct F04_STRUCT_PIXELFORMATDESCRIPTOR;
-    struct F04_STRUCT_PIXELFORMATDESCRIPTOR
-                f04_pixel_format_descriptor;
-    signed char f04_InitPixelFormatDescriptor_DONE=0;
+    struct F07_STRUCT_PIXELFORMATDESCRIPTOR;
+    struct F07_STRUCT_PIXELFORMATDESCRIPTOR
+                f07_pixel_format_descriptor;
+    signed char f07_InitPixelFormatDescriptor_DONE=0;
 
 //[VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV]//
 
 //[H:Halt Always first function in file._____________________]//
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
-void F04_Halt( const char*     msg ){ 
-    printf( "[F04_Halt]:%s\n", msg ); 
+void F07_Halt( const char*     msg ){ 
+    printf( "[F07_Halt]:%s\n", msg ); 
     fflush(stdout); exit(666);
 }//[;]//
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
@@ -1609,12 +1642,12 @@ void F04_Halt( const char*     msg ){
 //[SI:Structs_And_Initializers (Initializers For The Structs)]//
 //[SISISISISISISISISISISISISISISISISISISISISISISISISISISISISI]//
 
-typedef void (*F04_GENERIC_FUNC)(void);
+typedef void (*F07_GENERIC_FUNC)(void);
 
 
 typedef 
     __int64
-    (__stdcall *F04_WNDPROC)(
+    (__stdcall *F07_WNDPROC)(
         void*             //: HWND
     ,   unsigned   int    //: UINT
     ,   unsigned __int64  //: WPARAM
@@ -1623,10 +1656,10 @@ typedef
 
 // ---------------------------------------------------------- //
 
-struct F04_STRUCT_WNDCLASSEXW {
+struct F07_STRUCT_WNDCLASSEXW {
                 unsigned int   cbSize       ;
                 unsigned int   style        ;
-                 F04_WNDPROC   lpfnWndProc  ;
+                 F07_WNDPROC   lpfnWndProc  ;
                          int   cbClsExtra   ;
                          int   cbWndExtra   ;
                         void*  hInstance    ;
@@ -1640,7 +1673,7 @@ struct F04_STRUCT_WNDCLASSEXW {
 
 // ---------------------------------------------------------- //
 
-struct F04_STRUCT_POINT{
+struct F07_STRUCT_POINT{
 
     long x;
     long y;
@@ -1648,7 +1681,7 @@ struct F04_STRUCT_POINT{
 };//[struct]//
 
 //:winuser.h
-struct F04_STRUCT_MSG {
+struct F07_STRUCT_MSG {
 
     void*                    hwnd    ;  //: HWND    ://
     unsigned   int           message ;  //: UINT    ://
@@ -1657,7 +1690,7 @@ struct F04_STRUCT_MSG {
              __int64         lParam  ;  //: LPARAM  ://
     unsigned    long         time    ;  //: DWORD   ://
 
-    struct F04_STRUCT_POINT  pt      ;  //: POINT   ://
+    struct F07_STRUCT_POINT  pt      ;  //: POINT   ://
     unsigned    long         lPrivate;  //: DWORD   ://
 
 };//[struct]//
@@ -1669,7 +1702,7 @@ struct F04_STRUCT_MSG {
 #define W unsigned short /** WORD **/  /////////////////////////
 #define D unsigned long  /**DWORD **/  /////////////////////////
 #define B unsigned char  /** BYTE **/  /////////////////////////
-struct F04_STRUCT_PIXELFORMATDESCRIPTOR {
+struct F07_STRUCT_PIXELFORMATDESCRIPTOR {
     W  nSize;   
     W  nVersion;
 
@@ -1705,18 +1738,18 @@ struct F04_STRUCT_PIXELFORMATDESCRIPTOR {
 #undef  D ////////////// /**DWORD **/  /////////////////////////
 #undef  B ////////////// /** BYTE **/  /////////////////////////
 void                                       
-f04_InitPixelFormatDescriptor(       
+f07_InitPixelFormatDescriptor(       
     void                                   
 ){          
-    if( f04_InitPixelFormatDescriptor_DONE != 0 ){
-        F04_Halt("[AlreadyInited:PFD]");
+    if( f07_InitPixelFormatDescriptor_DONE != 0 ){
+        F07_Halt("[AlreadyInited:PFD]");
     };;
                                                                            
-    struct F04_STRUCT_PIXELFORMATDESCRIPTOR                  
+    struct F07_STRUCT_PIXELFORMATDESCRIPTOR                  
     p ={  
         
         //[ nSize    ----------------------------------]////[]//
-        sizeof(struct F04_STRUCT_PIXELFORMATDESCRIPTOR ), //[]//
+        sizeof(struct F07_STRUCT_PIXELFORMATDESCRIPTOR ), //[]//
                                                           //[]//
         1,                             //[ nVersion ---]////[]//                  
                                                           //[]//
@@ -1782,19 +1815,19 @@ f04_InitPixelFormatDescriptor(
     //:Quick smoke test in case I missed a param
     //:and my data is mis-aligned.
     if( 32 != p.cColorBits   ){
-        F04_Halt( "[32!=p.cColorBits]" );
+        F07_Halt( "[32!=p.cColorBits]" );
     };;
     if( 24 != p.cDepthBits  ){
         printf("[p.cDepthBits]:%d\n" , p.cDepthBits );
-        F04_Halt( "[24!=p.cDepthBits]");
+        F07_Halt( "[24!=p.cDepthBits]");
     };;
     if(  8 != p.cStencilBits ){
-       F04_Halt( "[08!=p.cStencilBits]");
+       F07_Halt( "[08!=p.cStencilBits]");
     };;
                                            
     //[ Copy Over To Global Variable ]// 
-    f04_pixel_format_descriptor =( p );
-    f04_InitPixelFormatDescriptor_DONE = 1;
+    f07_pixel_format_descriptor =( p );
+    f07_InitPixelFormatDescriptor_DONE = 1;
                                            
 } //[InitPixelFormatDescriptor]//          
 
@@ -1803,136 +1836,13 @@ f04_InitPixelFormatDescriptor(
 
 // ---------------------------------------------------------- //
 
-
-////////////////////////////////////////////////////////////////
-
-#define     MACRO_RETURNTYPE void*  ////////////////////////////
-#define F03_MACRO_CreateWindowExW 1  ////////////////////////////
-
-
-        #define MACRO_L       unsigned long
-        #define MACRO_S_PTR   const unsigned short *
-        #define MACRO_I       int
-        #define MACRO_V_PTR   void *
-
-    typedef  
-        void* 
-        (*F03_CreateWindowExW_TYPEDEF)(            
-                
-        MACRO_L      dwExStyle    /**DWORD     01 **/
-    ,   MACRO_S_PTR  lpClassName  /**LPCWSTR   02 **/
-    ,   MACRO_S_PTR  pWindowName  /**LPCWSTR   03 **/
-    ,   MACRO_L      dwStyle      /**DWORD     04 **/
-    ,   MACRO_I      X            /**          05 **/
-    ,   MACRO_I      Y            /**          06 **/
-    ,   MACRO_I      nWidth       /**          07 **/
-    ,   MACRO_I      nHeight      /**          08 **/
-    ,   MACRO_V_PTR  hWndParent   /**HWND      09 **/
-    ,   MACRO_V_PTR  hMenu        /**HMENU     10 **/
-    ,   MACRO_V_PTR  hInstance    /**HINSTANCE 11 **/
-    ,   MACRO_V_PTR  lpParam      /**HINSTANCE 12 **/ 
- 
-        );
-
-        #undef MACRO_L        
-        #undef MACRO_S_PTR    
-        #undef MACRO_I        
-        #undef MACRO_V_PTR   
-
-        #define MACRO_L       unsigned long
-        #define MACRO_S_PTR   const unsigned short *
-        #define MACRO_I       int
-        #define MACRO_V_PTR   void *
-
-    //:Can we abstract this further?
-    void*
-    F04_CreateWindowExW(
-
-
-        MACRO_L      dwExStyle    /**DWORD     01 **/
-    ,   MACRO_S_PTR  lpClassName  /**LPCWSTR   02 **/
-    ,   MACRO_S_PTR  pWindowName  /**LPCWSTR   03 **/
-    ,   MACRO_L      dwStyle      /**DWORD     04 **/
-    ,   MACRO_I      X            /**          05 **/
-    ,   MACRO_I      Y            /**          06 **/
-    ,   MACRO_I      nWidth       /**          07 **/
-    ,   MACRO_I      nHeight      /**          08 **/
-    ,   MACRO_V_PTR  hWndParent   /**HWND      09 **/
-    ,   MACRO_V_PTR  hMenu        /**HMENU     10 **/
-    ,   MACRO_V_PTR  hInstance    /**HINSTANCE 11 **/
-    ,   MACRO_V_PTR  lpParam      /**HINSTANCE 12 **/ 
-
-    ){
-
-
-              F03_CreateWindowExW_TYPEDEF
-        fun =(F03_CreateWindowExW_TYPEDEF)
-              F01_CreateWindowExW;
-
-        void* ret=( fun(
-            #define F03_MACRO_ARGS_CreateWindowEx 1
-
-            dwExStyle    /**DWORD     01 **/
-        ,   lpClassName  /**LPCWSTR   02 **/
-        ,   pWindowName  /**LPCWSTR   03 **/
-        ,   dwStyle      /**DWORD     04 **/
-        ,   X            /**          05 **/
-        ,   Y            /**          06 **/
-        ,   nWidth       /**          07 **/
-        ,   nHeight      /**          08 **/
-        ,   hWndParent   /**HWND      09 **/
-        ,   hMenu        /**HMENU     10 **/
-        ,   hInstance    /**HINSTANCE 11 **/
-        ,   lpParam      /**HINSTANCE 12 **/ 
-
-
-            #undef  F03_MACRO_ARGS_CreateWindowEx
-        ));
-
-        return(  ret  );
-
-    }//[CreateWindowExW]//
-
-        #undef MACRO_L        
-        #undef MACRO_S_PTR    
-        #undef MACRO_I        
-        #undef MACRO_V_PTR 
-
-#undef      MACRO_RETURNTYPE     ///////////////////////////////
-#undef  F03_MACRO_CreateWindowEx /////////////////////////////// 
-
-
-    int
-    F04_CreateWindowExW_TRY02(
-   //     void*  dwExStyle    /**DWORD     01 **/
-   // ,   void*  lpClassName  /**LPCWSTR   02 **/
-   // ,   void*  pWindowName  /**LPCWSTR   03 **/
-   // ,   void*  dwStyle      /**DWORD     04 **/
-   // ,   void*  X            /**          05 **/
-   // ,   void*  Y            /**          06 **/
-   // ,   void*  nWidth       /**          07 **/
-   // ,   void*  nHeight      /**          08 **/
-   // ,   void*  hWndParent   /**HWND      09 **/
-   // ,   void*  hMenu        /**HMENU     10 **/
-   // ,   void*  hInstance    /**HINSTANCE 11 **/
-   // ,   void*  lpParam      /**HINSTANCE 12 **/ 
-   // 
-    ){
-      //  if(dwExStyle||lpClassName||pWindowName||dwStyle
-      //  ||X||Y||nWidth||nHeight||hWndParent||hMenu||hInstance
-      //  ||lpParam
-      //  ){ /**NOOP**/ };
-    
-        return( 0 );
-    }//[;]//
-
 ////////////////////////////////////////////////////////////////             
 
 typedef const unsigned short *  TYPEDEF_LPCWSTR;
 
 
 char*
-F04_MakeIntResourceA( int i ){
+F07_MakeIntResourceA( int i ){
 
     #define MACRO_16BITS unsigned short
     #define MACRO_64BITS unsigned long long
@@ -1965,7 +1875,7 @@ F04_MakeIntResourceA( int i ){
 //:WinMsgHanWndPoc:WINDOW_MESSAGE_HANDLER_WNDPROC
 __stdcall
 __int64 //:LRESULT
-F04_WinMsgHanWndPoc(
+F07_WinMsgHanWndPoc(
 /**/           void*    Hw     //:HWND
 ,   unsigned   int      Msg    //:...?...
 ,   unsigned __int64    wParam //:WPARAM
@@ -1998,9 +1908,9 @@ F04_WinMsgHanWndPoc(
         if(wParam==0x001B /**vk_escape**/ ){
 
             ok = (int)(unsigned long long)
-                 ((F02_01)(F01_DestroyWindow))(Hw);
+                 ((F03_01)(F02_DestroyWindow))(Hw);
 
-            if(0==ok){F04_Halt("[0OK_1]");}
+            if(0==ok){F07_Halt("[0OK_1]");}
 
         }else{
             //:KEBO_DOWN_HandleVirtualKey( wParam );
@@ -2018,14 +1928,14 @@ F04_WinMsgHanWndPoc(
     case 0x0010 /**wm_close**/:
 
         ok = (int)(unsigned long long)
-            ((F02_01)(F01_DestroyWindow))(Hw);
+            ((F03_01)(F02_DestroyWindow))(Hw);
 
-        if(0==ok){F04_Halt("[0OK_2]");}
+        if(0==ok){F07_Halt("[0OK_2]");}
 
     //:WM_DESTROY: ( DESTROYED|DESTROYING )
     case 0x0002 /**wm_destroy**/:  
         //: Send "WM_QUIT" to exit msg loop.
-        ((F02_01)F01_PostQuitMessage)(0);
+        ((F03_01)F02_PostQuitMessage)(0);
 
     case 0x000F /**wm_paint**/:
         //:[TODO]:Something to pace the updating
@@ -2066,7 +1976,7 @@ F04_WinMsgHanWndPoc(
     default: 
         return_this_result=(
             (__int64)
-            ((F02_04)(F01_DefWindowProcW))(
+            ((F03_04)(F02_DefWindowProcW))(
             /**/(void*)                     Hw  
             ,   (void*)(unsigned long long)Msg
             ,   (void*)                 wParam
@@ -2076,27 +1986,27 @@ F04_WinMsgHanWndPoc(
     };;//:- - - - - - - - - - - - - - - - - - -://
 
     return( return_this_result );
-} //[F04_WinMsgHanWndPoc]//
+} //[F07_WinMsgHanWndPoc]//
 
 ////////////////////////////////////////////////////////////////
 
 
 int //:BOOL
-F04_RegisterWindow(
+F07_RegisterWindow(
 /**/                    void*  hInstance                
 /**/,   const unsigned short*  unique_window_name    
 ){
 
     //|Smoke_Test:-----------------------|//
     size_t struct_size =(
-        sizeof( struct F04_STRUCT_WNDCLASSEXW )
+        sizeof( struct F07_STRUCT_WNDCLASSEXW )
     );;
     if( struct_size != 80 ){
-        F04_Halt("[BadStructSize]");
+        F07_Halt("[BadStructSize]");
     };;//|-------------------------------|//
     
     //: WNDCLASSEXW W;
-    struct F04_STRUCT_WNDCLASSEXW 
+    struct F07_STRUCT_WNDCLASSEXW 
     W = {0};
 
     //| Winuser.h ClassStyles(CS_) |//
@@ -2106,26 +2016,26 @@ F04_RegisterWindow(
             T  cs_owndc   = 0x0020 ;//
     #undef  T ////////////////////////
 
-    W.cbSize=sizeof( struct F04_STRUCT_WNDCLASSEXW );
+    W.cbSize=sizeof( struct F07_STRUCT_WNDCLASSEXW );
     W.style=(
         cs_hredraw | //| Copied from glfw's:   |//
         cs_vredraw | //| win32_window.c        |//
         cs_owndc   | //| _gflwRegisterWindow   |//
                      //| ...ClassWin32         |//
     0);;
-    W.lpfnWndProc=F04_WinMsgHanWndPoc;
+    W.lpfnWndProc=F07_WinMsgHanWndPoc;
     W.cbClsExtra=0;
     W.cbWndExtra=0;
     W.hInstance=hInstance;
 
-    char* idi_application = F04_MakeIntResourceA( 32512 );
-    char* idc_arrow       = F04_MakeIntResourceA( 32512 );
+    char* idi_application = F07_MakeIntResourceA( 32512 );
+    char* idc_arrow       = F07_MakeIntResourceA( 32512 );
 
-    W.hIcon  =((F02_02)F01_LoadIconA)(  
+    W.hIcon  =((F03_02)F02_LoadIconA)(  
         NULL
     ,   idi_application
     );;
-    W.hCursor=((F02_02)F01_LoadCursorA)(  
+    W.hCursor=((F03_02)F02_LoadCursorA)(  
         NULL
     ,   idc_arrow
     );;
@@ -2152,7 +2062,7 @@ F04_RegisterWindow(
     W.lpszMenuName=NULL;
     W.lpszClassName=unique_window_name;
     W.hIconSm=(
-        ((F02_02)F01_LoadIconA)(
+        ((F03_02)F02_LoadIconA)(
             NULL
         ,   idi_application
         )
@@ -2166,7 +2076,7 @@ F04_RegisterWindow(
     //|________________________________________|//
     return(
         (int)(unsigned long long)
-        ((F02_01)F01_RegisterClassExW)(
+        ((F03_01)F02_RegisterClassExW)(
             &( W )
         )
     );;
@@ -2174,44 +2084,44 @@ F04_RegisterWindow(
 
 
 void //:gleb_swin_MakeWindowCompatibleWith_GL
-f04_MakeWindowCompatibleWith_GL(
+f07_MakeWindowCompatibleWith_GL(
     void*  Hw /**HWND**/
 ){
     
-    f04_InitPixelFormatDescriptor();
+    f07_InitPixelFormatDescriptor();
 
     void* /** HDC **/ 
     window_device_context =(
-        ((F02_01)F01_GetWindowDC)( Hw ) /**user32**/
+        ((F03_01)F02_GetWindowDC)( Hw ) /**user32**/
     );;
     int
     pixel_format_number=(
         (int)(unsigned long long)
-        ((F02_02)F01_ChoosePixelFormat)( /**gdi32**/
+        ((F03_02)F02_ChoosePixelFormat)( /**gdi32**/
             window_device_context
-        , &( f04_pixel_format_descriptor )
+        , &( f07_pixel_format_descriptor )
         )
     );;
     int /** BOOL **/ 
     setting_pixel_format_worked=(
         (int)(unsigned long long)
-        ((F02_03)F01_SetPixelFormat)(
+        ((F03_03)F02_SetPixelFormat)(
         /**/
         /**/        window_device_context
         /**/    ,
         /**/        (void*)(unsigned long long)
         /**/        pixel_format_number
         /**/    ,
-        /**/        &( f04_pixel_format_descriptor )
+        /**/        &( f07_pixel_format_descriptor )
         )
     );;
     if( setting_pixel_format_worked ){
         //: printf("[SPF:OK]\n");
     }else{
-        F04_Halt("[SPF:FAIL]\n");
+        F07_Halt("[SPF:FAIL]\n");
     };;
 
-    f04_window_device_context=(
+    f07_window_device_context=(
         window_device_context
     );;
 
@@ -2221,9 +2131,9 @@ f04_MakeWindowCompatibleWith_GL(
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
 int //:BOOL
-f04_TakeOrLookMessage( 
+f07_TakeOrLookMessage( 
 /**/
-    struct F04_STRUCT_MSG*
+    struct F07_STRUCT_MSG*
     dont_prefix_message_with_and_symbol /**LPMSG**/
     ,
     int    
@@ -2244,12 +2154,12 @@ f04_TakeOrLookMessage(
     if( 0 == take_the_message ){
         look_or_take = look;
     }else{
-        F04_Halt("[Exp:Pos|Or|Zero]");
+        F07_Halt("[Exp:Pos|Or|Zero]");
     };;
 
     int ret =(
     (int)(unsigned long long)
-    ((F02_05)F01_PeekMessageW)(
+    ((F03_05)F02_PeekMessageW)(
         (void*)
         dont_prefix_message_with_and_symbol
         ,
@@ -2271,68 +2181,68 @@ f04_TakeOrLookMessage(
 
 
 int //:BOOL
-f04_LookMessage(
-    struct F04_STRUCT_MSG* msg //:LPMSG
+f07_LookMessage(
+    struct F07_STRUCT_MSG* msg //:LPMSG
 ){
     int ret;
     const int look = 0;
-    ret=f04_TakeOrLookMessage(msg,look);
+    ret=f07_TakeOrLookMessage(msg,look);
     return( ret );
 } //[LookMessage]//
 
 
 
 int //:BOOL
-f04_TakeMessage(
-    struct F04_STRUCT_MSG* msg //:LPMSG
+f07_TakeMessage(
+    struct F07_STRUCT_MSG* msg //:LPMSG
 ){
     int ret;
     const int take = 1;
-    ret=f04_TakeOrLookMessage(msg,take);
+    ret=f07_TakeOrLookMessage(msg,take);
     return( ret );
 } //[TakeMessage]//
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
 
-struct F04_STRUCT_MSG //:MSG struct
-f04_WindowLoop(
+struct F07_STRUCT_MSG //:MSG struct
+f07_WindowLoop(
     void*  Hw //:HWND
 ){
 
     int sw_show = 5; //:Active window..
     void* show = (void*)(unsigned long long)sw_show;
-    ((F02_02)F01_ShowWindow  )(  Hw, show  ); 
-    ((F02_01)F01_UpdateWindow)(  Hw        ); 
-    ((F02_01)F01_SetFocus    )(  Hw        );
+    ((F03_02)F02_ShowWindow  )(  Hw, show  ); 
+    ((F03_01)F02_UpdateWindow)(  Hw        ); 
+    ((F03_01)F02_SetFocus    )(  Hw        );
 
     unsigned int  wm_quit =  0x12;          
 
-    struct F04_STRUCT_MSG  
+    struct F07_STRUCT_MSG  
     M; //:MSG struct
 
-    f04_LookMessage( &M );
+    f07_LookMessage( &M );
     while(
         M.message
         !=
         wm_quit
     ){
-        if( f04_TakeMessage(    &M )){
+        if( f07_TakeMessage(    &M )){
 
-            ((F02_01)F01_TranslateMessage)( &M );
+            ((F03_01)F02_TranslateMessage)( &M );
 
-            ((F02_01)F01_DispatchMessageW)( &M );
+            ((F03_01)F02_DispatchMessageW)( &M );
 
         };;
 
     };;
 
-    f04_window_just_closed = ('t'|'r'|'u'|'e');
+    f07_window_just_closed = ('t'|'r'|'u'|'e');
 
    //: //# [HACK]:Sleep a bit so other threads    #//
    //: //#        see "window_just_closed" update.#//
    //: //# You really should use a proper mutex.  #//
-    ((F02_01)F01_Sleep)( (void*)64 );
+    ((F03_01)F02_Sleep)( (void*)64 );
 
     return( M );
 
@@ -2342,7 +2252,7 @@ f04_WindowLoop(
 //: Call this function on a separate thread!
 //: Refactor_Of:gleb_swin_OPEN_WINDOW_LOOP_FOREVER
 unsigned __int64 //:WPARAM
-F04_OpenWindowAndLoopForever(
+F07_OpenWindowAndLoopForever(
     //:UNICODE_STRING
     const unsigned short *  //:LPCWSTR
     unique_window_name
@@ -2350,13 +2260,13 @@ F04_OpenWindowAndLoopForever(
 
      
     void* /**HMODULE**/ hin=(
-        ((F02_01)F01_GetModuleHandleW)(
+        ((F03_01)F02_GetModuleHandleW)(
             NULL
         )
     );;//[a]//
 
     if(NULL==hin){
-        F04_Halt(
+        F07_Halt(
             "[FailedToGetModuleHandle]"
         );;
     };;//[b]//
@@ -2365,28 +2275,28 @@ F04_OpenWindowAndLoopForever(
     void*                              //
     Hw = NULL;  //:HWND                //
                                        //
-    struct F04_STRUCT_MSG              //
+    struct F07_STRUCT_MSG              //
     Msg       ;   //:tagMSG (Struct)   //
     /////////////////////////////////////
 
     if(0 >=
-        F04_RegisterWindow(
+        F07_RegisterWindow(
             hin
         ,   unique_window_name
         )
     ){ 
 
-        F04_Halt( /** Originally: gleb_swin_Alert **/
+        F07_Halt( /** Originally: gleb_swin_Alert **/
             "[FailedToRegisterWindow]"
         );;
         return 0; 
 
     };;//[c]//
 
-    int X   = f04_X   ; //:Initial_X_Position
-    int Y   = f04_Y   ; //:Initial_Y_Position
-    int WID = f04_WID ; //:Initial_WIDTH
-    int HIG = f04_HIG ; //:Initial_HEIGHT
+    int X   = f07_X   ; //:Initial_X_Position
+    int Y   = f07_Y   ; //:Initial_Y_Position
+    int WID = f07_WID ; //:Initial_WIDTH
+    int HIG = f07_HIG ; //:Initial_HEIGHT
 
     unsigned long ws_overlappedwindow=( 0
     |   0x00000000L  /** WS_OVERLAPPED  **/
@@ -2406,11 +2316,9 @@ F04_OpenWindowAndLoopForever(
     if( hin                 ){ /** NOOP **/ };
 
     void*
-    the_desktop_window=((F02_00)F01_GetDesktopWindow)();
+    the_desktop_window=((F03_00)F02_GetDesktopWindow)();
 
-    Hw=
-        F04_CreateWindowExW
-        //F04_CreateWindowExW_TRY02
+    Hw=F06_CreateWindowExW
     (
 
     /**/0x00000008L /** ws_ex_topmost **/
@@ -2433,17 +2341,17 @@ F04_OpenWindowAndLoopForever(
     );//[e]//
 
     if(Hw==NULL){
-        F04_Halt("[F04:WindowCreateFail]");
+        F07_Halt("[F07:WindowCreateFail]");
         return 0;
     };;//[f]//
 
     //:Store the handle to window in global state:
-    f04_handle_to_window=Hw;
+    f07_handle_to_window=Hw;
 
     //:Modifications to make window opengl
     //:compatible:
     //////////////////////////////////////////////
-    f04_MakeWindowCompatibleWith_GL(
+    f07_MakeWindowCompatibleWith_GL(
         Hw
     );;//[g]//
 
@@ -2455,19 +2363,19 @@ F04_OpenWindowAndLoopForever(
     //!with a NULL device context.           MC!//
     //!Speaking Of:                          MC!//
     //!GLEB_SWIN_GetWindowDeviceContext();   MC!//
-    f04_window_created=1;                 //|MC|//
+    f07_window_created=1;                 //|MC|//
     //|______________________________________MC|//
 
     //////////////////////////////////////////////
 
-    Msg = f04_WindowLoop( Hw );
+    Msg = f07_WindowLoop( Hw );
 
     return Msg.wParam;
 } //[OPEN_WINDOW_LOOP_FOREVER]//
 
 
-int F04_Demo_SingleThreaded(){
-    F04_OpenWindowAndLoopForever(L"[CAJUN_SPICE]");
+int F07_Demo_SingleThreaded(){
+    F07_OpenWindowAndLoopForever(L"[CAJUN_SPICE]");
     return( 0 );
 }//[;]//
 
@@ -2538,7 +2446,7 @@ VG03_Demo( void ){
 
     VG03_Init();
 
-    F04_Demo_SingleThreaded();
+    F07_Demo_SingleThreaded();
 
     printf("[END:VG03_DEMO]\n");
 

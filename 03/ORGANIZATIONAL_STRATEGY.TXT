@@ -1,13 +1,15 @@
 
 
-1: LIBS_DONT_GOSSIP
-2: BASH_AGGLIMATION
-3: F_NUMBER_FOLDERS
-4: MACRO_SPACE_SAVE
-5: FILE_IMPLIES_FUN
-6: STOP_STRUCT_DOTS
-7: MACRO_SAYS_MACRO
-8: VAR_NAME_TO_FILE
+ 1: LIBS_DONT_GOSSIP
+ 2: BASH_AGGLIMATION
+ 3: F_NUMBER_FOLDERS
+ 4: MACRO_SPACE_SAVE
+ 5: FILE_IMPLIES_FUN
+ 6: STOP_STRUCT_DOTS
+ 7: MACRO_SAYS_MACRO
+ 8: VAR_NAME_TO_FILE
+ 9: MACRO_WHERE_FROM
+10: LAYER_UPON_LAYER
 
 ////////////////////////////////////////////////////////////////
 
@@ -112,5 +114,43 @@ any other reason.
 
     EX: F01_  ( file F01._ in folder #01 )
     EX: F02_  ( file F02._ in folder #02 )
+
+##MACRO_WHERE_FROM##
+
+    Macros can be declared in one file, but used in another.
+    To me, this makes it a bit ambigous as to what file they
+    belong to. So all global (non-local) macros will be
+    prefixed in descending order, what files they come from.
+
+    EXAMPLE:
+
+    At time of writing this:
+
+        F06_F04_MACRO_CreateWindowExW
+
+        Is used only in files:
+        F.04 & F.06
+
+        Declared in F.06, used in condition in F.04
+
+        If later we use same macro in file "F.88",
+        We would rename the macro
+        from:
+    
+            F06_F04_MACRO_CreateWindowExW
+
+        To:
+        
+            F88_F06_F04_MACRO_CreateWindowExW
+
+##LAYER_UPON_LAYER##
+
+    Should be able to #include
+    F.01 - F.##
+    Where F.## is from F.01 to whatever you want.
+    And no matter what, project always compiles because
+    everything is done in a very linear "layer upon layer"
+    style. Will make porting to other platform easier
+    because you can focus on fixing 1 layer at a time.
         
 ////////////////////////////////////////////////////////////////

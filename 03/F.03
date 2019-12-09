@@ -1,48 +1,47 @@
 
+//[F02: DOTADIW: Quick_Hack_For_Calling_DLL_Func_Pointers. --]//
 
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+//[ Making typedefs and wrappers for function signatures can ]//
+//[ get a bit verbose and annoying. When you feel like       ]//
+//[ skipping that effort, you can use these hacks depending  ]//
+//[ on the number of parameters the function has.            ]//
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
+#define  V void* ///////////////////////////////////////////////
+#define  a void* ///////////////////////////////////////////////
+#define  b void* ///////////////////////////////////////////////
+#define  c void* ///////////////////////////////////////////////
+#define  d void* ///////////////////////////////////////////////
+#define  e void* ///////////////////////////////////////////////
 
-//: This kind of macro magic, while helping gaurantee params
-//: and arguments are identical, seems to be failing me.
+typedef  V (* F03_00)( void );
+typedef  V (* F03_01)( a                                      );
+typedef  V (* F03_02)( a,a                                    );
+typedef  V (* F03_03)( a,a,a                                  );
+typedef  V (* F03_04)( a,a,a,a                                );
+typedef  V (* F03_05)( a,a,a,a,b                              );
+typedef  V (* F03_06)( a,a,a,a,b,b                            );
+typedef  V (* F03_07)( a,a,a,a,b,b,b                          );
+typedef  V (* F03_08)( a,a,a,a,b,b,b,b                        );
+typedef  V (* F03_09)( a,a,a,a,b,b,b,b,c                      );
+typedef  V (* F03_10)( a,a,a,a,b,b,b,b,c,c                    );
+typedef  V (* F03_11)( a,a,a,a,b,b,b,b,c,c,c                  );
+typedef  V (* F03_12)( a,a,a,a,b,b,b,b,c,c,c,c                );
+typedef  V (* F03_13)( a,a,a,a,b,b,b,b,c,c,c,c,d              );
+typedef  V (* F03_14)( a,a,a,a,b,b,b,b,c,c,c,c,d,d            );
+typedef  V (* F03_15)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d          );
+typedef  V (* F03_16)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d        );
+typedef  V (* F03_17)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e      );
+typedef  V (* F03_18)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e    );
+typedef  V (* F03_19)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e  );
+typedef  V (* F03_20)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e,e);
 
-//  //[ DOTADIW : Param Lists Of Funcs Fetched From DLL(s)       ]//
-//  //[          (Or linux equivalent of DLL files)              ]//
-//  
-//  #if( F03_MACRO_CreateWindowEx > 0 ) ////////////////////////////
-//  
-//      #if( F03_MACRO_ARGS_CreateWindowEx > 0 )
-//  
-//          #define MACRO_L     
-//          #define MACRO_S_PTR 
-//          #define MACRO_I     
-//          #define MACRO_V_PTR 
-//  
-//      #else
-//  
-//          #define MACRO_L       unsigned long
-//          #define MACRO_S_PTR   const unsigned short *
-//          #define MACRO_I       int
-//          #define MACRO_V_PTR   void *
-//  
-//      #endif
-//  /**/            MACRO_L      dwExStyle    /**DWORD     01 **/
-//  ,               MACRO_S_PTR  lpClassName  /**LPCWSTR   02 **/
-//  ,               MACRO_S_PTR  pWindowName  /**LPCWSTR   03 **/
-//  ,               MACRO_L      dwStyle      /**DWORD     04 **/
-//  ,               MACRO_I      X            /**          05 **/
-//  ,               MACRO_I      Y            /**          06 **/
-//  ,               MACRO_I      nWidth       /**          07 **/
-//  ,               MACRO_I      nHeight      /**          08 **/
-//  ,               MACRO_V_PTR  hWndParent   /**HWND      09 **/
-//  ,               MACRO_V_PTR  hMenu        /**HMENU     10 **/
-//  ,               MACRO_V_PTR  hInstance    /**HINSTANCE 11 **/
-//  ,               MACRO_V_PTR  lpParam      /**HINSTANCE 12 **/
-//  
-//          #undef  MACRO_L     
-//          #undef  MACRO_S_PTR 
-//          #undef  MACRO_I     
-//          #undef  MACRO_V_PTR 
-//  
-//  #endif  ////////////////////////////////////////////////////////
+#undef   V /////////////////////////////////////////////////////
+#undef   a /////////////////////////////////////////////////////
+#undef   b /////////////////////////////////////////////////////
+#undef   c /////////////////////////////////////////////////////
+#undef   d /////////////////////////////////////////////////////
+#undef   e /////////////////////////////////////////////////////
 
-
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
