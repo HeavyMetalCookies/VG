@@ -1,0 +1,48 @@
+
+
+
+
+//: This kind of macro magic, while helping gaurantee params
+//: and arguments are identical, seems to be failing me.
+
+//  //[ DOTADIW : Param Lists Of Funcs Fetched From DLL(s)       ]//
+//  //[          (Or linux equivalent of DLL files)              ]//
+//  
+//  #if( F03_MACRO_CreateWindowEx > 0 ) ////////////////////////////
+//  
+//      #if( F03_MACRO_ARGS_CreateWindowEx > 0 )
+//  
+//          #define MACRO_L     
+//          #define MACRO_S_PTR 
+//          #define MACRO_I     
+//          #define MACRO_V_PTR 
+//  
+//      #else
+//  
+//          #define MACRO_L       unsigned long
+//          #define MACRO_S_PTR   const unsigned short *
+//          #define MACRO_I       int
+//          #define MACRO_V_PTR   void *
+//  
+//      #endif
+//  /**/            MACRO_L      dwExStyle    /**DWORD     01 **/
+//  ,               MACRO_S_PTR  lpClassName  /**LPCWSTR   02 **/
+//  ,               MACRO_S_PTR  pWindowName  /**LPCWSTR   03 **/
+//  ,               MACRO_L      dwStyle      /**DWORD     04 **/
+//  ,               MACRO_I      X            /**          05 **/
+//  ,               MACRO_I      Y            /**          06 **/
+//  ,               MACRO_I      nWidth       /**          07 **/
+//  ,               MACRO_I      nHeight      /**          08 **/
+//  ,               MACRO_V_PTR  hWndParent   /**HWND      09 **/
+//  ,               MACRO_V_PTR  hMenu        /**HMENU     10 **/
+//  ,               MACRO_V_PTR  hInstance    /**HINSTANCE 11 **/
+//  ,               MACRO_V_PTR  lpParam      /**HINSTANCE 12 **/
+//  
+//          #undef  MACRO_L     
+//          #undef  MACRO_S_PTR 
+//          #undef  MACRO_I     
+//          #undef  MACRO_V_PTR 
+//  
+//  #endif  ////////////////////////////////////////////////////////
+
+

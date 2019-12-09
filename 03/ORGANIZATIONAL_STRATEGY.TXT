@@ -5,6 +5,9 @@
 3: F_NUMBER_FOLDERS
 4: MACRO_SPACE_SAVE
 5: FILE_IMPLIES_FUN
+6: STOP_STRUCT_DOTS
+7: MACRO_SAYS_MACRO
+8: VAR_NAME_TO_FILE
 
 ////////////////////////////////////////////////////////////////
 
@@ -68,5 +71,46 @@ any other reason.
 
             YES: F01_Same(...)
              NO: F01_AreBothStringsTheSame(...)
+
+##STOP_STRUCT_DOTS##
+    Stop adding syntactic sugar so you can use "." all over
+    the place. It creates two problems.
+
+    1: I have to search for: MYLIB.whatever & MYLIB_whatever
+       if I want to make sure I've found all references.
+    
+    2: MYLIB.whatever needs to be setup.
+
+    3: When MYLIB.whatever isn't setup, the source of the
+       problem sometimes takes a while to find.
+
+    NOTE: I really like being able to highlight matching
+          tokens in my editor when using "."
+
+          Example:
+            MyThingy.X  , MyThingy.Y
+
+        Highlighting "MyThingy" will light up both instances.
+    
+        BUT! You are doing a lot of work, and changing the
+        actual function of your code, just for a nice editor
+        feature. Maybe revisit this decision. But in this
+        project, we will avoid it. Program like it is C,
+        not like it is C++.
+
+##MACRO_SAYS_MACRO##
+
+    If the macro is not declared locally 
+    (Its definition is visible in the place it is used)
+    then the macro MUST contain the word "MACRO" somewhere.
+
+##VAR_NAME_TO_FILE##
+
+    A variable declared in one file, and then used in
+    another file will ALWAYS tell us what file it originated
+    from by having a prefix:
+
+    EX: F01_  ( file F01._ in folder #01 )
+    EX: F02_  ( file F02._ in folder #02 )
         
 ////////////////////////////////////////////////////////////////

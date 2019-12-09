@@ -1,0 +1,47 @@
+
+//[F02: DOTADIW: Quick_Hack_For_Calling_DLL_Func_Pointers. --]//
+
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+//[ Making typedefs and wrappers for function signatures can ]//
+//[ get a bit verbose and annoying. When you feel like       ]//
+//[ skipping that effort, you can use these hacks depending  ]//
+//[ on the number of parameters the function has.            ]//
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+
+#define  V void* ///////////////////////////////////////////////
+#define  a void* ///////////////////////////////////////////////
+#define  b void* ///////////////////////////////////////////////
+#define  c void* ///////////////////////////////////////////////
+#define  d void* ///////////////////////////////////////////////
+#define  e void* ///////////////////////////////////////////////
+
+typedef  V (* F02_00)( void );
+typedef  V (* F02_01)( a                                      );
+typedef  V (* F02_02)( a,a                                    );
+typedef  V (* F02_03)( a,a,a                                  );
+typedef  V (* F02_04)( a,a,a,a                                );
+typedef  V (* F02_05)( a,a,a,a,b                              );
+typedef  V (* F02_06)( a,a,a,a,b,b                            );
+typedef  V (* F02_07)( a,a,a,a,b,b,b                          );
+typedef  V (* F02_08)( a,a,a,a,b,b,b,b                        );
+typedef  V (* F02_09)( a,a,a,a,b,b,b,b,c                      );
+typedef  V (* F02_10)( a,a,a,a,b,b,b,b,c,c                    );
+typedef  V (* F02_11)( a,a,a,a,b,b,b,b,c,c,c                  );
+typedef  V (* F02_12)( a,a,a,a,b,b,b,b,c,c,c,c                );
+typedef  V (* F02_13)( a,a,a,a,b,b,b,b,c,c,c,c,d              );
+typedef  V (* F02_14)( a,a,a,a,b,b,b,b,c,c,c,c,d,d            );
+typedef  V (* F02_15)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d          );
+typedef  V (* F02_16)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d        );
+typedef  V (* F02_17)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e      );
+typedef  V (* F02_18)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e    );
+typedef  V (* F02_19)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e  );
+typedef  V (* F02_20)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e,e);
+
+#undef   V /////////////////////////////////////////////////////
+#undef   a /////////////////////////////////////////////////////
+#undef   b /////////////////////////////////////////////////////
+#undef   c /////////////////////////////////////////////////////
+#undef   d /////////////////////////////////////////////////////
+#undef   e /////////////////////////////////////////////////////
+
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//

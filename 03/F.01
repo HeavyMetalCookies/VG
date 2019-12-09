@@ -1,18 +1,28 @@
-//[ 01: Gather_Function_Pointers ]////|________|//
+
+//[ F01: DOTADIW: Gather_Function_Pointers_From_DLL_Files ---]//
+//[     (DLL files or linux equivalent)                      ]//
 
 #include <string.h> //: strcmp
 
-//:Fuck detailed function signatures.
-//:Just use void function pointers for everything.
-//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
-
 //:Generic_Function_Pointer
-typedef void (*VOF)(void);
+typedef void (*F01_VOF)(void);
+
+//     //:The hacky way out seems like it will be just as much
+//     //:code as the proper way out... Create proper typedefs
+//     //:for your functions.
+// typedef                                    
+//     ATOM_u16_2B                            
+//     (*gleb_swin_pfn_RegisterClassExW)(     
+//         const gleb_swin_WNDCLASSEXW *Arg1  
+//     );                                     
+
+
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
 void F01_Halt( const char* msg ){ 
-    printf( msg ); fflush(stdout); exit(666);
+    printf( "[F01_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
 }//[;]//
 
 int F01_Same( const char* str_01, const char* str_02 ){
@@ -21,10 +31,18 @@ int F01_Same( const char* str_01, const char* str_02 ){
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
-    //:Declare Function Pointers: EX: VOF_ShowWIndow
-    #define MAC(f,d) VOF  F01_  ##  f ;
+    
+
+    //[ STRATEGY: VOID: Cast At Call Time ------------------ ]//
+    #define MAC(f,d) F01_VOF  F01_  ##  f ;
             #include "01/F01.FUNCTION_LIST._"
     #undef  MAC
+
+    //[ STRATEGY: PROTO: Pre-Make all f01_pfn_ types ------- ]//
+//  #define MAC(f,d) f01_pfn_ ## f   F01_ ## f ;
+//      #include "01/F01.FUNCTION_LIST._"
+//  #undef  MAC
+        
 
 
 ////////////////////////////////////////////////////////////////
@@ -56,9 +74,9 @@ int F01_GetCacheIndex( const char* dlib_name ){
 #undef MACRO_STR ///////////////////////////////////////////////
 
 int F01_GF_total_number_of_functions_fetched=0;
-static VOF F01_GF( //:GF:Get_Function(Pointer)
+static F01_VOF F01_GF( //:GF:Get_Function(Pointer)
 /**/    const char* func_name //:EX:"ShowWindow"
-/**/,   const char* dlib_name //:EX:"user32.dll"
+/**/,   const char* dlib_name //:EX:"user32.dll" | "user32"
 ){
     DLLL_DLIB  dlib_addr; //:DLL Module   Address
     DLLL_FUNC  func_addr; //:DLL Function Address
@@ -91,17 +109,17 @@ static VOF F01_GF( //:GF:Get_Function(Pointer)
     ////////////////////////////////////////////////////////////
 
     F01_GF_total_number_of_functions_fetched++;
-    return( (VOF)func_addr );
+    return( (F01_VOF)func_addr );
 
 }//[;]//
 
-//:Load Function Pointers: EX: VOF_ShowWindow
+//:Load Function Pointers: EX: F01_ShowWindow
 void F01_Init(){
     #define MAC(f,d) F01_ ## f = F01_GF(#f,#d);
             #include "01/F01.FUNCTION_LIST._"
     #undef  MAC
 
-    if( F01_GF_total_number_of_functions_fetched != 2 ){
+    if( F01_GF_total_number_of_functions_fetched != 19 ){
         F01_Halt("[Expected_This_Many_Fetched_Funcs]");
     };;
 

@@ -13,6 +13,9 @@
 
 void VG03_Init(){
     F01_Init();
+
+
+    
 }//[;]//
 
 int
@@ -21,6 +24,8 @@ VG03_Demo( void ){
     printf("[BEG:VG03_DEMO]\n");
 
     VG03_Init();
+
+    F04_Demo_SingleThreaded();
 
     printf("[END:VG03_DEMO]\n");
 
