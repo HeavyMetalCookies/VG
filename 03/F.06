@@ -1,17 +1,19 @@
 
 //[ DOTADIW: Make wrapper functions for DLL func pointers.   ]//
 
+//:We could abstract this further, by creating a list
+//:of function names that have had typedefs created for them.
 
 #define F06_F05_MACRO_RETURNTYPE void*  ////////////////////////
 #define F06_F04_MACRO_CreateWindowExW 1  ///////////////////////
 
-    #define F05_MACRO_wrapper   F06_CreateWindowExW
-    #define F05_MACRO_wrapped   F02_CreateWindowExW
+    #define F06_F05_MACRO_wrapper   F06_CreateWindowExW
+    #define F06_F05_MACRO_wrapped   F02_CreateWindowExW
 
         #include "./F.05" //:<<--#DOTADIW:WRAPPER_FUNC_TEMPLATE#
     
-    #undef  F05_MACRO_wrapper
-    #undef  F05_MACRO_wrapped
+    #undef  F06_F05_MACRO_wrapper
+    #undef  F06_F05_MACRO_wrapped
 
 #undef  F06_F05_MACRO_RETURNTYPE  //////////////////////////////
 #undef  F06_F04_MACRO_CreateWindowExW ////////////////////////// 

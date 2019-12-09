@@ -7,14 +7,14 @@
 //[ All we have done here is replaced lines that have the    ]//
 //[ comment #Example# with a macro for the function names.   ]//
 
-//|F05_MACRO_wrapper: The wrapping function with type safety.|//
-//|F05_MACRO_wrapped: The uncasted func ptr pulled from dll. |//
+//|F06_F05_MACRO_wrapper: The wrapping function with type safety.|//
+//|F06_F05_MACRO_wrapped: The uncasted func ptr pulled from dll. |//
 
     //:Can we abstract this further?
     F06_F05_MACRO_RETURNTYPE
     
     //:
-    F05_MACRO_wrapper //:<--#Example#: F05_CreateWindowExW
+    F06_F05_MACRO_wrapper //:<--#Example#: F05_CreateWindowExW
     (
 
         #define F05_F04_MACRO_USE_AS_FORMAL_PARAM_LIST 1
@@ -34,7 +34,7 @@
             );
 
         pfn fun =(pfn) 
-        F05_MACRO_wrapped; //:<--#Example#:F01_CreateWindowExW
+        F06_F05_MACRO_wrapped; //:<--#Example#:F01_CreateWindowExW
 
         F06_F05_MACRO_RETURNTYPE 
         ret=( fun(
@@ -47,4 +47,4 @@
 
         return(  ret  );
 
-    }//[F05_MACRO_wrapper]//
+    }//[F06_F05_MACRO_wrapper]//
