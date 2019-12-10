@@ -1,6 +1,9 @@
 
-//[ DOTADIW : #WRAPPER_FUNC_TEMPLATE# -----------------------|//
-
+//[ DOTADIW : DLL_WRAP_BOIL ---------------------------------]//
+//[           DLL function call WRAPper                      ]//
+//[           BOILerplate template.                          ]//
+//[                                                          ]//
+//[                                                          ]//
 //[ Further abstracts use of parameter lists file so that    ]//
 //[ we don't have to write function wrapper boilerplate      ]//
 //[ every time we wrap a function.                           ]//

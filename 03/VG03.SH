@@ -35,6 +35,7 @@ cat "./F.03"              >> "VG03.ALL"
 
 cat "./F.06"              >> "VG03.ALL"
 cat "./F.07"              >> "VG03.ALL"
+cat "./F.08"              >> "VG03.ALL"
 
 cat "./VG03.H"                >> "VG03.ALL"
 

@@ -10,6 +10,7 @@
  8: VAR_NAME_TO_FILE
  9: MACRO_WHERE_FROM
 10: LAYER_UPON_LAYER
+11: JUST_IN_TIME_ORD
 
 ////////////////////////////////////////////////////////////////
 
@@ -153,4 +154,15 @@ any other reason.
     style. Will make porting to other platform easier
     because you can focus on fixing 1 layer at a time.
         
+##JUST_IN_TIME_ORD##
+
+    When organizing or inserting files, files are always
+    in "JUST_IN_TIME_ORD" order. Meaning that dependencies are
+    not declared EARLIER than needed, and not declared
+    LATER than needed. They are declared right at the moment
+    they are needed.
+
+    Easier to see relationships when items near each other
+    on the file timeline (F.01, F.02, F.03 ...)
+    have immediate uses for each other.
 ////////////////////////////////////////////////////////////////

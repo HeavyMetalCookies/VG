@@ -11,10 +11,16 @@
 
 //:WCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWC://
 
+
+
 void VG03_Init(){
-    F01_Init();
-
-
+//|---- F01 ------|////[ DOTADIW:DLL_FUNC_LIST ]//
+        F02_Init();  //[ DOTADIW:DLL_FUNC_LOAD ]//
+//|-----F03 ------|////[ DOTADIW:DLL_CALL_CAST ]//
+//|-----F04 ------|////[ DOTADIW:DLL_PARG_LIST ]//
+//|-----F05 ------|////[ DOTADIW:DLL_WRAP_BOIL ]//
+//|-----F06 ------|////[ DOTADIW:DLL_WRAP_MAKE ]//
+//|-----F07 ------|////[ DOTADIW:MAKE_A_WINDOW ]//
     
 }//[;]//
 

@@ -1,5 +1,5 @@
 
-//#DOTADIW: Create_A_Window                                  #//
+//[ DOTADIW: MAKE_A_WINDOW                                   ]//
 
 //[V:Variables. #VARS_TOP_OF_FILE_BIG_PICTURE#               ]//
 //[VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV]//
@@ -650,8 +650,16 @@ f07_WindowLoop(
 unsigned __int64 //:WPARAM
 F07_OpenWindowAndLoopForever(
     //:UNICODE_STRING
-    const unsigned short *  //:LPCWSTR
-    unique_window_name
+    const unsigned short *  //:LPCWSTR (Technically_LPCTSTR)
+    unique_window_name      
+    ,
+    const unsigned short *  //:LPCWSTR (Technically_LPCTSTR)
+    window_titlebar_text
+
+    //:#Technically_LPCTSTR#://
+    //: Technically LPCTSTR, not LPCWSTR,
+    //: But using extended (ex) function and unicode/wide
+    //: characters where I can. Thus resolved type is LPCWSTR.
 ){
 
      
@@ -717,9 +725,9 @@ F07_OpenWindowAndLoopForever(
     Hw=F06_CreateWindowExW
     (
 
-    /**/0x00000008L /** ws_ex_topmost **/
-    ,   unique_window_name     
-    ,   L"[GLEB_TITLE_BAR](題圌)"       
+    /**/0x00000008L           /** ws_ex_topmost **/
+    ,   unique_window_name    /** lpClassName   **/
+    ,   window_titlebar_text  /** lpWindowName  **/      
   
     , 
         (0
@@ -769,9 +777,17 @@ F07_OpenWindowAndLoopForever(
     return Msg.wParam;
 } //[OPEN_WINDOW_LOOP_FOREVER]//
 
+int F07_Main(){
+    F07_OpenWindowAndLoopForever(
+        L"MOTHER_FUCKING_UNIQUE_WINDOW_CLASS_ID"
+    ,   L"[SEE_FILE[ F.07 ]][伍零s丁]"
+    );;
+
+    return( 0 );
+}//[;]//
 
 int F07_Demo_SingleThreaded(){
-    F07_OpenWindowAndLoopForever(L"[CAJUN_SPICE]");
+    F07_Main();
     return( 0 );
 }//[;]//
 

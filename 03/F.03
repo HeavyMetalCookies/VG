@@ -1,5 +1,6 @@
 
-//[F02: DOTADIW: Quick_Hack_For_Calling_DLL_Func_Pointers. --]//
+//[F02: DOTADIW: DLL_CALL_CAST (HACK) -----------------------]//
+//[ Quick_Hack_For_Calling_DLL_Func_Pointers  ---------------]//
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 //[ Making typedefs and wrappers for function signatures can ]//

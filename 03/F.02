@@ -1,5 +1,6 @@
 
-//[ DOTADIW: Gather_Function_Pointers_From_DLL_Files --------]//
+//[ DOTADIW: DLL_FUNC_LOAD ----------------------------------]//
+//[          Load Function Pointers From DLL FIles.          ]//
 //[         (DLL files or linux equivalent)                  ]//
 //[                                                          ]//
 //[ Example Function Pointer Created By This File:           ]//
@@ -125,7 +126,7 @@ void F02_WRONGNAME(void){
 }//[;]//
 
 //:Load Function Pointers: EX: F02_ShowWindow
-void F01_Init(){
+void F02_Init(){
     #define F02_F01_MACRO(f,d) F02_ ## f = F02_GF(#f,#d);
             #include "./F.01" //:<--[[[DOTADIW:DLL_FUNC_LIST]]]
     #undef  F02_F01_MACRO
@@ -135,7 +136,7 @@ void F01_Init(){
             #include "./F.01" //:<--[[[DOTADIW:DLL_FUNC_LIST]]]
     #undef  F02_F01_MACRO
 
-    if( F01_GF_total_number_of_functions_fetched != 19 ){
+    if( F01_GF_total_number_of_functions_fetched != 22 ){
         F01_Halt("[Expected_This_Many_Fetched_Funcs]");
     };;
 
@@ -144,3 +145,78 @@ void F01_Init(){
 
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+
+
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+//|////////////////////////////////////////////|////[ --64-- ]//
+//|     -///-                        -///-     |////[ --64-- ]//
+//|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////[ --64-- ]//
+//|_  __      __  __  __  __  __  __      __  _|////[ --64-- ]//
+//| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////[ --64-- ]//
+//|      \  /                        \  /      |////[ --64-- ]//
+//|       \/                          \/       |////[ --64-- ]//
+//+ BEG: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////[ --64-- ]//
+//|           /\                  /\           |////[ --64-- ]//
+//|          /  \                /  \          |////[ --64-- ]//
+//|_--__--__/    \__/\__/\__/\__/    \__--__--_|////[ --64-- ]//
+//|                                            |////[ --64-- ]//
+//|       ______________________________       |////[ --64-- ]//
+//|______/                              \______|////[ --64-- ]//
+#if(BOTTOM_OF_FILE_COMMENTS_SECTION) /////////////
+/** ****************************************** |||
+                                                   
+//+----------------------------------------------------------+//
+//[ Because macros generate these functions, I thought it    ]//
+//[ a good idea to write them down here in a comment.        ]//
+//[ If I don't, "CTRL+F" will not save the poor soul         ]//
+//[ looking for the declaration of these functions.          ]//
+//[ (They are declared in this file (F.02) with macros)      ]//
+//[                                                          ]//
+//|     void*( *F02_RegisterClassExW )( void );              |//
+//|     void*( *F02_CreateWindowExW  )( void );              |//
+//|     void*( *F02_DestroyWindow    )( void );              |//
+//|     void*( *F02_PostQuitMessage  )( void );              |//
+//|     void*( *F02_DefWindowProcW   )( void );              |//
+//|     void*( *F02_LoadIconA        )( void );              |//
+//|     void*( *F02_LoadCursorA      )( void );              |//
+//|     void*( *F02_GetWindowDC      )( void );              |//
+//|     void*( *F02_ChoosePixelFormat)( void );              |//
+//|     void*( *F02_SetPixelFormat   )( void );              |//
+//|     void*( *F02_GetModuleHandleW )( void );              |//
+//|     void*( *F02_GetDesktopWindow )( void );              |//
+//|     void*( *F02_TranslateMessage )( void );              |//
+//|     void*( *F02_DispatchMessageW )( void );              |//
+//|     void*( *F02_PeekMessageW     )( void );              |//
+//|     void*( *F02_ShowWindow       )( void );              |//
+//|     void*( *F02_UpdateWindow     )( void );              |//
+//|     void*( *F02_SetFocus         )( void );              |//
+//|     void*( *F02_Sleep            )( void );              |//
+//|     void*( *F02_GetProcessHeap   )( void );              |//
+//|     void*( *F02_CreateThread     )( void );              |//
+//|     void*( *F02_HeapAlloc        )( void );              |//
+//+----------------------------------------------------------+//
+                                                   
+||| ****************************************** **/ 
+#endif ///////////////////////////////////////////
+//|______                                ______|////[ --64-- ]//
+//|||||||\______________________________/|||||||////[ --64-- ]//
+//|                                            |////[ --64-- ]//
+//|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////[ --64-- ]//
+//|_  __      __  __  __  __  __  __      __  _|////[ --64-- ]//
+//| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////[ --64-- ]//
+//|      \  /                        \  /      |////[ --64-- ]//
+//|       \/                          \/       |////[ --64-- ]//
+//+ END: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////[ --64-- ]//
+//|           /\                  /\           |////[ --64-- ]//
+//|          /  \                /  \          |////[ --64-- ]//
+//|_--__--__/    \__/\__/\__/\__/    \__--__--_|////[ --64-- ]//
+//|                                            |////[ --64-- ]//
+//|____________________________________________|////[ --64-- ]//
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+
+
+
