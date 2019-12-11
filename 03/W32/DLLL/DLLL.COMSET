@@ -1,2 +1,8 @@
+//#FILE_REGION[ W32/DLLL/DLLL.COMSET ]BEG#####################//
+
+
 //| Only choose one to set to 1 |//
 #define COMPILE_FOR_windows_10_64bit 1
+
+
+//#FILE_REGION[ W32/DLLL/DLLL.COMSET ]END#####################//

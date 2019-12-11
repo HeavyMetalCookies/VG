@@ -1,0 +1,200 @@
+//#FILE_REGION[ F.10 ]BEG#####################################//
+
+//:DOTADIW: WIN_IN_THREAD
+//:  ( launch_window_in_new_thread )
+
+
+
+//||Thread is closed using the HANDLE.                      ||//
+//||So not sure what the point of the thread_id is.         ||//
+//||                                                        ||//
+//||StackOverflow:                                          ||//
+//||    Under Windows,the thread handle is different from   ||//
+//||    the thread ID, in the same way that a file handle   ||//                               
+//||    is different from a file name.                      ||//
+    //[ The fact that these threads are for the "window"     ]//
+    //[ are implied by the DOTADIW of [F.10/F10_] namespace. ]//
+    void*               F10_thread_handle ;         
+    long unsigned int   F10_thread_id     ;  
+
+    struct F10_STRUCT_MYDATA{
+        int val1;
+        int val2;
+    };//[struct:MYDATA]//
+
+    struct F10_STRUCT_MYDATA* 
+    F10_custom_data_ptr=NULL;
+
+
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+
+//[H:Halt Always first function in file._____________________]//
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+void F10_Halt( const char*     msg ){ 
+    printf( "[F10_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//             
+                                           
+                                          
+void                                      
+F10_PrintCustomThreadData(          
+                                          
+    void* custom_data                     
+                                          
+){            
+    #define MYDATA  struct F10_STRUCT_MYDATA   /////////////////
+                                                 
+        //[-----------------------------------]////[ xxxxxxx ]//
+        //[ Both will print the same thing:---]////[ xxxxxxx ]//
+        //[-----------------------------------]////[ xxxxxxx ]//
+        //[PRINT:File_Member_Variable: -------]////[ xxxxxxx ]//
+        printf( "[PARAMS]:( %d, %d )\n"          //[ xxxxxxx ]//
+        ,   ((MYDATA*)F10_custom_data_ptr)->val1 //[ xxxxxxx ]//                           
+        ,   ((MYDATA*)F10_custom_data_ptr)->val2 //[ xxxxxxx ]//
+        );;                                      //[ xxxxxxx ]//
+        //[PRINT:Input_Argument: -------------]////[ xxxxxxx ]//
+        printf( "[PARAMS]:( %d, %d )\n"          //[ xxxxxxx ]//
+        ,   ((MYDATA*)    custom_data)->val1     //[ xxxxxxx ]//       
+        ,   ((MYDATA*)    custom_data)->val2     //[ xxxxxxx ]//
+        );;                                      //[ xxxxxxx ]//
+        //[___________________________________]////[ xxxxxxx ]//
+
+    #undef  MYDATA /////////////////////////////////////////////
+                                          
+} //[PrintCustomThreadData]//   
+
+
+unsigned long __stdcall           
+F10_StartRoutine_CreatesWindow_CalledInNewThread(               
+                                          
+    void*  custom_data              
+                                          
+){                                        
+    F10_PrintCustomThreadData( custom_data );                                  
+                                                    
+    #define T const unsigned short*                     
+    T unique_window_name=(                  
+        L"F10_UNIQUE_WINDOW_NAME"   
+    );;     
+    T window_titlebar_text=(
+        L"[SEE_FILE[ F.08 ]]((╯°□°）╯︵ ┻━┻))"
+    );;
+                              
+    F09_OpenWindowAndLoopForever(   
+        unique_window_name   //:<---PlayItSafeStickToAsciiChars
+    ,   window_titlebar_text //:<---WhateverYouWant
+    );;                                   
+                                          
+    return 0;                             
+} //[gleb_swin_THREAD_FUNCTION / F10_StartRoutine ]//      
+
+
+
+
+void                                       
+F10_CreateThread_Launches_StartRoutine(){                  
+                                                                     
+    void* process_heap=((F03_00)F02_GetProcessHeap)();
+    if(NULL==process_heap){ F10_Halt("process_heap"); };                                   
+                                          
+    //[ Allocate memory for thread data. ]//
+    F10_custom_data_ptr =((struct F10_STRUCT_MYDATA *)
+
+        ((F03_03)F02_HeapAlloc)(                                       
+            process_heap                  
+        ,   
+            (void*)(unsigned long long)
+            0x00000008 /** HEAP_ZERO_MEMORY **/ 
+                                       
+        ,   
+            (void*)(unsigned long long)
+            sizeof(struct F10_STRUCT_MYDATA)                                  
+        ) 
+                                
+    );;                                    
+                                          
+    //[¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯]//
+    //[ System if out of memory, you will ]//
+    //[ be unable to print error message. ]//
+    //[ But what about error code?        ]//
+    //[___________________________________]//
+    if( F10_custom_data_ptr == NULL ){ 
+        exit( 9873 );                     
+    };;                                   
+                                          
+    //! Set Some Custom Data           !//
+    F10_custom_data_ptr -> val1 = 333;   
+    F10_custom_data_ptr -> val2 = 777;   
+                                          
+    //: typedef              //[ <<< LPTHREAD_START_ROUTINE -----]//
+    //:     unsigned long    //[ <<< LPTHREAD_START_ROUTINE -----]//
+    //:     (__stdcall *pfn) //[ <<< LPTHREAD_START_ROUTINE -----]//
+    //:     (void*);         //[ <<< LPTHREAD_START_ROUTINE -----]//
+
+
+    ////////////////////////////////////////////////////////////
+    #define   P_F_N   F05_LSR //:PFN:LPTHREAD_START_ROUTINE
+              P_F_N 
+    pfn_start_routine=(
+        F10_StartRoutine_CreatesWindow_CalledInNewThread
+    );;
+    #undef    P_F_N
+    ////////////////////////////////////////////////////////////
+
+    ////////// //:Not really the way I want to solve this:
+    //////////  F02_VOF vof_start_routine=(     
+    ////////// (F02_VOF)pfn_start_routine  );; 
+                                          
+    //[ Create the thread to begin execution on its own. --- ]//
+    F10_thread_handle=( ////////////////////////////////////////
+    /**/F08_CreateThread(   ///////////////////////////////////
+    /**/   
+    /**/       NULL               /** default_security   [01]**/               
+    /**/   ,   0                  /** default_stack_size [02]**/                    
+    /**/   ,   pfn_start_routine  /** lpStartAddress     [03]**/  
+    /**/                                                 
+    /**/   ,   F10_custom_data_ptr/** thread_func_arg    [04]**/    
+    /**/   ,   0       /** Use_Default_Creation_Flags    [05]**/              
+    /**/   ,   &( F10_thread_id ) /** Output_Param       [06]**/ 
+    /**/
+    /**/)    ///////////////////////////////////////////////////
+    );;/////////////////////////////////////////////////////////
+                                          
+} //[CreateThread]//            
+
+int F10_Init(){
+    //:No action needed besides calling further down chain:
+
+    int ret = F09_Init();
+    return( ret );
+
+}//[;]//
+    
+int F10_Main(){
+    F10_Init();
+
+    F10_CreateThread_Launches_StartRoutine();
+
+    printf(
+        "***************** [CTRL+C:ToExit] *****************\n"
+    );;
+
+    fflush(stdout);
+
+    while(1){
+
+        //:Inifinite loop to keep program from
+        //:exiting while window is running in
+        //:that other thread.
+        
+        //:This is where you would launch other threads,
+        //:or do a (game|render) loop.
+
+    };;
+
+}//[;]//
+
+//#FILE_REGION[ F.10 ]END#####################################//

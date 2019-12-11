@@ -1,3 +1,4 @@
+//#FILE_REGION[ F.01 ]BEG#####################################//
 
 //# DOTADIW:DLL_FUNC_LIST -----------------------------------]//
 
@@ -6,6 +7,8 @@
 //# NOTE: Using different cases like "User32 & usEr32" ------#//
 //# Will screw up your DLL caching code!               ------#//
 //! NODOC: Missing MSDN documentation. --------------------- !//
+
+#ifndef F01_BASH_CONCATTED
 
 F02_F01_MACRO( RegisterClassExW , user32  )  //[ 01 ]//
 F02_F01_MACRO( CreateWindowExW  , user32  )  //[ 02 ]//
@@ -35,3 +38,30 @@ F02_F01_MACRO( HeapAlloc        , kernel32)  //[ 22 ]//
 
 //[¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯]//
 //[__________________________________________________________]//
+
+#else //: F01_BASH_CONCATTED
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+    int F01_Init(){
+        printf("[BEG:F01:Init]\n");
+
+        printf("[F01:Doing_Nothing:(DOTADIW:DLL_FUNC_LIST)]\n");
+
+        printf("[END:F03:Init]\n");
+        return( 0 );
+    }//[;]//
+    int F01_Main(){
+        F01_Init();
+
+        //:Nothing to do here.
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+#endif //: F01_BASH_CONCATTED
+
+//#FILE_REGION[ F.01 ]END#####################################//

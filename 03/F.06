@@ -1,40 +1,134 @@
+//#FILE_REGION[ F.06 ]BEG#####################################//
 
-//[ DOTADIW: DLL_WRAP_MAKE ----------------------- --------- ]//
-//[ Make wrapper functions for DLL func pointers.  --------- ]//
+//[ DOTADIW : DLL_PARG_LIST  --------------------------------]//
+//[           PARG: PARAMETER/ARGUMENT                       ]//
+//[           Param Lists Of Funcs Fetched From DLL(s)       ]//
+//[          (Or linux equivalent of DLL files)              ]//
 
-//:We could abstract this further, by creating a list
-//:of function names that have had typedefs created for them.
+#ifndef F06_BASH_CONCATTED
 
-//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+#if( F08_F06_MACRO_CreateWindowExW > 0 ) ///////////////////////
 
-#define F06_F05_MACRO_RETURNTYPE void*  ////////////////////////
-#define F06_F04_MACRO_CreateWindowExW 1  ///////////////////////
+    #if( F07_F06_MACRO_actual_argument_list > 0 )
 
-    #define F06_F05_MACRO_wrapper   F06_CreateWindowExW
-    #define F06_F05_MACRO_wrapped   F02_CreateWindowExW
+        #define MACRO_L     
+        #define MACRO_S_PTR 
+        #define MACRO_I     
+        #define MACRO_V_PTR 
 
-        #include "./F.05" //:<<--#DOTADIW:WRAPPER_FUNC_TEMPLATE#
-    
-    #undef  F06_F05_MACRO_wrapper
-    #undef  F06_F05_MACRO_wrapped
+    #elif( F07_F06_MACRO_formal_param_list > 0 )
 
-#undef  F06_F05_MACRO_RETURNTYPE  //////////////////////////////
-#undef  F06_F04_MACRO_CreateWindowExW ////////////////////////// 
+        #define MACRO_L       unsigned long
+        #define MACRO_S_PTR   const unsigned short *
+        #define MACRO_I       int
+        #define MACRO_V_PTR   void *
 
-//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+    #else
 
-#define F06_F05_MACRO_RETURNTYPE void*  ////////////////////////
-#define F06_F04_MACRO_CreateThread   1  ////////////////////////
+        #error ARE_ARGUMENTS_ACTUAL_OR_FORMAL
 
-    #define F06_F05_MACRO_wrapper   F06_CreateThread
-    #define F06_F05_MACRO_wrapped   F02_CreateThread
+    #endif
+/**/            MACRO_L      dwExStyle    /**DWORD     01 **/
+,               MACRO_S_PTR  lpClassName  /**LPCWSTR   02 **/
+,               MACRO_S_PTR  pWindowName  /**LPCWSTR   03 **/
+,               MACRO_L      dwStyle      /**DWORD     04 **/
+,               MACRO_I      X            /**          05 **/
+,               MACRO_I      Y            /**          06 **/
+,               MACRO_I      nWidth       /**          07 **/
+,               MACRO_I      nHeight      /**          08 **/
+,               MACRO_V_PTR  hWndParent   /**HWND      09 **/
+,               MACRO_V_PTR  hMenu        /**HMENU     10 **/
+,               MACRO_V_PTR  hInstance    /**HINSTANCE 11 **/
+,               MACRO_V_PTR  lpParam      /**HINSTANCE 12 **/
 
-        #include "./F.05" //:<<--#DOTADIW:WRAPPER_FUNC_TEMPLATE#
-    
-    #undef  F06_F05_MACRO_wrapper
-    #undef  F06_F05_MACRO_wrapped
+        #undef  MACRO_L     
+        #undef  MACRO_S_PTR 
+        #undef  MACRO_I     
+        #undef  MACRO_V_PTR 
 
-#undef  F06_F05_MACRO_RETURNTYPE        ////////////////////////
-#undef  F06_F04_MACRO_CreateThread      //////////////////////// 
+#elif( F08_F06_MACRO_CreateThread > 0 ) ////////////////////////
 
-//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+    #if( F07_F06_MACRO_actual_argument_list > 0 )
+
+        #define macro_LPSECURITY_ATTRIBUTES
+        #define macro_SIZE_T
+        #define macro_LPTHREAD_START_ROUTINE
+        #define macro_HINSTANCE
+        #define macro_DWORD
+        #define macro_LPDWORD
+
+    #elif( F07_F06_MACRO_formal_param_list > 0 )
+
+        #define macro_LPSECURITY_ATTRIBUTES    void*
+        #define macro_SIZE_T     unsigned long long  //:64bits                 
+        #define macro_LPTHREAD_START_ROUTINE   F05_LSR
+        #define macro_HINSTANCE                void*
+        #define macro_DWORD           unsigned long
+        #define macro_LPDWORD         unsigned long*         
+
+    #else
+
+        #error ARE_ARGUMENTS_ACTUAL_OR_FORMAL ? CREATE_THREAD
+
+    #endif
+
+    /**/macro_LPSECURITY_ATTRIBUTES       //[DT]//
+        lpThreadAttributes                //[DT]//
+                                          //[DT]//
+    ,   macro_SIZE_T                      //[DT]//
+        dwStackSize                       //[DT]//
+                                          //[DT]//
+    ,   macro_LPTHREAD_START_ROUTINE      //[DT]//
+        lpStartAddress                    //[DT]//
+                                          //[DT]//
+    ,   macro_HINSTANCE                   //[DT]//
+        lpParameter                       //[DT]//
+                                          //[DT]//
+    ,   macro_DWORD                       //[DT]//
+        dwCreationFlags                   //[DT]//
+                                          //[DT]//
+    ,   macro_LPDWORD                     //[DT]//
+        lpThreadId                        //[DT]//
+
+        #undef  macro_LPSECURITY_ATTRIBUTES
+        #undef  macro_SIZE_T
+        #undef  macro_LPTHREAD_START_ROUTINE
+        #undef  macro_HINSTANCE
+        #undef  macro_DWORD
+        #undef  macro_LPDWORD
+
+#else  ////////////////////////////////////////////////////////
+
+    #error NO_SELECTION_MADE_USING_MACRO_DECLARATION
+
+#endif
+
+#else  //: F06_BASH_CONCATTED 
+
+    //:Non Macro Stuff:
+    //:NMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNM://
+
+    int F06_Init(){
+        printf("[BEG:F06:Init]\n");
+
+        //:No action besides calling down the chain.
+
+        int ret = F05_Init();
+
+        printf("[END:F06:Init]\n");
+        return( ret );
+    }//[;]//
+    int F06_Main(){
+        F06_Init();
+
+        printf("[F06:Is_A_Macro_File.Nothing_To_Do_Here]\n");
+
+        return( 0 );
+    }//[;]//
+
+    //:NMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNM://
+
+#endif //: F06_BASH_CONCATTED 
+
+
+//#FILE_REGION[ F.06 ]END#####################################//

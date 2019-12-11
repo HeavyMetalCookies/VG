@@ -1,157 +1,65 @@
+//#FILE_REGION[ F.08 ]BEG#####################################//
 
-//:DOTADIW: LAUNCH_WINDOW_IN_NEW_THREAD
+//[ DOTADIW: DLL_WRAP_MAKE ----------------------- --------- ]//
+//[ Make wrapper functions for DLL func pointers.  --------- ]//
 
-
-//||Thread is closed using the HANDLE.                      ||//
-//||So not sure what the point of the thread_id is.         ||//
-//||                                                        ||//
-//||StackOverflow:                                          ||//
-//||    Under Windows,the thread handle is different from   ||//
-//||    the thread ID, in the same way that a file handle   ||//                               
-//||    is different from a file name.                      ||//
-    //[ The fact that these threads are for the "window"     ]//
-    //[ are implied by the DOTADIW of [F.08/F08_] namespace. ]//
-    void*               F08_thread_handle ;         
-    long unsigned int   F08_thread_id     ;  
-
-    struct F08_STRUCT_MYDATA{
-        int val1;
-        int val2;
-    };//[struct:MYDATA]//
-
-    struct F08_STRUCT_MYDATA* 
-    F08_custom_data_ptr=NULL;
-
+//:We could abstract this further, by creating a list
+//:of function names that have had typedefs created for them.
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
-//[H:Halt Always first function in file._____________________]//
-//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
-void F08_Halt( const char*     msg ){ 
-    printf( "[F08_Halt]:%s\n", msg ); 
-    fflush(stdout); exit(666);
+#define F08_F07_MACRO_RETURNTYPE void*  ////////////////////////
+#define F08_F06_MACRO_CreateWindowExW 1  ///////////////////////
+
+    #define F08_F07_MACRO_wrapper   F08_CreateWindowExW
+    #define F08_F07_MACRO_wrapped   F02_CreateWindowExW
+
+        #include "./F.07" //:<<--#DOTADIW:DLL_WRAP_BOIL  
+                                 //(wrapper_func_template)
+    #undef  F08_F07_MACRO_wrapper
+    #undef  F08_F07_MACRO_wrapped
+
+#undef  F08_F07_MACRO_RETURNTYPE  //////////////////////////////
+#undef  F08_F06_MACRO_CreateWindowExW ////////////////////////// 
+
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+
+#define F08_F07_MACRO_RETURNTYPE void*  ////////////////////////
+#define F08_F06_MACRO_CreateThread   1  ////////////////////////
+
+    #define F08_F07_MACRO_wrapper   F08_CreateThread
+    #define F08_F07_MACRO_wrapped   F02_CreateThread
+
+        #include "./F.07" //:<<--#DOTADIW:DLL_WRAP_BOIL 
+                                 //(wrapper_func_template)
+    #undef  F08_F07_MACRO_wrapper
+    #undef  F08_F07_MACRO_wrapped
+
+#undef  F08_F07_MACRO_RETURNTYPE        ////////////////////////
+#undef  F08_F06_MACRO_CreateThread      //////////////////////// 
+
+//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+
+
+//:Non Macro Stuff:
+//:NMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNM://
+
+int F08_Init(){
+    
+    //:No action besides calling down the chain.
+
+    int ret = F07_Init();
+
+    return( ret );
 }//[;]//
-//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+int F08_Main(){
+    F08_Init();
 
-//[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//             
-                                           
-                                          
-void                                      
-F08_PrintCustomThreadData(          
-                                          
-    void* custom_data                     
-                                          
-){            
-    #define MYDATA  struct F08_STRUCT_MYDATA   /////////////////
-                                                 
-        //[-----------------------------------]////[ xxxxxxx ]//
-        //[ Both will print the same thing:---]////[ xxxxxxx ]//
-        //[-----------------------------------]////[ xxxxxxx ]//
-        //[PRINT:File_Member_Variable: -------]////[ xxxxxxx ]//
-        printf( "[PARAMS]:( %d, %d )\n"          //[ xxxxxxx ]//
-        ,   ((MYDATA*)F08_custom_data_ptr)->val1 //[ xxxxxxx ]//                           
-        ,   ((MYDATA*)F08_custom_data_ptr)->val2 //[ xxxxxxx ]//
-        );;                                      //[ xxxxxxx ]//
-        //[PRINT:Input_Argument: -------------]////[ xxxxxxx ]//
-        printf( "[PARAMS]:( %d, %d )\n"          //[ xxxxxxx ]//
-        ,   ((MYDATA*)    custom_data)->val1     //[ xxxxxxx ]//       
-        ,   ((MYDATA*)    custom_data)->val2     //[ xxxxxxx ]//
-        );;                                      //[ xxxxxxx ]//
-        //[___________________________________]////[ xxxxxxx ]//
+    printf("[F08:Is_A_Macro_File.Nothing_To_Do_Here]\n");
 
-    #undef  MYDATA /////////////////////////////////////////////
-                                          
-} //[PrintCustomThreadData]//   
+    return( 0 );
+}//[;]//
 
+//:NMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNMNM://
 
-unsigned long __stdcall           
-F08_StartRoutine_CreatesWindow_CalledInNewThread(               
-                                          
-    void*  custom_data              
-                                          
-){                                        
-    F08_PrintCustomThreadData( custom_data );                                  
-                                                    
-    #define T const unsigned short*                     
-    T unique_window_name=(                  
-        L"F08_UNIQUE_WINDOW_NAME"   
-    );;     
-    T window_titlebar_text=(
-        L"[SEE_FILE[ F.08 ]]((╯°□°）╯︵ ┻━┻))"
-    );;
-                              
-    F07_OpenWindowAndLoopForever(   
-        unique_window_name   //:<---PlayItSafeStickToAsciiChars
-    ,   window_titlebar_text //:<---WhateverYouWant
-    );;                                   
-                                          
-    return 0;                             
-} //[gleb_swin_THREAD_FUNCTION / F08_StartRoutine ]//      
-
-
-
-
-void                                       
-F08_CreateThread_Launches_StartRoutine(){                  
-                                                                     
-    void* process_heap=((F03_00)F02_GetProcessHeap)();
-    if(NULL==process_heap){ F08_Halt("process_heap"); };                                   
-                                          
-    //[ Allocate memory for thread data. ]//
-    F08_custom_data_ptr =((struct F08_STRUCT_MYDATA *)
-
-        ((F03_03)F02_HeapAlloc)(                                       
-            process_heap                  
-        ,   
-            (void*)(unsigned long long)
-            0x00000008 /** HEAP_ZERO_MEMORY **/ 
-                                       
-        ,   
-            (void*)(unsigned long long)
-            sizeof(struct F08_STRUCT_MYDATA)                                  
-        ) 
-                                
-    );;                                    
-                                          
-    //[¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯]//
-    //[ System if out of memory, you will ]//
-    //[ be unable to print error message. ]//
-    //[ But what about error code?        ]//
-    //[___________________________________]//
-    if( F08_custom_data_ptr == NULL ){ 
-        exit( 9873 );                     
-    };;                                   
-                                          
-    //! Set Some Custom Data           !//
-    F08_custom_data_ptr -> val1 = 333;   
-    F08_custom_data_ptr -> val2 = 777;   
-                                          
-    typedef              //[ <<< LPTHREAD_START_ROUTINE -----]//
-        unsigned long    //[ <<< LPTHREAD_START_ROUTINE -----]//
-        (__stdcall *pfn) //[ <<< LPTHREAD_START_ROUTINE -----]//
-        (void*);         //[ <<< LPTHREAD_START_ROUTINE -----]//
-
-    pfn pfn_start_routine=(
-        F08_StartRoutine_CreatesWindow_CalledInNewThread
-    );;
-
-    //:Not really the way I want to solve this:
-     F02_VOF vof_start_routine=(     
-    (F02_VOF)pfn_start_routine  );; 
-                                          
-    //[ Create the thread to begin execution on its own. --- ]//
-    F08_thread_handle=( ////////////////////////////////////////
-    /**/F06_CreateThread(   ///////////////////////////////////
-    /**/   
-    /**/       NULL               /** default_security   [01]**/               
-    /**/   ,   0                  /** default_stack_size [02]**/                    
-    /**/   ,   pfn_start_routine  /** lpStartAddress     [03]**/  
-    /**/                                                 
-    /**/   ,   F08_custom_data_ptr/** thread_func_arg    [04]**/    
-    /**/   ,   0       /** Use_Default_Creation_Flags    [05]**/              
-    /**/   ,   &( F08_thread_id ) /** Output_Param       [06]**/ 
-    /**/
-    /**/)    ///////////////////////////////////////////////////
-    );;/////////////////////////////////////////////////////////
-                                          
-} //[CreateThread]//            
+//#FILE_REGION[ F.08 ]END#####################################//

@@ -1,53 +1,40 @@
+//#FILE_REGION[ F.05 ]BEG#####################################//
 
-//[ DOTADIW : DLL_WRAP_BOIL ---------------------------------]//
-//[           DLL function call WRAPper                      ]//
-//[           BOILerplate template.                          ]//
-//[                                                          ]//
-//[                                                          ]//
-//[ Further abstracts use of parameter lists file so that    ]//
-//[ we don't have to write function wrapper boilerplate      ]//
-//[ every time we wrap a function.                           ]//
-//[ All we have done here is replaced lines that have the    ]//
-//[ comment #Example# with a macro for the function names.   ]//
+//: F.05: DLL_TYPEDEFS (Should all be function pointer typedefs)
+//:       TYPDEFS to create proper wrappers for DLL FUNCS:
 
-//|F06_F05_MACRO_wrapper: The wrapping function with type safety.|//
-//|F06_F05_MACRO_wrapped: The uncasted func ptr pulled from dll. |//
 
-    //:Can we abstract this further?
-    F06_F05_MACRO_RETURNTYPE
-    
-    //:
-    F06_F05_MACRO_wrapper //:<--#Example#: F05_CreateWindowExW
-    (
+//:LSR:LPTHREAD_START_ROUTINE:
+typedef 
+    unsigned long (__stdcall *F05_LSR ) (  
+        void* lpThreadParameter  
+    );
+//[typedef]//
+ 
 
-        #define F05_F04_MACRO_USE_AS_FORMAL_PARAM_LIST 1
-        #include "./F.04"
-        #undef  F05_F04_MACRO_USE_AS_FORMAL_PARAM_LIST
 
-    ){
 
-        typedef  
-            F06_F05_MACRO_RETURNTYPE
-            (*pfn )(            
-                 
-                #define F05_F04_MACRO_USE_AS_FORMAL_PARAM_LIST 1
-                #include "./F.04"
-                #undef  F05_F04_MACRO_USE_AS_FORMAL_PARAM_LIST
-     
-            );
 
-        pfn fun =(pfn) 
-        F06_F05_MACRO_wrapped; //:<--#Example#:F01_CreateWindowExW
 
-        F06_F05_MACRO_RETURNTYPE 
-        ret=( fun(
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
-            #define F05_F04_MACRO_USE_AS_ACTUAL_ARGUMENT_LIST 1
-            #include "./F.04"
-            #undef  F05_F04_MACRO_USE_AS_ACTUAL_ARGUMENT_LIST
+    int F05_Init(){    
+        printf("[BEG:F05:Init]\n");
 
-        ));
+        int ret = F04_Init();
 
-        return(  ret  );
+        printf("[END:F05:Init]\n");
+        return( ret );
+    }//[;]//
+    int F05_Main(){
+        F05_Init();
 
-    }//[F06_F05_MACRO_wrapper]//
+        printf("[F05:DLL_TYPEDEFS. Nothing_To_Do_Here]\n");
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.05 ]END#####################################//

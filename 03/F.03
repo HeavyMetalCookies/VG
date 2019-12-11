@@ -1,3 +1,4 @@
+//#FILE_REGION[ F.03 ]BEG#####################################//
 
 //[F02: DOTADIW: DLL_CALL_CAST (HACK) -----------------------]//
 //[ Quick_Hack_For_Calling_DLL_Func_Pointers  ---------------]//
@@ -46,3 +47,28 @@ typedef  V (* F03_20)( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e,e);
 #undef   e /////////////////////////////////////////////////////
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+    int F03_Init(){
+        printf("[BEG:F03:Init]\n");
+
+        //:No action besides calling down the chain.
+
+        int ret = F02_Init();
+
+        printf("[END:F03:Init]\n");
+        return( ret );
+    }//[;]//
+    int F03_Main(){
+        F03_Init();
+
+        printf("[F03:DLL_CALL_CAST. Nothing_To_Do_Here]\n");
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.03 ]END#####################################//

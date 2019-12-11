@@ -1,103 +1,29 @@
+//#FILE_REGION[ F.04 ]BEG#####################################//
 
-//[ DOTADIW : DLL_PARG_LIST  --------------------------------]//
-//[           PARG: PARAMETER/ARGUMENT                       ]//
-//[           Param Lists Of Funcs Fetched From DLL(s)       ]//
-//[          (Or linux equivalent of DLL files)              ]//
+//: F.04: DLL_STRUCTS.
+//:       STRUCTS needed to create wrappers for DLL funcs.
 
-#if( F06_F04_MACRO_CreateWindowExW > 0 ) ///////////////////////
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
-    #if( F05_F04_MACRO_USE_AS_ACTUAL_ARGUMENT_LIST > 0 )
+    int F04_Init(){
+        printf("[BEG:F04:Init]\n");
 
-        #define MACRO_L     
-        #define MACRO_S_PTR 
-        #define MACRO_I     
-        #define MACRO_V_PTR 
+        //:No action besides calling down the chain.
 
-    #elif( F05_F04_MACRO_USE_AS_FORMAL_PARAM_LIST > 0 )
+        int ret = F03_Init();
 
-        #define MACRO_L       unsigned long
-        #define MACRO_S_PTR   const unsigned short *
-        #define MACRO_I       int
-        #define MACRO_V_PTR   void *
+        printf("[END:F04:Init]\n");
+        return( ret );
+    }//[;]//
+    int F04_Main(){
+        F04_Init();
 
-    #else
+        printf("[F04:DLL_STRUCTS. Nothing_To_Do_Here]\n");
 
-        #error ARE_ARGUMENTS_ACTUAL_OR_FORMAL
+        return( 0 );
+    }//[;]//
 
-    #endif
-/**/            MACRO_L      dwExStyle    /**DWORD     01 **/
-,               MACRO_S_PTR  lpClassName  /**LPCWSTR   02 **/
-,               MACRO_S_PTR  pWindowName  /**LPCWSTR   03 **/
-,               MACRO_L      dwStyle      /**DWORD     04 **/
-,               MACRO_I      X            /**          05 **/
-,               MACRO_I      Y            /**          06 **/
-,               MACRO_I      nWidth       /**          07 **/
-,               MACRO_I      nHeight      /**          08 **/
-,               MACRO_V_PTR  hWndParent   /**HWND      09 **/
-,               MACRO_V_PTR  hMenu        /**HMENU     10 **/
-,               MACRO_V_PTR  hInstance    /**HINSTANCE 11 **/
-,               MACRO_V_PTR  lpParam      /**HINSTANCE 12 **/
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
-        #undef  MACRO_L     
-        #undef  MACRO_S_PTR 
-        #undef  MACRO_I     
-        #undef  MACRO_V_PTR 
-
-#elif( F06_F04_MACRO_CreateThread > 0 ) ////////////////////////
-
-    #if( F05_F04_MACRO_USE_AS_ACTUAL_ARGUMENT_LIST > 0 )
-
-        #define macro_LPSECURITY_ATTRIBUTES
-        #define macro_SIZE_T
-        #define macro_LPTHREAD_START_ROUTINE
-        #define macro_HINSTANCE
-        #define macro_DWORD
-        #define macro_LPDWORD
-
-    #elif( F05_F04_MACRO_USE_AS_FORMAL_PARAM_LIST > 0 )
-
-        #define macro_LPSECURITY_ATTRIBUTES    void*
-        #define macro_SIZE_T     unsigned long long  //:64bits                 
-        #define macro_LPTHREAD_START_ROUTINE   F02_VOF
-        #define macro_HINSTANCE                void*
-        #define macro_DWORD           unsigned long
-        #define macro_LPDWORD         unsigned long*         
-
-    #else
-
-        #error ARE_ARGUMENTS_ACTUAL_OR_FORMAL ? CREATE_THREAD
-
-    #endif
-
-    /**/macro_LPSECURITY_ATTRIBUTES       //[DT]//
-        lpThreadAttributes                //[DT]//
-                                          //[DT]//
-    ,   macro_SIZE_T                      //[DT]//
-        dwStackSize                       //[DT]//
-                                          //[DT]//
-    ,   macro_LPTHREAD_START_ROUTINE      //[DT]//
-        lpStartAddress                    //[DT]//
-                                          //[DT]//
-    ,   macro_HINSTANCE                   //[DT]//
-        lpParameter                       //[DT]//
-                                          //[DT]//
-    ,   macro_DWORD                       //[DT]//
-        dwCreationFlags                   //[DT]//
-                                          //[DT]//
-    ,   macro_LPDWORD                     //[DT]//
-        lpThreadId                        //[DT]//
-
-        #undef  macro_LPSECURITY_ATTRIBUTES
-        #undef  macro_SIZE_T
-        #undef  macro_LPTHREAD_START_ROUTINE
-        #undef  macro_HINSTANCE
-        #undef  macro_DWORD
-        #undef  macro_LPDWORD
-
-#else  ////////////////////////////////////////////////////////
-
-    #error NO_SELECTION_MADE_USING_MACRO_DECLARATION
-
-#endif
-
-
+//#FILE_REGION[ F.04 ]END#####################################//

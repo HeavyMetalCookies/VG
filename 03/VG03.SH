@@ -12,6 +12,21 @@
 
 
 ##################################################
+##                                              ##
+##      BASH_HELPER_FUNCTIONS                   ##
+##################################################
+    
+    function nl_cat () {
+
+        ##Add newline to dest file.
+        printf "\n" >> $2 
+        
+        ##Add code into dest file.
+        cat $1      >> $2
+
+    }
+
+##################################################
 ##PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP##
                                                     
             ######################### 
@@ -21,37 +36,88 @@
 touch "VG03.ALL"  ##Create
     > "VG03.ALL"  ##Clean
 
-cat "./W32/DLLL/DLLL.COMSET"  >> "VG03.ALL"
-cat "./W32/DLLL/TARG/W10.X64" >> "VG03.ALL"
-cat "./W32/DLLL/DLLL.H"       >> "VG03.ALL" 
-
-##GATHER_FUNCTION_POINTERS:
-##cat "./F.01"              >> "VG03.ALL"
-
-cat "./F.02"              >> "VG03.ALL"
-
-cat "./F.03"              >> "VG03.ALL"
+################################################################
 
 
-cat "./F.06"              >> "VG03.ALL"
-cat "./F.07"              >> "VG03.ALL"
-cat "./F.08"              >> "VG03.ALL"
+nl_cat "./W32/DLLL/DLLL.COMSET"     "VG03.ALL"
+nl_cat "./W32/DLLL/TARG/W10.X64"    "VG03.ALL"
+nl_cat "./W32/DLLL/DLLL.H"          "VG03.ALL" 
 
-cat "./VG03.H"                >> "VG03.ALL"
+################################################################
+
+##Concatted mostly for reference:
+#####################################################
+printf "\n\n"                           >> "VG03.ALL"
+   echo "#define F01_BASH_CONCATTED"    >> "VG03.ALL"
+printf "\n\n"                           >> "VG03.ALL"
+
+                           cat "./F.01" >> "VG03.ALL"   
+
+printf "\n\n\n"                         >> "VG03.ALL"
+   echo "#undef  F01_BASH_CONCATTED"    >> "VG03.ALL"
+printf "\n"                             >> "VG03.ALL"
+#####################################################
 
 
+    nl_cat "./F.02"  "VG03.ALL"
+    nl_cat "./F.03"  "VG03.ALL"
+    nl_cat "./F.04"  "VG03.ALL"  ## DLL_STRUCTS
+    nl_cat "./F.05"  "VG03.ALL"  ## DLL_TYPEDEFS
+
+##Concatted mostly for reference:
+#####################################################
+printf "\n\n"                           >> "VG03.ALL"
+   echo "#define F06_BASH_CONCATTED"    >> "VG03.ALL"
+printf "\n\n"                           >> "VG03.ALL"
+
+                           cat "./F.06" >> "VG03.ALL"   
+
+printf "\n\n\n"                         >> "VG03.ALL"
+   echo "#undef  F06_BASH_CONCATTED"    >> "VG03.ALL"
+printf "\n"                             >> "VG03.ALL"
+#####################################################
+
+
+##Concatted mostly for reference:
+#####################################################
+printf "\n\n"                           >> "VG03.ALL"
+   echo "#define F07_BASH_CONCATTED"    >> "VG03.ALL"
+printf "\n\n"                           >> "VG03.ALL"
+
+                           cat "./F.07" >> "VG03.ALL"   
+
+printf "\n\n\n"                         >> "VG03.ALL"
+   echo "#undef  F07_BASH_CONCATTED"    >> "VG03.ALL"
+printf "\n"                             >> "VG03.ALL"
+#####################################################
+
+########################################
+
+    nl_cat "./F.08"     "VG03.ALL"
+    nl_cat "./F.09"     "VG03.ALL"
+    nl_cat "./F.10"     "VG03.ALL"
+
+########################################
+
+    nl_cat "./VG03.H"   "VG03.ALL"
+
+########################################
 
 ##PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP##
 ##################################################
 ##//////////////////////////////////////////////##
 ##NOTE: LIB_ALL: Do not put extension!          ##
 ext="temp_c11"   ## Temp_File_Extension         ##
-c_v="c11"        ##  version of c to compile as ##
+c_v="c11"        ## Version of c to compile as  ##
+d_n="Demo"       ## Demo Function Base Name     ##
+
+demo_func=$LIB_ALL"_"$d_n ##EX: "GLEB_Demo"
+
 ##//////////////////////////////////////////////##
 DEMO_CODE=$(cat << DEMO_CODE_HERE_DOC
 //////////////////////////////////////////////////
     #include         "$LIB_ALL.ALL"       ////////   
-    int main( void ){ $LIB_ALL.Demo(); }  //////// 
+    int main( void ){ $demo_func(); }     //////// 
 //////////////////////////////////////////////////
 DEMO_CODE_HERE_DOC
 )
