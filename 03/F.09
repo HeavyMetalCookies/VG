@@ -788,6 +788,9 @@ int F09_Init(){
 int F09_Main(){
     F09_Init();
 
+    //:NOT called int "Init" function, because we want
+    //:to create the window in different thread higher
+    //:up the chain.
     F09_OpenWindowAndLoopForever(
         L"MOTHER_FUCKING_UNIQUE_WINDOW_CLASS_ID"
     ,   L"[SEE_FILE[ F.07 ]][伍零s丁]"

@@ -325,17 +325,18 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
     return( 0 );
 }//[;]//
 
-static int 
-f40_OpenWindowAndInitializeEngine( void ){
-
-    //:Start up the window loop:
-    F10_CreateThread_Launches_StartRoutine();
-    
-    //:Initialize Vulkan Stuff:
-    f40_EngineInit();
-
-    return( 0 );
-}//[;]//
+//: Window now already opened via .SUPER_CHAIN
+//: static int 
+//: f40_OpenWindowAndInitializeEngine( void ){
+//: 
+//:     //:Start up the window loop:
+//:     F10_CreateThread_Launches_StartRoutine();
+//:     
+//:     //:Initialize Vulkan Stuff:
+//:     f40_EngineInit();
+//: 
+//:     return( 0 );
+//: }//[;]//
 
 //:IM:Init_And_Main:
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
@@ -348,13 +349,16 @@ f40_OpenWindowAndInitializeEngine( void ){
         //:You don't want "F.50" to have to call TWO previous
         //:initializers and have to guess in which order they
         //:need to be called.
-        f40_OpenWindowAndInitializeEngine();
+        //:f40_OpenWindowAndInitializeEngine();
+        f40_EngineInit();
 
         printf("[END:F40:Init]\n");
         return( ret );
     }//[;]//
     int F40_Main(){
         F40_Init();
+
+        printf("[F40:TO_EXIT:CTRL+C]\n");
 
         //:Stand in for where "mainLoop()" in future file.
         //:(Tutorial uses name "mainLoop()", I probably won't

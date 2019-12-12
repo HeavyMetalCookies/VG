@@ -45,6 +45,7 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
     int F35_Main(){
         F35_Init();
 
+            printf("[F35:TO_EXIT:CTRL+C]\n");
             while( 1 ){ }; //:LOOP_FOREVER
 
         return( 0 );

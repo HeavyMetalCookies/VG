@@ -2996,6 +2996,9 @@ int F09_Init(){
 int F09_Main(){
     F09_Init();
 
+    //:NOT called int "Init" function, because we want
+    //:to create the window in different thread higher
+    //:up the chain.
     F09_OpenWindowAndLoopForever(
         L"MOTHER_FUCKING_UNIQUE_WINDOW_CLASS_ID"
     ,   L"[SEE_FILE[ F.07 ]][伍零s丁]"
@@ -3221,15 +3224,17 @@ F10_CreateThread_Launches_StartRoutine(){
 int F10_Init(){
     //:No action needed besides calling further down chain:
 
-    int ret = F09_Init();
+    int ret = F09_Init(); //: .SUPER_CHAIN
+
+    //:F10 specific init logic:
+    F10_CreateThread_Launches_StartRoutine();
+
     return( ret );
 
 }//[;]//
     
 int F10_Main(){
     F10_Init();
-
-    F10_CreateThread_Launches_StartRoutine();
 
     printf(
         "***************** [CTRL+C:ToExit] *****************\n"
@@ -3392,7 +3397,12 @@ F20_VkDebugUtilsMessengerCallbackDataEXT {
     int F20_Main(){
         F20_Init();
 
-        printf("[F20:VULKAN_STRUCTS. Nothing_To_Do_Here]\n");
+
+        
+        printf("[F20:TO_EXIT:CTRL+C]\n");
+        while( 1 ){ /** Keep threaded window open. **/ };
+
+
 
         return( 0 );
     }//[;]//
@@ -3443,7 +3453,12 @@ typedef
     int F30_Main(){
         F30_Init();
 
-        printf("[F30:VULKAN_PFN. Nothing_To_Do_Here]\n");
+        
+
+        printf("[F30:TO_EXIT:CTRL+C]\n");
+        while( 1 ){ /** Keep threaded window open. **/ };
+
+
 
         return( 0 );
     }//[;]//
@@ -3496,6 +3511,7 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
     int F35_Main(){
         F35_Init();
 
+            printf("[F35:TO_EXIT:CTRL+C]\n");
             while( 1 ){ }; //:LOOP_FOREVER
 
         return( 0 );
@@ -3831,17 +3847,18 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
     return( 0 );
 }//[;]//
 
-static int 
-f40_OpenWindowAndInitializeEngine( void ){
-
-    //:Start up the window loop:
-    F10_CreateThread_Launches_StartRoutine();
-    
-    //:Initialize Vulkan Stuff:
-    f40_EngineInit();
-
-    return( 0 );
-}//[;]//
+//: Window now already opened via .SUPER_CHAIN
+//: static int 
+//: f40_OpenWindowAndInitializeEngine( void ){
+//: 
+//:     //:Start up the window loop:
+//:     F10_CreateThread_Launches_StartRoutine();
+//:     
+//:     //:Initialize Vulkan Stuff:
+//:     f40_EngineInit();
+//: 
+//:     return( 0 );
+//: }//[;]//
 
 //:IM:Init_And_Main:
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
@@ -3854,13 +3871,16 @@ f40_OpenWindowAndInitializeEngine( void ){
         //:You don't want "F.50" to have to call TWO previous
         //:initializers and have to guess in which order they
         //:need to be called.
-        f40_OpenWindowAndInitializeEngine();
+        //:f40_OpenWindowAndInitializeEngine();
+        f40_EngineInit();
 
         printf("[END:F40:Init]\n");
         return( ret );
     }//[;]//
     int F40_Main(){
         F40_Init();
+
+        printf("[F40:TO_EXIT:CTRL+C]\n");
 
         //:Stand in for where "mainLoop()" in future file.
         //:(Tutorial uses name "mainLoop()", I probably won't
@@ -3937,6 +3957,7 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
     int F50_Main(){
         F50_Init();
 
+            printf("[F50:TO_EXIT:CTRL+C]\n");
             while( 1 ){ }; //:LOOP_FOREVER
 
         return( 0 );
@@ -4112,9 +4133,11 @@ VG03_Demo( void ){
     printf("[BEG:VG03_DEMO]\n");
 
 
-     F10_Main();
-
+    //:F10_Main();
+    //:F35_Main();
     //:F40_Main();
+    //:F50_Main();
+    F60_Main();
 
 
     printf("[END:VG03_DEMO]\n");

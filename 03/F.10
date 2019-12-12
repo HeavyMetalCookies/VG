@@ -168,15 +168,17 @@ F10_CreateThread_Launches_StartRoutine(){
 int F10_Init(){
     //:No action needed besides calling further down chain:
 
-    int ret = F09_Init();
+    int ret = F09_Init(); //: .SUPER_CHAIN
+
+    //:F10 specific init logic:
+    F10_CreateThread_Launches_StartRoutine();
+
     return( ret );
 
 }//[;]//
     
 int F10_Main(){
     F10_Init();
-
-    F10_CreateThread_Launches_StartRoutine();
 
     printf(
         "***************** [CTRL+C:ToExit] *****************\n"

@@ -139,7 +139,12 @@ F20_VkDebugUtilsMessengerCallbackDataEXT {
     int F20_Main(){
         F20_Init();
 
-        printf("[F20:VULKAN_STRUCTS. Nothing_To_Do_Here]\n");
+
+        
+        printf("[F20:TO_EXIT:CTRL+C]\n");
+        while( 1 ){ /** Keep threaded window open. **/ };
+
+
 
         return( 0 );
     }//[;]//

@@ -57,6 +57,7 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
     int F50_Main(){
         F50_Init();
 
+            printf("[F50:TO_EXIT:CTRL+C]\n");
             while( 1 ){ }; //:LOOP_FOREVER
 
         return( 0 );
