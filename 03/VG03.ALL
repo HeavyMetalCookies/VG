@@ -1446,6 +1446,29 @@ F02_F01_MACRO( GetProcessHeap   , kernel32)  //[ 20 ]//
 F02_F01_MACRO( CreateThread     , kernel32)  //[ 21 ]//
 F02_F01_MACRO( HeapAlloc        , kernel32)  //[ 22 ]//
 
+//:Vulkan_Functions:
+////////////////////////////////////////////////////////////////
+
+//:MAKES: F02_vkEnumerateInstanceExtensionProperties
+F02_F01_MACRO(  
+    vkEnumerateInstanceExtensionProperties 
+,   vulkan-1 
+)
+
+//:MAKES: F02_vkCreateInstance
+F02_F01_MACRO( 
+    vkCreateInstance 
+,   vulkan-1 
+)
+
+//:MAKES: F02_vkEnumerateInstanceLayerProperties
+F02_F01_MACRO(
+    vkEnumerateInstanceLayerProperties
+,   vulkan-1
+)
+
+////////////////////////////////////////////////////////////////
+
 
 //!( RegisterWindow   , user32  )  YOU_MADE_THIS_ONE_UP      !//
 
@@ -1627,9 +1650,14 @@ int F02_Init(){
             #include "./F.01" //:<--[[[DOTADIW:DLL_FUNC_LIST]]]
     #undef  F02_F01_MACRO
 
-    if( F02_GF_total_number_of_functions_fetched != 22 ){
-        F02_Halt("[Expected_This_Many_Fetched_Funcs]");
-    };;
+   // if( F02_GF_total_number_of_functions_fetched != 23 ){
+   //     F02_Halt("[Expected_This_Many_Fetched_Funcs]");
+   // };;
+
+    printf("[F02:NUM_FUNCS_FETCHED]:%d\n",
+        F02_GF_total_number_of_functions_fetched );;
+    fflush(stdout);
+
 
 
     printf("[END:F02:Init]\n");
@@ -2842,7 +2870,6 @@ F09_OpenWindowAndLoopForever(
     //: But using extended (ex) function and unicode/wide
     //: characters where I can. Thus resolved type is LPCWSTR.
 ){
-
      
     void* /**HMODULE**/ hin=(
         ((F03_01)F02_GetModuleHandleW)(
@@ -3224,6 +3251,842 @@ int F10_Main(){
 }//[;]//
 
 //#FILE_REGION[ F.10 ]END#####################################//
+//#FILE_REGION[ F.20 ]BEG#####################################//
+
+//: DOTADIW: VULKAN_STRUCT
+//: (Declarations, no instantiation!)
+
+struct F20_VkApplicationInfo {
+    unsigned int       sType; //:VkStructureType
+    const void*        pNext;
+    const char*        pApplicationName;
+    unsigned int       applicationVersion; //:uint32_t
+    const char*        pEngineName;
+    unsigned int       engineVersion;      //:unsigned int
+    unsigned int       apiVersion;         //:unsigned int
+};//[struct]//
+
+struct F20_VkInstanceCreateInfo {
+    unsigned int                sType; //:VkStructureType
+    const void*                 pNext;
+    unsigned int                flags;
+
+    const struct F20_VkApplicationInfo*    
+                      pApplicationInfo;
+
+    unsigned int                enabledLayerCount;
+    const char* const*          ppEnabledLayerNames;
+
+    //:Is "const char**" same as "const char* const*" ?
+    //:In fact.. Both are "char**" with extra constraints.
+
+    unsigned int                enabledExtensionCount;
+    const char* const*          ppEnabledExtensionNames;
+
+};//[struct]//
+
+struct F20_VkExtensionProperties {
+
+    char        
+    extensionName[ 
+
+        256 /**VK_MAX_EXTENSION_NAME_SIZE**/ 
+
+    ];
+
+    unsigned int /** uint32_t **/    
+    specVersion;
+
+};//[struct]//
+
+struct F20_VkLayerProperties {
+    
+    #define MACRO_A 256 //:VK_MAX_EXTENSION_NAME_SIZE
+    #define MACRO_B 256 //:VK_MAX_DESCRIPTION_SIZE
+
+    char            layerName[   MACRO_A ];//:MAX_EXT
+    unsigned int    specVersion;
+    unsigned int    implementationVersion;
+    char            description[ MACRO_B ];//:MAX_DSC
+
+    #undef MACRO_A
+    #undef MACRO_B
+
+};//[struct]//
+
+struct 
+F20_VkDebugUtilsLabelEXT {
+    unsigned int       sType; /** VkStructureType **/
+    const void*        pNext;
+    const char*        pLabelName;
+    float              color[4];
+};//[struct]//
+
+struct 
+F20_VkDebugUtilsObjectNameInfoEXT {
+    unsigned int         sType;        /** VkStructureType **/
+    const   void*        pNext;
+    unsigned int         objectType;   /** VkObjectType    **/
+    unsigned long long   objectHandle; /** uint64_t        **/
+    const char*          pObjectName;
+};
+
+struct 
+F20_VkDebugUtilsMessengerCallbackDataEXT {
+
+    unsigned int /** VkStructureType **/
+    sType;
+
+    const void*                                  
+    pNext;
+
+    /** VkDebugUtilsMessengerCallbackDataFlagsEXT **/ 
+    unsigned int    
+    flags;
+
+    const char*                                  
+    pMessageIdName;
+
+    signed int /** int32_t **/                                      
+    messageIdNumber;
+
+    const char*                                  
+    pMessage;
+
+    unsigned int /** uint32_t **/                                     
+    queueLabelCount;
+
+    const struct F20_VkDebugUtilsLabelEXT*                  
+    pQueueLabels;
+
+    unsigned int /** uint32_t **/                                     
+    cmdBufLabelCount;
+
+    const struct F20_VkDebugUtilsLabelEXT*                  
+    pCmdBufLabels;
+
+    unsigned int /** uint32_t **/                                     
+    objectCount;
+
+    const struct F20_VkDebugUtilsObjectNameInfoEXT*         
+    pObjects;
+
+};
+
+//[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
+
+
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+    int F20_Init(){
+        printf("[BEG:F20:Init]\n");
+
+        int ret = F10_Init();
+
+        printf("[END:F20:Init]\n");
+        return( ret );
+    }//[;]//
+    int F20_Main(){
+        F20_Init();
+
+        printf("[F20:VULKAN_STRUCTS. Nothing_To_Do_Here]\n");
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.20 ]END#####################################//
+
+
+//:DOTADIW: VULKAN_PFN_TD
+//:         Vulkan Function Typedefs
+//:         (do not typedef structs)
+
+typedef 
+    unsigned int /** VkBool32 **/ 
+    (
+        __stdcall /** VKAPI_PTR **/ 
+        *F30_PFN_vkDebugUtilsMessengerCallbackEXT
+    )
+    (
+        /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
+        unsigned int
+        messageSeverity 
+        ,
+        /** VkDebugUtilsMessageTypeFlagsEXT  **/
+        unsigned int
+        messageTypes 
+        ,
+        const struct F20_VkDebugUtilsMessengerCallbackDataEXT*      
+        pCallbackData 
+        ,
+        void*                                            
+        pUserData
+    );
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+    int F30_Init(){
+        printf("[BEG:F30:Init]\n");
+
+        int ret = F20_Init();
+
+        printf("[END:F30:Init]\n");
+        return( ret );
+    }//[;]//
+    int F30_Main(){
+        F30_Init();
+
+        printf("[F30:VULKAN_PFN. Nothing_To_Do_Here]\n");
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+//#FILE_REGION[ F.35 ]BEG#####################################//
+
+//:DOTADIW: STRUCTS_WITH_PFN_MEMBERS
+//:F.35: 
+//:      Vulkan Structs that take function pointers as
+//:      defined in F.30
+
+struct 
+F35_VkDebugUtilsMessengerCreateInfoEXT {
+
+    unsigned int  /** VkStructureType **/   
+    sType;
+
+    const void*                             
+    pNext;
+
+    unsigned int  /** VkDebugUtilsMessengerCreateFlagsEXT **/
+    flags;
+
+    unsigned int  /** VkDebugUtilsMessageSeverityFlagsEXT **/
+    messageSeverity;
+
+    unsigned int  /** VkDebugUtilsMessageTypeFlagsEXT     **/         
+    messageType;
+
+    F30_PFN_vkDebugUtilsMessengerCallbackEXT      
+    pfnUserCallback;
+
+    void*                                   
+    pUserData;
+};//[struct]//
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F35_Init(){
+        printf("[BEG:F35:Init]\n");
+
+            //:Call previous initialiers on chain:
+            int ret = F30_Init(); //: ".SUPER_CHAIN()"
+
+        printf("[END:F35:Init]\n");
+        return( ret );
+    }//[;]//
+    int F35_Main(){
+        F35_Init();
+
+            while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.35 ]END#####################################//
+//#FILE_REGION[ F.40 ]BEG#####################################//
+
+//:DOTADIW: VULKAN_XX_TUT
+//:         Vulkan Tutorial Code Begins
+
+static void 
+f40_Halt( const char* msg ){ 
+    printf( "[F40_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+
+          /** f40_use_validation_layers **/
+#define f40_MACRO_use_validation_layers 1
+
+//:For use outside this file, so we can undefine the
+//:macro before we leave.
+int f40_use_validation_layers=(
+
+    f40_MACRO_use_validation_layers
+
+);//[ON_SCOOBY_DOO_SHAGGYS_REAL_NAME_IS:Norville Rogers]//
+//:https://en.wikipedia.org/wiki/Shaggy_Rogers
+
+static struct 
+F20_VkApplicationInfo 
+f40_appInfo = { 0 };
+
+static void* 
+f40_instance = NULL; //: VkInstance
+
+static struct 
+F20_VkInstanceCreateInfo
+f40_createInfo = { 0 };
+
+static struct 
+F20_VkExtensionProperties* 
+f40_extensions = NULL;
+
+static struct
+F20_VkLayerProperties*
+f40_layers=NULL; //:f40_instance_validation_layers
+
+//: static void* /** VkDebugUtilsMessengerEXT **/
+//: f40_callback=NULL;
+
+//: static int //:NOOP: No-operation.
+//: f40_NOOP1( void* arg1 ){ 
+//:     if( arg1 ){ /** NOOP **/ };
+//:     return( 0 );
+//: }//[;]//
+
+////////////////////////////////////////////////////////////////
+
+                 /** f40_use_validation_layers **/
+    #if(       f40_MACRO_use_validation_layers <= 0 ) //:OFF
+
+        #define f40_wanted_extensions_count_MACRO 2
+
+        static const char* 
+        f40_wanted_extensions[ 
+
+            f40_wanted_extensions_count_MACRO 
+
+        ]={ 
+                "VK_KHR_surface"
+            ,   "VK_KHR_win32_surface"
+        };
+
+                 /** f40_use_validation_layers **/
+    #elif(     f40_MACRO_use_validation_layers >  0 ) //:ENABLE
+    
+        #define f40_wanted_extensions_count_MACRO 3
+
+        static const char* 
+        f40_wanted_extensions[ 
+
+            f40_wanted_extensions_count_MACRO 
+
+        ]={ 
+                "VK_KHR_surface"
+            ,   "VK_KHR_win32_surface"
+            ,   "VK_EXT_debug_utils" //:PG[55]SC[VKT2018]
+        };
+
+                 /** f40_use_validation_layers **/
+    #endif //: f40_MACRO_use_validation_layers
+
+#undef  UNDEF_THAT_MACRO_AT_BOTTOM_OF_FILE /////////////////////
+#define f40_wanted_validation_layers_count_MACRO 1 /////////////
+
+    static const char*
+    f40_wanted_validation_layers[
+        f40_wanted_validation_layers_count_MACRO
+    ]={
+
+        "VK_LAYER_LUNARG_standard_validation"
+
+    };
+
+#undef  UNDEF_THAT_MACRO_AT_BOTTOM_OF_FILE /////////////////////
+
+////////////////////////////////////////////////////////////////
+
+//: This belongs somewhere in the future.
+//  int F40_EngineLoop( void ){
+//      while( 1 ){
+//  
+//          //:RenderingLogicHere
+//  
+//      };;
+//  }//[;]//
+
+////////////////////////////////////////////////////////////////
+
+//:    www.khronos.org/registry/vulkan/specs
+//: /1.1-extensions/man/html/VK_MAKE_VERSION.html
+static unsigned int f40_MV( //:VK_MAKE_VERSION 
+    unsigned int major
+,   unsigned int minor
+,   unsigned int patch
+){
+
+    unsigned int ret;
+    ret = (((major) << 22) | ((minor) << 12) | (patch));
+    return( ret );
+
+}//[;]//
+
+
+////////////////////////////////////////////////////////////////
+
+
+//:f40_debugCallback:
+//:Renamed to f60_debugCallback and moved into "F.60"
+
+static int 
+f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
+
+    //:TODO: STUFF:
+
+    //:What Extensions Do We Have?
+    ////////////////////////////////////////////////////////////
+    unsigned int
+    extensionCount = 0;
+    ((F03_03)F02_vkEnumerateInstanceExtensionProperties)(
+        NULL
+    ,   &extensionCount
+    ,   NULL
+    );;
+
+        {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
+
+            int one = sizeof(struct F20_VkExtensionProperties);
+            int all = one*extensionCount;
+            f40_extensions = malloc( all );
+
+        }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+
+    ((F03_03)F02_vkEnumerateInstanceExtensionProperties)(
+        NULL
+    ,   &extensionCount
+    ,    f40_extensions
+    );;
+
+    printf("[extensionCount]:%d\n", extensionCount);
+    for( int i = 0; i < (int)extensionCount; i++ ){
+
+        printf("[INST_EXT_NAME:%s\n",
+            (f40_extensions[ i ]).extensionName
+        );;
+    };;
+    fflush(stdout);
+
+    ////////////////////////////////////////////////////////////
+
+    //: Chapter 6: Using Validation Layers.
+    //: VK_TUT_2018.PDF   , BOOK_PAGE[ 52 - 53 ]
+    ////////////////////////////////////////////////////////////
+
+    if( f40_layers ){ /** NOOP **/ };
+
+    unsigned int layer_count = 0;
+    ((F03_02)F02_vkEnumerateInstanceLayerProperties)(
+        &layer_count
+    ,   NULL
+    );;
+    
+    if( layer_count <= 0 ){
+        f40_Halt("[WTF:NoLayers]\n");
+    };;
+    
+        {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
+
+        //: [ f40_layers / 40_instance_validation_layers ]
+
+        int one = sizeof( struct F20_VkLayerProperties );
+        int all = one*layer_count;
+        f40_layers=malloc(all); 
+
+        }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+    
+    ((F03_02)F02_vkEnumerateInstanceLayerProperties)(
+        &layer_count
+    ,    f40_layers
+    );;
+    
+    printf("[layer_count]:%d\n", ((int)layer_count));
+    for( int i = 0; i < (int)layer_count; i++ ){
+    
+        printf("[VAL_LAY:%s\n",
+            (f40_layers[ i ]).layerName
+        );;
+    };;
+    fflush(stdout);
+
+
+    //:Compare against the validation layers you want:
+    {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
+    int found;
+    
+        int wanted_count =(
+            f40_wanted_validation_layers_count_MACRO
+        );;
+        for( int w = 0; w <     wanted_count;  w++ ){ //:WANTED  
+        for( int h = 0; h < (int)layer_count;  h++ ){ //:HAVE   
+
+            //:FIRST:"h"
+            ////////////////////////////////////////////////////
+            if(0==h){ found = 0; }; //:RESET, first "h"
+            ////////////////////////////////////////////////////
+
+            //:BODY:
+            ////////////////////////////////////////////////////
+            
+            const char* have = f40_layers[h].layerName;
+            const char* want = f40_wanted_validation_layers[w];
+            int com_res =( strcmp( have, want ) );
+            if(0==com_res){
+                found=1; break;
+            };;
+
+            ////////////////////////////////////////////////////
+
+            //:LAST:"h"
+            ////////////////////////////////////////////////////
+            if( h == ((int)layer_count-1) ){ //:(-1)==LAST_ITEM
+                if(found <= 0 ){
+                    printf("[MISSING_LAYER]:%s\n", want );
+                    f40_Halt(
+                        "[WANTED_VALIDATION_LAYER_NOT_FOUND]"
+                    );;
+                };;
+            };;
+            ////////////////////////////////////////////////////
+
+        };;};; //[ NEXT: WANTED|HAVE ]// ///////////////////////
+    
+    
+    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+
+        //:Create Instance:
+        ////////////////////////////////////////////////////////
+        f40_appInfo.sType    = 0; /** APPLICATION_INFO **/
+        f40_appInfo.pApplicationName   = "HELLO_TRIANGLE";
+        f40_appInfo.applicationVersion = f40_MV(1,0,0)   ;
+        f40_appInfo.pEngineName        = "No Engine"     ;
+        f40_appInfo.engineVersion      = f40_MV(1,0,0)   ;
+        f40_appInfo.apiVersion         = f40_MV(1,0,0)   ;
+
+        f40_createInfo.sType = 1; /** INSTANCE_CREATE_INFO **/
+        f40_createInfo.pApplicationInfo = &(f40_appInfo);
+        f40_createInfo.enabledExtensionCount=(
+            f40_wanted_extensions_count_MACRO
+        );;
+        f40_createInfo.ppEnabledExtensionNames=(
+            f40_wanted_extensions
+        );;
+
+        f40_createInfo.enabledLayerCount=0;
+        f40_createInfo.ppEnabledLayerNames=NULL;
+
+            ////////////////////////////////////////////////////
+            /** ENABLE_VALIDATION_LAYERS ?  **/  
+            /**       f40_use_validation_layers **/
+            if( f40_MACRO_use_validation_layers > 1 ){
+
+                f40_createInfo.enabledLayerCount =(
+                    f40_wanted_validation_layers_count_MACRO
+                );;
+                f40_createInfo.ppEnabledLayerNames=(
+                    f40_wanted_validation_layers
+                );;
+
+            };;
+            ////////////////////////////////////////////////////
+       
+        unsigned int res=(
+            (unsigned int)(unsigned long long)
+            ((F03_03)F02_vkCreateInstance)(
+                &(f40_createInfo)
+            ,   (void*)NULL
+            ,   &(f40_instance)
+            )
+        );;
+        if( 0 != res ){
+            f40_Halt( "[2019_12_11:0213AM]");
+        }else{
+
+            printf("[vkCreateInstance:WORKED!]\n");
+            fflush(stdout);
+
+        };;
+        ////////////////////////////////////////////////////////
+    
+        /******************************************************/
+        /**  Setup code continued in FILE[ F.60 ]            **/
+        /**  Because we need to grab function pointers that  **/
+        /**  require a reference to a vulkan instance.       **/
+        /**  This is done in FILE[ F.50 ]                    **/
+        /******************************************************/
+   
+    ////////////////////////////////////////////////////////////
+    //:END Chapter 6
+
+    return( 0 );
+}//[;]//
+
+static int 
+f40_OpenWindowAndInitializeEngine( void ){
+
+    //:Start up the window loop:
+    F10_CreateThread_Launches_StartRoutine();
+    
+    //:Initialize Vulkan Stuff:
+    f40_EngineInit();
+
+    return( 0 );
+}//[;]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F40_Init(){
+        printf("[BEG:F40:Init]\n");
+
+        int ret = F35_Init(); //: ".SUPER_CHAIN()"
+
+        //:Call here to avoid initialization fork:
+        //:You don't want "F.50" to have to call TWO previous
+        //:initializers and have to guess in which order they
+        //:need to be called.
+        f40_OpenWindowAndInitializeEngine();
+
+        printf("[END:F40:Init]\n");
+        return( ret );
+    }//[;]//
+    int F40_Main(){
+        F40_Init();
+
+        //:Stand in for where "mainLoop()" in future file.
+        //:(Tutorial uses name "mainLoop()", I probably won't
+        //:use that name. I'll probably call it: "EngineLoop()"
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+#undef  f40_wanted_extensions_count_MACRO         //////////////
+#undef  f40_wanted_validation_layers_count_MACRO  //////////////
+#undef  f40_MACRO_use_validation_layers           //////////////
+
+//#FILE_REGION[ F.40 ]END#####################################//
+//#FILE_REGION[ F.50 ]BEG#####################################//
+
+//:DOTADIW: GetVulkanExtensionFunctions
+//:         
+//:OUTISDE OF SCOPE:
+//:         Proper wrapper code for function pointers.
+//:
+//:GATHER VULKAN EXTENSION FUNCTIONS.
+//:Lets go light on the "macro magic" though.
+//:You can save ALMOST as much space without using macros,
+//:and end up with much less obfuscated code.
+
+
+F02_VOF
+F50_vkCreateDebugUtilsMessengerEXT = NULL;
+
+
+static F02_VOF //:<--returns generic function pointer.
+f50_GIPA( /** vkGetInstanceProcAddr **/
+    void*       vk_instance
+,   const char* function_name
+){
+    if( vk_instance   ){ /** NOOP **/ };  
+    if( function_name ){ /** NOOP **/ };
+
+    //:TODO: logic.
+
+    return( (F02_VOF)0 ); //:VOID FUNCTION.
+
+}//[;]//
+
+static void
+f50_fetchAndLoad_VulkanInstanceFunctions(){
+
+    F50_vkCreateDebugUtilsMessengerEXT=f50_GIPA(
+        f40_instance
+    ,   "vkCreateDebugUtilsMessengerEXT"
+    );;
+
+}//[;]//
+
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F50_Init(){
+        printf("[BEG:F50:Init]\n");
+
+            //:Call previous initialiers on chain:
+            int ret = F40_Init(); //: ".SUPER()"
+
+            f50_fetchAndLoad_VulkanInstanceFunctions( );
+
+        printf("[END:F50:Init]\n");
+        return( ret );
+    }//[;]//
+    int F50_Main(){
+        F50_Init();
+
+            while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+
+
+
+//#FILE_REGION[ F.50 ]END#####################################//
+//#FILE_REGION[ F.60 ]BEG#####################################//
+
+//:
+//: DOTADIW: VULKAN_INIT_PART_02
+//:   
+
+
+
+
+
+
+static int //:NOOP: No-operation.
+f60_NOOP1( void* arg1 ){ 
+    if( arg1 ){ /** NOOP **/ };
+    return( 0 );
+}//[;]//
+
+
+//:PG[55]SC[VKT2018]
+static unsigned int __stdcall
+f60_debugCallback(
+/**/  
+/**/      /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
+/**/      unsigned int 
+/**/      messageSeverity
+/**/  
+/**/      /** VkDebugUtilsMessageTypeFlagsEXT        **/
+/**/  ,   unsigned int
+/**/      messageType
+/**/  
+/**/  ,   const struct F20_VkDebugUtilsMessengerCallbackDataEXT* 
+/**/      pCallbackData
+/**/  
+/**/  ,   void* 
+/**/      pUserData
+/**/  
+){
+
+    if( messageSeverity ){ /** NOOP **/ };
+    if( messageType     ){ /** NOOP **/ };
+    if( pUserData       ){ /** NOOP **/ };
+
+    printf("[Validation_Layer]:%s\n", pCallbackData->pMessage);
+
+    return( 0 /** VK_FALSE **/ );
+
+}//[;]//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//:  Picking up from where we left off with                  ://
+//:  f40_OpenWindowAndInitializeEngine after a               ://
+//:  short intermission to gather vulkan instance funcs.     ://
+static void
+f60_EngineInit_PART2_WindowAlreadyOpen( void ){
+
+    //:BOOK_PAGE[57]://
+    /** f40_MACRO_use_validation_layers **/
+    if( f40_use_validation_layers > 0 ){
+
+        struct F35_VkDebugUtilsMessengerCreateInfoEXT
+        create_info={ 0 };
+
+        /** VK_STRUCTURE_TYPE: 1000128004          **/
+        /** DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT  **/
+        create_info.sType = 1000128004;
+        create_info.messageSeverity=(
+         0 /** VK_DEBUG_UTILS_MESSAGE_SEVERITY_*_EXT **/
+            | 0x00000001 /** VERBOSE_BIT **/
+            | 0x00000100 /** WARNING_BIT **/
+            | 0x00001000 /** ERROR_BIT   **/
+        |0);;
+        create_info.messageType     =(
+         0 /** VK_DEBUG_UTILS_MESSAGE_TYPE_*_EXT **/
+            | 0x00000001 /** GENERAL_BIT     **/
+            | 0x00000002 /** VALIDATION_BIT  **/
+            | 0x00000004 /** PERFORMANCE_BIT **/
+        |0);;
+        create_info.pfnUserCallback = f60_debugCallback;
+        create_info.pUserData       = NULL; /** Optional **/
+
+        printf("[TODO:vkGetInstanceProcAddr, page 58]\n");
+        if( create_info.sType != 1000128004  ){ 
+            f40_Halt("[sType!=1000128004]\n");
+        };;
+
+        f60_NOOP1( &create_info );
+     //:f60_NOOP1( f40_callback );
+
+    };;
+
+}//[;]//
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F60_Init(){
+        printf("[BEG:F60:Init]\n");
+
+        //:Get instance function pointers:
+        int ret = F50_Init(); //: ".SUPER_CHAIN()"
+
+        f60_EngineInit_PART2_WindowAlreadyOpen();
+
+        printf("[END:F60:Init]\n");
+        return( ret );
+    }//[;]//
+    int F60_Main(){
+        F60_Init();
+
+        //:Stand in for a renderloop, so that program does
+        //:not immediately exit and you never see window and
+        //:assume error is in your code.
+        printf("[F60:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.60 ]END#####################################//
 //#FILE_REGION[ VG03.H ]BEG###################################//
 
 //|---- F01 ------|////[ DOTADIW:DLL_FUNC_LIST ]//
@@ -3238,6 +4101,10 @@ int F10_Main(){
 //|-----F08 ------|////[ DOTADIW:DLL_WRAP_MAKE ]//
 //|-----F09 ------|////[ DOTADIW:MAKE_A_WINDOW ]//
 //|-----F10 ------|////[ DOTADIW:WIN_IN_THREAD ]//
+
+//|-----F20 ------|////[ DOTADIW:VULKAN_STRUCT ]//
+//|-----F30 ------|////[ DOTADIW:VULKAN_PFN_TD ]//
+//|-----F40 ------|////[ DOTADIW:VULKAN_XX_TUT ]//
     
 
 int
@@ -3245,7 +4112,9 @@ VG03_Demo( void ){
     printf("[BEG:VG03_DEMO]\n");
 
 
-    F10_Main();
+     F10_Main();
+
+    //:F40_Main();
 
 
     printf("[END:VG03_DEMO]\n");

@@ -1,0 +1,49 @@
+
+
+//:DOTADIW: VULKAN_PFN_TD
+//:         Vulkan Function Typedefs
+//:         (do not typedef structs)
+
+typedef 
+    unsigned int /** VkBool32 **/ 
+    (
+        __stdcall /** VKAPI_PTR **/ 
+        *F30_PFN_vkDebugUtilsMessengerCallbackEXT
+    )
+    (
+        /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
+        unsigned int
+        messageSeverity 
+        ,
+        /** VkDebugUtilsMessageTypeFlagsEXT  **/
+        unsigned int
+        messageTypes 
+        ,
+        const struct F20_VkDebugUtilsMessengerCallbackDataEXT*      
+        pCallbackData 
+        ,
+        void*                                            
+        pUserData
+    );
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+    int F30_Init(){
+        printf("[BEG:F30:Init]\n");
+
+        int ret = F20_Init();
+
+        printf("[END:F30:Init]\n");
+        return( ret );
+    }//[;]//
+    int F30_Main(){
+        F30_Init();
+
+        printf("[F30:VULKAN_PFN. Nothing_To_Do_Here]\n");
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//

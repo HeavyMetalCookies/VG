@@ -12,6 +12,10 @@
 //|-----F08 ------|////[ DOTADIW:DLL_WRAP_MAKE ]//
 //|-----F09 ------|////[ DOTADIW:MAKE_A_WINDOW ]//
 //|-----F10 ------|////[ DOTADIW:WIN_IN_THREAD ]//
+
+//|-----F20 ------|////[ DOTADIW:VULKAN_STRUCT ]//
+//|-----F30 ------|////[ DOTADIW:VULKAN_PFN_TD ]//
+//|-----F40 ------|////[ DOTADIW:VULKAN_XX_TUT ]//
     
 
 int
@@ -19,7 +23,9 @@ VG03_Demo( void ){
     printf("[BEG:VG03_DEMO]\n");
 
 
-    F10_Main();
+     F10_Main();
+
+    //:F40_Main();
 
 
     printf("[END:VG03_DEMO]\n");

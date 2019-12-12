@@ -1,0 +1,138 @@
+//#FILE_REGION[ F.60 ]BEG#####################################//
+
+//:
+//: DOTADIW: VULKAN_INIT_PART_02
+//:   
+
+
+
+
+
+
+static int //:NOOP: No-operation.
+f60_NOOP1( void* arg1 ){ 
+    if( arg1 ){ /** NOOP **/ };
+    return( 0 );
+}//[;]//
+
+
+//:PG[55]SC[VKT2018]
+static unsigned int __stdcall
+f60_debugCallback(
+/**/  
+/**/      /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
+/**/      unsigned int 
+/**/      messageSeverity
+/**/  
+/**/      /** VkDebugUtilsMessageTypeFlagsEXT        **/
+/**/  ,   unsigned int
+/**/      messageType
+/**/  
+/**/  ,   const struct F20_VkDebugUtilsMessengerCallbackDataEXT* 
+/**/      pCallbackData
+/**/  
+/**/  ,   void* 
+/**/      pUserData
+/**/  
+){
+
+    if( messageSeverity ){ /** NOOP **/ };
+    if( messageType     ){ /** NOOP **/ };
+    if( pUserData       ){ /** NOOP **/ };
+
+    printf("[Validation_Layer]:%s\n", pCallbackData->pMessage);
+
+    return( 0 /** VK_FALSE **/ );
+
+}//[;]//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//:  Picking up from where we left off with                  ://
+//:  f40_OpenWindowAndInitializeEngine after a               ://
+//:  short intermission to gather vulkan instance funcs.     ://
+static void
+f60_EngineInit_PART2_WindowAlreadyOpen( void ){
+
+    //:BOOK_PAGE[57]://
+    /** f40_MACRO_use_validation_layers **/
+    if( f40_use_validation_layers > 0 ){
+
+        struct F35_VkDebugUtilsMessengerCreateInfoEXT
+        create_info={ 0 };
+
+        /** VK_STRUCTURE_TYPE: 1000128004          **/
+        /** DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT  **/
+        create_info.sType = 1000128004;
+        create_info.messageSeverity=(
+         0 /** VK_DEBUG_UTILS_MESSAGE_SEVERITY_*_EXT **/
+            | 0x00000001 /** VERBOSE_BIT **/
+            | 0x00000100 /** WARNING_BIT **/
+            | 0x00001000 /** ERROR_BIT   **/
+        |0);;
+        create_info.messageType     =(
+         0 /** VK_DEBUG_UTILS_MESSAGE_TYPE_*_EXT **/
+            | 0x00000001 /** GENERAL_BIT     **/
+            | 0x00000002 /** VALIDATION_BIT  **/
+            | 0x00000004 /** PERFORMANCE_BIT **/
+        |0);;
+        create_info.pfnUserCallback = f60_debugCallback;
+        create_info.pUserData       = NULL; /** Optional **/
+
+        printf("[TODO:vkGetInstanceProcAddr, page 58]\n");
+        if( create_info.sType != 1000128004  ){ 
+            f40_Halt("[sType!=1000128004]\n");
+        };;
+
+        f60_NOOP1( &create_info );
+     //:f60_NOOP1( f40_callback );
+
+    };;
+
+}//[;]//
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F60_Init(){
+        printf("[BEG:F60:Init]\n");
+
+        //:Get instance function pointers:
+        int ret = F50_Init(); //: ".SUPER_CHAIN()"
+
+        f60_EngineInit_PART2_WindowAlreadyOpen();
+
+        printf("[END:F60:Init]\n");
+        return( ret );
+    }//[;]//
+    int F60_Main(){
+        F60_Init();
+
+        //:Stand in for a renderloop, so that program does
+        //:not immediately exit and you never see window and
+        //:assume error is in your code.
+        printf("[F60:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.60 ]END#####################################//

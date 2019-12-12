@@ -142,9 +142,14 @@ int F02_Init(){
             #include "./F.01" //:<--[[[DOTADIW:DLL_FUNC_LIST]]]
     #undef  F02_F01_MACRO
 
-    if( F02_GF_total_number_of_functions_fetched != 22 ){
-        F02_Halt("[Expected_This_Many_Fetched_Funcs]");
-    };;
+   // if( F02_GF_total_number_of_functions_fetched != 23 ){
+   //     F02_Halt("[Expected_This_Many_Fetched_Funcs]");
+   // };;
+
+    printf("[F02:NUM_FUNCS_FETCHED]:%d\n",
+        F02_GF_total_number_of_functions_fetched );;
+    fflush(stdout);
+
 
 
     printf("[END:F02:Init]\n");

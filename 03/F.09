@@ -662,7 +662,6 @@ F09_OpenWindowAndLoopForever(
     //: But using extended (ex) function and unicode/wide
     //: characters where I can. Thus resolved type is LPCWSTR.
 ){
-
      
     void* /**HMODULE**/ hin=(
         ((F03_01)F02_GetModuleHandleW)(

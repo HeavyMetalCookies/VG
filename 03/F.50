@@ -1,0 +1,71 @@
+//#FILE_REGION[ F.50 ]BEG#####################################//
+
+//:DOTADIW: GetVulkanExtensionFunctions
+//:         
+//:OUTISDE OF SCOPE:
+//:         Proper wrapper code for function pointers.
+//:
+//:GATHER VULKAN EXTENSION FUNCTIONS.
+//:Lets go light on the "macro magic" though.
+//:You can save ALMOST as much space without using macros,
+//:and end up with much less obfuscated code.
+
+
+F02_VOF
+F50_vkCreateDebugUtilsMessengerEXT = NULL;
+
+
+static F02_VOF //:<--returns generic function pointer.
+f50_GIPA( /** vkGetInstanceProcAddr **/
+    void*       vk_instance
+,   const char* function_name
+){
+    if( vk_instance   ){ /** NOOP **/ };  
+    if( function_name ){ /** NOOP **/ };
+
+    //:TODO: logic.
+
+    return( (F02_VOF)0 ); //:VOID FUNCTION.
+
+}//[;]//
+
+static void
+f50_fetchAndLoad_VulkanInstanceFunctions(){
+
+    F50_vkCreateDebugUtilsMessengerEXT=f50_GIPA(
+        f40_instance
+    ,   "vkCreateDebugUtilsMessengerEXT"
+    );;
+
+}//[;]//
+
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F50_Init(){
+        printf("[BEG:F50:Init]\n");
+
+            //:Call previous initialiers on chain:
+            int ret = F40_Init(); //: ".SUPER()"
+
+            f50_fetchAndLoad_VulkanInstanceFunctions( );
+
+        printf("[END:F50:Init]\n");
+        return( ret );
+    }//[;]//
+    int F50_Main(){
+        F50_Init();
+
+            while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+
+
+
+//#FILE_REGION[ F.50 ]END#####################################//

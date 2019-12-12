@@ -1,0 +1,55 @@
+//#FILE_REGION[ F.35 ]BEG#####################################//
+
+//:DOTADIW: STRUCTS_WITH_PFN_MEMBERS
+//:F.35: 
+//:      Vulkan Structs that take function pointers as
+//:      defined in F.30
+
+struct 
+F35_VkDebugUtilsMessengerCreateInfoEXT {
+
+    unsigned int  /** VkStructureType **/   
+    sType;
+
+    const void*                             
+    pNext;
+
+    unsigned int  /** VkDebugUtilsMessengerCreateFlagsEXT **/
+    flags;
+
+    unsigned int  /** VkDebugUtilsMessageSeverityFlagsEXT **/
+    messageSeverity;
+
+    unsigned int  /** VkDebugUtilsMessageTypeFlagsEXT     **/         
+    messageType;
+
+    F30_PFN_vkDebugUtilsMessengerCallbackEXT      
+    pfnUserCallback;
+
+    void*                                   
+    pUserData;
+};//[struct]//
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F35_Init(){
+        printf("[BEG:F35:Init]\n");
+
+            //:Call previous initialiers on chain:
+            int ret = F30_Init(); //: ".SUPER_CHAIN()"
+
+        printf("[END:F35:Init]\n");
+        return( ret );
+    }//[;]//
+    int F35_Main(){
+        F35_Init();
+
+            while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.35 ]END#####################################//

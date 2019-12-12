@@ -1,0 +1,374 @@
+//#FILE_REGION[ F.40 ]BEG#####################################//
+
+//:DOTADIW: VULKAN_XX_TUT
+//:         Vulkan Tutorial Code Begins
+
+static void 
+f40_Halt( const char* msg ){ 
+    printf( "[F40_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+
+          /** f40_use_validation_layers **/
+#define f40_MACRO_use_validation_layers 1
+
+//:For use outside this file, so we can undefine the
+//:macro before we leave.
+int f40_use_validation_layers=(
+
+    f40_MACRO_use_validation_layers
+
+);//[ON_SCOOBY_DOO_SHAGGYS_REAL_NAME_IS:Norville Rogers]//
+//:https://en.wikipedia.org/wiki/Shaggy_Rogers
+
+static struct 
+F20_VkApplicationInfo 
+f40_appInfo = { 0 };
+
+static void* 
+f40_instance = NULL; //: VkInstance
+
+static struct 
+F20_VkInstanceCreateInfo
+f40_createInfo = { 0 };
+
+static struct 
+F20_VkExtensionProperties* 
+f40_extensions = NULL;
+
+static struct
+F20_VkLayerProperties*
+f40_layers=NULL; //:f40_instance_validation_layers
+
+//: static void* /** VkDebugUtilsMessengerEXT **/
+//: f40_callback=NULL;
+
+//: static int //:NOOP: No-operation.
+//: f40_NOOP1( void* arg1 ){ 
+//:     if( arg1 ){ /** NOOP **/ };
+//:     return( 0 );
+//: }//[;]//
+
+////////////////////////////////////////////////////////////////
+
+                 /** f40_use_validation_layers **/
+    #if(       f40_MACRO_use_validation_layers <= 0 ) //:OFF
+
+        #define f40_wanted_extensions_count_MACRO 2
+
+        static const char* 
+        f40_wanted_extensions[ 
+
+            f40_wanted_extensions_count_MACRO 
+
+        ]={ 
+                "VK_KHR_surface"
+            ,   "VK_KHR_win32_surface"
+        };
+
+                 /** f40_use_validation_layers **/
+    #elif(     f40_MACRO_use_validation_layers >  0 ) //:ENABLE
+    
+        #define f40_wanted_extensions_count_MACRO 3
+
+        static const char* 
+        f40_wanted_extensions[ 
+
+            f40_wanted_extensions_count_MACRO 
+
+        ]={ 
+                "VK_KHR_surface"
+            ,   "VK_KHR_win32_surface"
+            ,   "VK_EXT_debug_utils" //:PG[55]SC[VKT2018]
+        };
+
+                 /** f40_use_validation_layers **/
+    #endif //: f40_MACRO_use_validation_layers
+
+#undef  UNDEF_THAT_MACRO_AT_BOTTOM_OF_FILE /////////////////////
+#define f40_wanted_validation_layers_count_MACRO 1 /////////////
+
+    static const char*
+    f40_wanted_validation_layers[
+        f40_wanted_validation_layers_count_MACRO
+    ]={
+
+        "VK_LAYER_LUNARG_standard_validation"
+
+    };
+
+#undef  UNDEF_THAT_MACRO_AT_BOTTOM_OF_FILE /////////////////////
+
+////////////////////////////////////////////////////////////////
+
+//: This belongs somewhere in the future.
+//  int F40_EngineLoop( void ){
+//      while( 1 ){
+//  
+//          //:RenderingLogicHere
+//  
+//      };;
+//  }//[;]//
+
+////////////////////////////////////////////////////////////////
+
+//:    www.khronos.org/registry/vulkan/specs
+//: /1.1-extensions/man/html/VK_MAKE_VERSION.html
+static unsigned int f40_MV( //:VK_MAKE_VERSION 
+    unsigned int major
+,   unsigned int minor
+,   unsigned int patch
+){
+
+    unsigned int ret;
+    ret = (((major) << 22) | ((minor) << 12) | (patch));
+    return( ret );
+
+}//[;]//
+
+
+////////////////////////////////////////////////////////////////
+
+
+//:f40_debugCallback:
+//:Renamed to f60_debugCallback and moved into "F.60"
+
+static int 
+f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
+
+    //:TODO: STUFF:
+
+    //:What Extensions Do We Have?
+    ////////////////////////////////////////////////////////////
+    unsigned int
+    extensionCount = 0;
+    ((F03_03)F02_vkEnumerateInstanceExtensionProperties)(
+        NULL
+    ,   &extensionCount
+    ,   NULL
+    );;
+
+        {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
+
+            int one = sizeof(struct F20_VkExtensionProperties);
+            int all = one*extensionCount;
+            f40_extensions = malloc( all );
+
+        }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+
+    ((F03_03)F02_vkEnumerateInstanceExtensionProperties)(
+        NULL
+    ,   &extensionCount
+    ,    f40_extensions
+    );;
+
+    printf("[extensionCount]:%d\n", extensionCount);
+    for( int i = 0; i < (int)extensionCount; i++ ){
+
+        printf("[INST_EXT_NAME:%s\n",
+            (f40_extensions[ i ]).extensionName
+        );;
+    };;
+    fflush(stdout);
+
+    ////////////////////////////////////////////////////////////
+
+    //: Chapter 6: Using Validation Layers.
+    //: VK_TUT_2018.PDF   , BOOK_PAGE[ 52 - 53 ]
+    ////////////////////////////////////////////////////////////
+
+    if( f40_layers ){ /** NOOP **/ };
+
+    unsigned int layer_count = 0;
+    ((F03_02)F02_vkEnumerateInstanceLayerProperties)(
+        &layer_count
+    ,   NULL
+    );;
+    
+    if( layer_count <= 0 ){
+        f40_Halt("[WTF:NoLayers]\n");
+    };;
+    
+        {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
+
+        //: [ f40_layers / 40_instance_validation_layers ]
+
+        int one = sizeof( struct F20_VkLayerProperties );
+        int all = one*layer_count;
+        f40_layers=malloc(all); 
+
+        }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+    
+    ((F03_02)F02_vkEnumerateInstanceLayerProperties)(
+        &layer_count
+    ,    f40_layers
+    );;
+    
+    printf("[layer_count]:%d\n", ((int)layer_count));
+    for( int i = 0; i < (int)layer_count; i++ ){
+    
+        printf("[VAL_LAY:%s\n",
+            (f40_layers[ i ]).layerName
+        );;
+    };;
+    fflush(stdout);
+
+
+    //:Compare against the validation layers you want:
+    {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
+    int found;
+    
+        int wanted_count =(
+            f40_wanted_validation_layers_count_MACRO
+        );;
+        for( int w = 0; w <     wanted_count;  w++ ){ //:WANTED  
+        for( int h = 0; h < (int)layer_count;  h++ ){ //:HAVE   
+
+            //:FIRST:"h"
+            ////////////////////////////////////////////////////
+            if(0==h){ found = 0; }; //:RESET, first "h"
+            ////////////////////////////////////////////////////
+
+            //:BODY:
+            ////////////////////////////////////////////////////
+            
+            const char* have = f40_layers[h].layerName;
+            const char* want = f40_wanted_validation_layers[w];
+            int com_res =( strcmp( have, want ) );
+            if(0==com_res){
+                found=1; break;
+            };;
+
+            ////////////////////////////////////////////////////
+
+            //:LAST:"h"
+            ////////////////////////////////////////////////////
+            if( h == ((int)layer_count-1) ){ //:(-1)==LAST_ITEM
+                if(found <= 0 ){
+                    printf("[MISSING_LAYER]:%s\n", want );
+                    f40_Halt(
+                        "[WANTED_VALIDATION_LAYER_NOT_FOUND]"
+                    );;
+                };;
+            };;
+            ////////////////////////////////////////////////////
+
+        };;};; //[ NEXT: WANTED|HAVE ]// ///////////////////////
+    
+    
+    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+
+        //:Create Instance:
+        ////////////////////////////////////////////////////////
+        f40_appInfo.sType    = 0; /** APPLICATION_INFO **/
+        f40_appInfo.pApplicationName   = "HELLO_TRIANGLE";
+        f40_appInfo.applicationVersion = f40_MV(1,0,0)   ;
+        f40_appInfo.pEngineName        = "No Engine"     ;
+        f40_appInfo.engineVersion      = f40_MV(1,0,0)   ;
+        f40_appInfo.apiVersion         = f40_MV(1,0,0)   ;
+
+        f40_createInfo.sType = 1; /** INSTANCE_CREATE_INFO **/
+        f40_createInfo.pApplicationInfo = &(f40_appInfo);
+        f40_createInfo.enabledExtensionCount=(
+            f40_wanted_extensions_count_MACRO
+        );;
+        f40_createInfo.ppEnabledExtensionNames=(
+            f40_wanted_extensions
+        );;
+
+        f40_createInfo.enabledLayerCount=0;
+        f40_createInfo.ppEnabledLayerNames=NULL;
+
+            ////////////////////////////////////////////////////
+            /** ENABLE_VALIDATION_LAYERS ?  **/  
+            /**       f40_use_validation_layers **/
+            if( f40_MACRO_use_validation_layers > 1 ){
+
+                f40_createInfo.enabledLayerCount =(
+                    f40_wanted_validation_layers_count_MACRO
+                );;
+                f40_createInfo.ppEnabledLayerNames=(
+                    f40_wanted_validation_layers
+                );;
+
+            };;
+            ////////////////////////////////////////////////////
+       
+        unsigned int res=(
+            (unsigned int)(unsigned long long)
+            ((F03_03)F02_vkCreateInstance)(
+                &(f40_createInfo)
+            ,   (void*)NULL
+            ,   &(f40_instance)
+            )
+        );;
+        if( 0 != res ){
+            f40_Halt( "[2019_12_11:0213AM]");
+        }else{
+
+            printf("[vkCreateInstance:WORKED!]\n");
+            fflush(stdout);
+
+        };;
+        ////////////////////////////////////////////////////////
+    
+        /******************************************************/
+        /**  Setup code continued in FILE[ F.60 ]            **/
+        /**  Because we need to grab function pointers that  **/
+        /**  require a reference to a vulkan instance.       **/
+        /**  This is done in FILE[ F.50 ]                    **/
+        /******************************************************/
+   
+    ////////////////////////////////////////////////////////////
+    //:END Chapter 6
+
+    return( 0 );
+}//[;]//
+
+static int 
+f40_OpenWindowAndInitializeEngine( void ){
+
+    //:Start up the window loop:
+    F10_CreateThread_Launches_StartRoutine();
+    
+    //:Initialize Vulkan Stuff:
+    f40_EngineInit();
+
+    return( 0 );
+}//[;]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F40_Init(){
+        printf("[BEG:F40:Init]\n");
+
+        int ret = F35_Init(); //: ".SUPER_CHAIN()"
+
+        //:Call here to avoid initialization fork:
+        //:You don't want "F.50" to have to call TWO previous
+        //:initializers and have to guess in which order they
+        //:need to be called.
+        f40_OpenWindowAndInitializeEngine();
+
+        printf("[END:F40:Init]\n");
+        return( ret );
+    }//[;]//
+    int F40_Main(){
+        F40_Init();
+
+        //:Stand in for where "mainLoop()" in future file.
+        //:(Tutorial uses name "mainLoop()", I probably won't
+        //:use that name. I'll probably call it: "EngineLoop()"
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+#undef  f40_wanted_extensions_count_MACRO         //////////////
+#undef  f40_wanted_validation_layers_count_MACRO  //////////////
+#undef  f40_MACRO_use_validation_layers           //////////////
+
+//#FILE_REGION[ F.40 ]END#####################################//

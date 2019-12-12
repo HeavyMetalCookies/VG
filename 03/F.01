@@ -33,6 +33,29 @@ F02_F01_MACRO( GetProcessHeap   , kernel32)  //[ 20 ]//
 F02_F01_MACRO( CreateThread     , kernel32)  //[ 21 ]//
 F02_F01_MACRO( HeapAlloc        , kernel32)  //[ 22 ]//
 
+//:Vulkan_Functions:
+////////////////////////////////////////////////////////////////
+
+//:MAKES: F02_vkEnumerateInstanceExtensionProperties
+F02_F01_MACRO(  
+    vkEnumerateInstanceExtensionProperties 
+,   vulkan-1 
+)
+
+//:MAKES: F02_vkCreateInstance
+F02_F01_MACRO( 
+    vkCreateInstance 
+,   vulkan-1 
+)
+
+//:MAKES: F02_vkEnumerateInstanceLayerProperties
+F02_F01_MACRO(
+    vkEnumerateInstanceLayerProperties
+,   vulkan-1
+)
+
+////////////////////////////////////////////////////////////////
+
 
 //!( RegisterWindow   , user32  )  YOU_MADE_THIS_ONE_UP      !//
 

@@ -1,0 +1,149 @@
+//#FILE_REGION[ F.20 ]BEG#####################################//
+
+//: DOTADIW: VULKAN_STRUCT
+//: (Declarations, no instantiation!)
+
+struct F20_VkApplicationInfo {
+    unsigned int       sType; //:VkStructureType
+    const void*        pNext;
+    const char*        pApplicationName;
+    unsigned int       applicationVersion; //:uint32_t
+    const char*        pEngineName;
+    unsigned int       engineVersion;      //:unsigned int
+    unsigned int       apiVersion;         //:unsigned int
+};//[struct]//
+
+struct F20_VkInstanceCreateInfo {
+    unsigned int                sType; //:VkStructureType
+    const void*                 pNext;
+    unsigned int                flags;
+
+    const struct F20_VkApplicationInfo*    
+                      pApplicationInfo;
+
+    unsigned int                enabledLayerCount;
+    const char* const*          ppEnabledLayerNames;
+
+    //:Is "const char**" same as "const char* const*" ?
+    //:In fact.. Both are "char**" with extra constraints.
+
+    unsigned int                enabledExtensionCount;
+    const char* const*          ppEnabledExtensionNames;
+
+};//[struct]//
+
+struct F20_VkExtensionProperties {
+
+    char        
+    extensionName[ 
+
+        256 /**VK_MAX_EXTENSION_NAME_SIZE**/ 
+
+    ];
+
+    unsigned int /** uint32_t **/    
+    specVersion;
+
+};//[struct]//
+
+struct F20_VkLayerProperties {
+    
+    #define MACRO_A 256 //:VK_MAX_EXTENSION_NAME_SIZE
+    #define MACRO_B 256 //:VK_MAX_DESCRIPTION_SIZE
+
+    char            layerName[   MACRO_A ];//:MAX_EXT
+    unsigned int    specVersion;
+    unsigned int    implementationVersion;
+    char            description[ MACRO_B ];//:MAX_DSC
+
+    #undef MACRO_A
+    #undef MACRO_B
+
+};//[struct]//
+
+struct 
+F20_VkDebugUtilsLabelEXT {
+    unsigned int       sType; /** VkStructureType **/
+    const void*        pNext;
+    const char*        pLabelName;
+    float              color[4];
+};//[struct]//
+
+struct 
+F20_VkDebugUtilsObjectNameInfoEXT {
+    unsigned int         sType;        /** VkStructureType **/
+    const   void*        pNext;
+    unsigned int         objectType;   /** VkObjectType    **/
+    unsigned long long   objectHandle; /** uint64_t        **/
+    const char*          pObjectName;
+};
+
+struct 
+F20_VkDebugUtilsMessengerCallbackDataEXT {
+
+    unsigned int /** VkStructureType **/
+    sType;
+
+    const void*                                  
+    pNext;
+
+    /** VkDebugUtilsMessengerCallbackDataFlagsEXT **/ 
+    unsigned int    
+    flags;
+
+    const char*                                  
+    pMessageIdName;
+
+    signed int /** int32_t **/                                      
+    messageIdNumber;
+
+    const char*                                  
+    pMessage;
+
+    unsigned int /** uint32_t **/                                     
+    queueLabelCount;
+
+    const struct F20_VkDebugUtilsLabelEXT*                  
+    pQueueLabels;
+
+    unsigned int /** uint32_t **/                                     
+    cmdBufLabelCount;
+
+    const struct F20_VkDebugUtilsLabelEXT*                  
+    pCmdBufLabels;
+
+    unsigned int /** uint32_t **/                                     
+    objectCount;
+
+    const struct F20_VkDebugUtilsObjectNameInfoEXT*         
+    pObjects;
+
+};
+
+//[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
+
+
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+    int F20_Init(){
+        printf("[BEG:F20:Init]\n");
+
+        int ret = F10_Init();
+
+        printf("[END:F20:Init]\n");
+        return( ret );
+    }//[;]//
+    int F20_Main(){
+        F20_Init();
+
+        printf("[F20:VULKAN_STRUCTS. Nothing_To_Do_Here]\n");
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.20 ]END#####################################//
