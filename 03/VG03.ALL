@@ -3466,7 +3466,8 @@ typedef
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 //#FILE_REGION[ F.35 ]BEG#####################################//
 
-//:DOTADIW: STRUCTS_WITH_PFN_MEMBERS
+//:DOTADIW: STRUCTS_W_PFN
+//:        ( structs_with_pfn_members )
 //:F.35: 
 //:      Vulkan Structs that take function pointers as
 //:      defined in F.30
@@ -3522,7 +3523,7 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
 //#FILE_REGION[ F.35 ]END#####################################//
 //#FILE_REGION[ F.40 ]BEG#####################################//
 
-//:DOTADIW: VULKAN_XX_TUT
+//:DOTADIW: VK_INIT_PART1
 //:         Vulkan Tutorial Code Begins
 
 static void 
@@ -3900,7 +3901,8 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
 //#FILE_REGION[ F.40 ]END#####################################//
 //#FILE_REGION[ F.50 ]BEG#####################################//
 
-//:DOTADIW: GetVulkanExtensionFunctions
+//:DOTADIW: VK_INST_FUNCS
+//:         ( GetVulkanExtensionFunctions )
 //:         
 //:OUTISDE OF SCOPE:
 //:         Proper wrapper code for function pointers.
@@ -4120,12 +4122,17 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
 //|-----F06 ------|////[ DOTADIW:DLL_PARG_LIST ]//
 //|-----F07 ------|////[ DOTADIW:DLL_WRAP_BOIL ]//
 //|-----F08 ------|////[ DOTADIW:DLL_WRAP_MAKE ]//
+
 //|-----F09 ------|////[ DOTADIW:MAKE_A_WINDOW ]//
 //|-----F10 ------|////[ DOTADIW:WIN_IN_THREAD ]//
 
 //|-----F20 ------|////[ DOTADIW:VULKAN_STRUCT ]//
 //|-----F30 ------|////[ DOTADIW:VULKAN_PFN_TD ]//
-//|-----F40 ------|////[ DOTADIW:VULKAN_XX_TUT ]//
+//|-----F35 ------|////[ DOTADIW:STRUCTS_W_PFN ]//
+
+//|-----F40 ------|////[ DOTADIW:VK_INIT_PART1 ]//
+//|-----F50 ------|////[ DOTADIW:VK_INST_FUNCS ]//
+//|-----F60 ------|////[ DOTADIW:VK_INIT_PART2 ]//
     
 
 int

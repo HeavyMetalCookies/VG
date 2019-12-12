@@ -1,6 +1,7 @@
 //#FILE_REGION[ F.35 ]BEG#####################################//
 
-//:DOTADIW: STRUCTS_WITH_PFN_MEMBERS
+//:DOTADIW: STRUCTS_W_PFN
+//:        ( structs_with_pfn_members )
 //:F.35: 
 //:      Vulkan Structs that take function pointers as
 //:      defined in F.30

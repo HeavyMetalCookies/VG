@@ -1,6 +1,7 @@
 //#FILE_REGION[ F.50 ]BEG#####################################//
 
-//:DOTADIW: GetVulkanExtensionFunctions
+//:DOTADIW: VK_INST_FUNCS
+//:         ( GetVulkanExtensionFunctions )
 //:         
 //:OUTISDE OF SCOPE:
 //:         Proper wrapper code for function pointers.

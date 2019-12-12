@@ -1,6 +1,6 @@
 //#FILE_REGION[ F.40 ]BEG#####################################//
 
-//:DOTADIW: VULKAN_XX_TUT
+//:DOTADIW: VK_INIT_PART1
 //:         Vulkan Tutorial Code Begins
 
 static void 
