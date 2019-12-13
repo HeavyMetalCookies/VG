@@ -12,11 +12,11 @@ typedef
     )
     (
         /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
-        unsigned int
+        signed int
         messageSeverity 
         ,
         /** VkDebugUtilsMessageTypeFlagsEXT  **/
-        unsigned int
+        signed int
         messageTypes 
         ,
         const struct F20_VkDebugUtilsMessengerCallbackDataEXT*      

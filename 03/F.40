@@ -10,7 +10,7 @@ f40_Halt( const char* msg ){
 }//[;]//
 
           /** f40_use_validation_layers **/
-#define f40_MACRO_use_validation_layers 1
+#define f40_MACRO_use_validation_layers 0 //:ENABLE==CRASH!
 
 //:For use outside this file, so we can undefine the
 //:macro before we leave.
@@ -135,6 +135,8 @@ static unsigned int f40_MV( //:VK_MAKE_VERSION
 
 static int 
 f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
+
+    printf("[BEG:f40_EngineInit]\n"); fflush(stdout);
 
     //:TODO: STUFF:
 
@@ -322,6 +324,7 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
     ////////////////////////////////////////////////////////////
     //:END Chapter 6
 
+    printf("[END:f40_EngineInit]\n"); fflush(stdout);
     return( 0 );
 }//[;]//
 

@@ -4,73 +4,84 @@
 //: DOTADIW: VULKAN_INIT_PART_02
 //:   
 
+      //:F20_VkDebugUtilsMessengerEXT
+void* //:AKA: DECLARE_HANDLE( VkDebugUtilsMessengerEXT )
+f60_debug_utils_messenger = NULL;
 
 
-
-
-
-static int //:NOOP: No-operation.
-f60_NOOP1( void* arg1 ){ 
-    if( arg1 ){ /** NOOP **/ };
-    return( 0 );
+////////////////////////////////////////////////////////////////
+//:First function always "Halt":
+static void 
+f60_Halt( const char* msg ){ 
+    printf( "[f60_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
 }//[;]//
+static void
+f60_DebugMessage( const char* msg ){
+    printf( "[f60_DMSG]:%s\n", msg ); //:DMSG:Debug_MeSsaGe
+    fflush(stdout);
+}//[;]//
+////////////////////////////////////////////////////////////////
+
+// static int //:NOOP: No-operation.
+// f60_NOOP1( void* arg1 ){ 
+//     if( arg1 ){ /** NOOP **/ };
+//     return( 0 );
+// }//[;]//
 
 
 //:PG[55]SC[VKT2018]
 static unsigned int __stdcall
 f60_debugCallback(
-/**/  
-/**/      /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
-/**/      unsigned int 
-/**/      messageSeverity
-/**/  
-/**/      /** VkDebugUtilsMessageTypeFlagsEXT        **/
-/**/  ,   unsigned int
-/**/      messageType
-/**/  
-/**/  ,   const struct F20_VkDebugUtilsMessengerCallbackDataEXT* 
-/**/      pCallbackData
-/**/  
-/**/  ,   void* 
-/**/      pUserData
-/**/  
+/* ------ */  
+/* ------ */      /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
+/* ------ */      signed int 
+/* ------ */      messageSeverity
+/* ------ */  
+/* ------ */      /** VkDebugUtilsMessageTypeFlagsEXT        **/
+/* ------ */  ,   signed int
+/* ------ */      messageType
+/* ------ */  
+/* ------ */  ,   const struct 
+/* ------ */      F20_VkDebugUtilsMessengerCallbackDataEXT* 
+/* ------ */      pCallbackData
+/* ------ */  
+/* ------ */  ,   void* 
+/* ------ */      pUserData
+/* ------ */  
 ){
+    printf("[DO_WE_GET_HERE?]\n");
+    fflush(stdout);
 
     if( messageSeverity ){ /** NOOP **/ };
     if( messageType     ){ /** NOOP **/ };
     if( pUserData       ){ /** NOOP **/ };
+    
+    if(NULL==pCallbackData){
+        f60_Halt("[NullCallbackData]");
+    };;
 
     printf("[Validation_Layer]:%s\n", pCallbackData->pMessage);
 
-    return( 0 /** VK_FALSE **/ );
+    return( 0 /** VK_FALSE **/ ); //:<<<<SupposedToDoThis
+    //return( 1 /** VK_TRUE **/ );
 
 }//[;]//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+////////////////////////////////////////////////////////////////
 //:  Picking up from where we left off with                  ://
 //:  f40_OpenWindowAndInitializeEngine after a               ://
 //:  short intermission to gather vulkan instance funcs.     ://
 static void
 f60_EngineInit_PART2_WindowAlreadyOpen( void ){
+f60_DebugMessage( "[BEG:f60_EngineInit_PART2_WAO]" );
 
     //:BOOK_PAGE[57]://
     /** f40_MACRO_use_validation_layers **/
     if( f40_use_validation_layers > 0 ){
+
+        printf("[SEE[ debug-layer-crash-(01|02|03|04) ]]\n");
+        f60_Halt("[VALIDATION_LAYERS_WILL_CRASH]");
+        
 
         struct F35_VkDebugUtilsMessengerCreateInfoEXT
         create_info={ 0 };
@@ -90,7 +101,7 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
             | 0x00000002 /** VALIDATION_BIT  **/
             | 0x00000004 /** PERFORMANCE_BIT **/
         |0);;
-        create_info.pfnUserCallback = f60_debugCallback;
+        create_info.pfnUserCallback =&( f60_debugCallback );
         create_info.pUserData       = NULL; /** Optional **/
 
         printf("[TODO:vkGetInstanceProcAddr, page 58]\n");
@@ -98,11 +109,65 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
             f40_Halt("[sType!=1000128004]\n");
         };;
 
-        f60_NOOP1( &create_info );
-     //:f60_NOOP1( f40_callback );
+        //:Check on what could go wrong with calling:
+        //:F50_vkCreateDebugUtilsMessengerEXT
+        ////////////////////////////////////////////////////////
+        if(NULL==F50_vkCreateDebugUtilsMessengerEXT){
+            f60_Halt("[NULL:CDUME]");
+        };;
+        if(NULL==F55_FUN_vkCreateDebugUtilsMessengerEXT){
+            f60_Halt("[NULL:CDUME:Strict]");
+        };;
+        if(NULL==f40_instance){ f60_Halt("[NULL:INST]"); }
+
+        ////////////////////////////////////////////////////////
+
+        f60_DebugMessage("[BEF:vk_CDUME]"); //:BEF:BEFORE
+
+        //: vulkan_core.h ___________________________________://
+        //|    VKAPI_ATTR VkResult                           |//
+        //|    VKAPI_CALL vkCreateDebugUtilsMessengerEXT(    |//
+        //|                                                  |//
+        //|        VkInstance                                |// 
+        //|        instance,                                 |//
+        //|                                                  |//
+        //|        const VkDebugUtilsMessengerCreateInfoEXT* |// 
+        //|        pCreateInfo,                              |//
+        //|                                                  |//
+        //|        const VkAllocationCallbacks*              |// 
+        //|        pAllocator,                               |//
+        //|                                                  |//
+        //|        VkDebugUtilsMessengerEXT*                 |//  
+        //|        pMessenger                                |//
+        //|    );                                            |//
+        //:--------------------------------------------------://
+
+        //: https://github.com/KhronosGroup/Vulkan-ValidationLayers/
+        //:       issues/134
+        //: Crash when enabling EXT_debug_utils and 
+        //: EXT_debug_report concurrently #134
+
+        //:PAGE[58]VKTUT2018PDF
+        int res=
+        F55_FUN_vkCreateDebugUtilsMessengerEXT(
+            f40_instance    /** VkInstance  **/
+        ,   &(create_info)  /** pCreateInfo **/
+        ,   (void*)NULL     /** pAllocator  **/
+        ,
+            /** DECLARE_HANDLE( VkDebugUtilsMessengerEXT )   **/
+            /** F20_VkDebugUtilsMessengerEXT* : pMessenger   **/
+            /** pMessenger is just a void* to opaque type.   **/
+            f60_debug_utils_messenger 
+        );;
+
+        f60_DebugMessage("[AFT:vk_CDUME]"); //:AFT:AFTER
+
+        if( res!=0 /**VK_SUCCESS**/ ){ f60_Halt("[A]"); };
+        if( NULL==f60_debug_utils_messenger){ f60_Halt("[B]");};
 
     };;
 
+f60_DebugMessage( "[END:f60_EngineInit_PART2_WAO]" );
 }//[;]//
 
 
@@ -112,7 +177,8 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
         printf("[BEG:F60:Init]\n");
 
         //:Get instance function pointers:
-        int ret = F50_Init(); //: ".SUPER_CHAIN()"
+        int ret = F55_Init(); //: ".SUPER_CHAIN()"
+
 
         f60_EngineInit_PART2_WindowAlreadyOpen();
 
@@ -120,13 +186,19 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
         return( ret );
     }//[;]//
     int F60_Main(){
+
+        printf("[F60_Main:Before:F60_Init()]\n");
+
         F60_Init();
+
+        printf("[F60_Main:Afterr:F60_Init()]\n");
 
         //:Stand in for a renderloop, so that program does
         //:not immediately exit and you never see window and
         //:assume error is in your code.
         printf("[F60:TO_EXIT:CTRL+C]\n");
         fflush(stdout );
+
 
         while( 1 ){ }; //:LOOP_FOREVER
 

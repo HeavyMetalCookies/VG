@@ -8,6 +8,7 @@
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
+//:MAKES: F08_CreateWindowExW by wrapping F02_CreateWindowExW:
 #define F08_F07_MACRO_RETURNTYPE void*  ////////////////////////
 #define F08_F06_MACRO_CreateWindowExW 1  ///////////////////////
 
@@ -24,6 +25,7 @@
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
+//:MAKES: F08_CreateThread by wrapping F02_CreateThread:
 #define F08_F07_MACRO_RETURNTYPE void*  ////////////////////////
 #define F08_F06_MACRO_CreateThread   1  ////////////////////////
 

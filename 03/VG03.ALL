@@ -1394,12 +1394,20 @@ DLLL_GetProcAddress(
     /**/    )
     );;
 
+    #define MACRO_DLLL_H_fail_fast 1 ///////////////////////////
     if(NULL==ret){
         printf(
-            "[DLLL_GetProcAddress:FAIL]:%s\n"
+            "((([FILE:DLLL.H][DLLL_GetProcAddress:FAIL]))):%s\n"
         ,   name
         );;
+
+        fflush(stdout);
+
+        if( MACRO_DLLL_H_fail_fast != 0 ){
+            exit(666);
+        };;
     };;
+    #undef  MACRO_DLLL_H_fail_fast /////////////////////////////
 
 
     return( ret );
@@ -1464,6 +1472,12 @@ F02_F01_MACRO(
 //:MAKES: F02_vkEnumerateInstanceLayerProperties
 F02_F01_MACRO(
     vkEnumerateInstanceLayerProperties
+,   vulkan-1
+)
+
+//:MAKES: F02_vkGetInstanceProcAddr
+F02_F01_MACRO(
+    vkGetInstanceProcAddr
 ,   vulkan-1
 )
 
@@ -2151,6 +2165,7 @@ typedef
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
+//:MAKES: F08_CreateWindowExW by wrapping F02_CreateWindowExW:
 #define F08_F07_MACRO_RETURNTYPE void*  ////////////////////////
 #define F08_F06_MACRO_CreateWindowExW 1  ///////////////////////
 
@@ -2167,6 +2182,7 @@ typedef
 
 //[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]//
 
+//:MAKES: F08_CreateThread by wrapping F02_CreateThread:
 #define F08_F07_MACRO_RETURNTYPE void*  ////////////////////////
 #define F08_F06_MACRO_CreateThread   1  ////////////////////////
 
@@ -3259,7 +3275,12 @@ int F10_Main(){
 //#FILE_REGION[ F.20 ]BEG#####################################//
 
 //: DOTADIW: VULKAN_STRUCT
+//: (ALSO SEE: F.35: Structs that take function pointers)
 //: (Declarations, no instantiation!)
+
+
+//:void* types (via DECLARE_HANDLE( whatever ) )
+//[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
 
 struct F20_VkApplicationInfo {
     unsigned int       sType; //:VkStructureType
@@ -3378,9 +3399,52 @@ F20_VkDebugUtilsMessengerCallbackDataEXT {
 
 };
 
-//[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
+//:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
+//:First function always "Halt":
+static void 
+f20_Halt( const char* msg ){ 
+    printf( "[f20_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+//:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
 
+//:BUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBU://
+//:BU:BlowUp
+static void
+f20_BlowUpIfStructSizesIncorrect( void ){
 
+    int siz;
+
+    siz = (int)sizeof( 
+        struct F20_VkDebugUtilsMessengerCallbackDataEXT 
+    );;if( 96 != siz ){ f20_Halt("[!96]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkDebugUtilsObjectNameInfoEXT
+    );;if( 40 != siz ){ f20_Halt("[!40:DUONIE]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkDebugUtilsLabelEXT
+    );;if( 40 != siz ){ f20_Halt("[!40:DULE]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkLayerProperties 
+    );;if( 520 != siz ){ f20_Halt("[!520:LP]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkExtensionProperties 
+    );;if( 260 != siz ){ f20_Halt("[!260:EP]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkInstanceCreateInfo 
+    );;if( 64 != siz ){ f20_Halt("[!64:ICI]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkApplicationInfo 
+    );;if( 48 != siz ){ f20_Halt("[!48:AI]"); };
+
+}//[;]//
+//:BUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBU://
 
 
 //:IM:Init_And_Main:
@@ -3390,6 +3454,8 @@ F20_VkDebugUtilsMessengerCallbackDataEXT {
         printf("[BEG:F20:Init]\n");
 
         int ret = F10_Init();
+
+        f20_BlowUpIfStructSizesIncorrect();
 
         printf("[END:F20:Init]\n");
         return( ret );
@@ -3424,11 +3490,11 @@ typedef
     )
     (
         /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
-        unsigned int
+        signed int
         messageSeverity 
         ,
         /** VkDebugUtilsMessageTypeFlagsEXT  **/
-        unsigned int
+        signed int
         messageTypes 
         ,
         const struct F20_VkDebugUtilsMessengerCallbackDataEXT*      
@@ -3475,19 +3541,19 @@ typedef
 struct 
 F35_VkDebugUtilsMessengerCreateInfoEXT {
 
-    unsigned int  /** VkStructureType **/   
+    signed int  /** VkStructureType **/   
     sType;
 
     const void*                             
     pNext;
 
-    unsigned int  /** VkDebugUtilsMessengerCreateFlagsEXT **/
+    signed int  /** VkDebugUtilsMessengerCreateFlagsEXT **/
     flags;
 
-    unsigned int  /** VkDebugUtilsMessageSeverityFlagsEXT **/
+    signed int  /** VkDebugUtilsMessageSeverityFlagsEXT **/
     messageSeverity;
 
-    unsigned int  /** VkDebugUtilsMessageTypeFlagsEXT     **/         
+    signed int  /** VkDebugUtilsMessageTypeFlagsEXT     **/         
     messageType;
 
     F30_PFN_vkDebugUtilsMessengerCallbackEXT      
@@ -3495,7 +3561,45 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
 
     void*                                   
     pUserData;
+
 };//[struct]//
+
+// //       www.khronos.org/registry/vulkan/specs/1.1-extensions
+// //       /man/html/VkAllocationCallbacks.html
+// struct
+// F35_VkAllocationCallbacks{
+//     
+//     void*                                   pUserData;
+//     PFN_vkAllocationFunction                pfnAllocation;
+//     PFN_vkReallocationFunction              pfnReallocation;
+//     PFN_vkFreeFunction                      pfnFree;
+//     PFN_vkInternalAllocationNotification    pfnInternalAllocation;
+//     PFN_vkInternalFreeNotification          pfnInternalFree;
+// 
+// };//[struct]//
+
+
+//:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
+//:First function always "Halt":
+static void 
+f35_Halt( const char* msg ){ 
+    printf( "[f35_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+//:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
+
+static void
+f35_BlowUpIfStructSizesIncorrect( void ){
+
+    int siz;
+    siz = (int)sizeof( 
+        struct F35_VkDebugUtilsMessengerCreateInfoEXT );;
+
+    if( 48 != siz ){
+        f35_Halt("[!48]");
+    };;
+
+}//[;]//
 
 
 //:IM:Init_And_Main:
@@ -3505,6 +3609,8 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
 
             //:Call previous initialiers on chain:
             int ret = F30_Init(); //: ".SUPER_CHAIN()"
+
+            f35_BlowUpIfStructSizesIncorrect();
 
         printf("[END:F35:Init]\n");
         return( ret );
@@ -3533,7 +3639,7 @@ f40_Halt( const char* msg ){
 }//[;]//
 
           /** f40_use_validation_layers **/
-#define f40_MACRO_use_validation_layers 1
+#define f40_MACRO_use_validation_layers 0 //:ENABLE==CRASH!
 
 //:For use outside this file, so we can undefine the
 //:macro before we leave.
@@ -3658,6 +3764,8 @@ static unsigned int f40_MV( //:VK_MAKE_VERSION
 
 static int 
 f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
+
+    printf("[BEG:f40_EngineInit]\n"); fflush(stdout);
 
     //:TODO: STUFF:
 
@@ -3845,6 +3953,7 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
     ////////////////////////////////////////////////////////////
     //:END Chapter 6
 
+    printf("[END:f40_EngineInit]\n"); fflush(stdout);
     return( 0 );
 }//[;]//
 
@@ -3913,32 +4022,107 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
 //:and end up with much less obfuscated code.
 
 
-F02_VOF
+//:PUBLIC Functions Fetched+Loaded in [ F.50 / F50 ]:
+//:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
+F02_VOF //:<--GenericFunctionPointer
 F50_vkCreateDebugUtilsMessengerEXT = NULL;
+
+//:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
+////////////////////////////////////////////////////////////////
+
+    //:Private typedef and casted function pointer for
+    //:getting instance functions:
+
+    typedef
+        F02_VOF //:RET:GenericFuncPtr
+        (*f50_PFN_vkGetInstanceProcAddr)(
+            void*       vk_instance   /**VkInstance:instance**/
+        ,   const char* function_name /**----------:pName   **/
+        );
+
+    f50_PFN_vkGetInstanceProcAddr
+    f50_FUN_vkGetInstanceProcAddr=NULL;
+
+////////////////////////////////////////////////////////////////
+static void //[ #FFAH# ]//
+f50_Halt( const char* msg ){ 
+    printf( "[f50_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+////////////////////////////////////////////////////////////////
 
 
 static F02_VOF //:<--returns generic function pointer.
-f50_GIPA( /** vkGetInstanceProcAddr **/
+f50_GIPA( /** WRAPPER:vkGetInstanceProcAddr **/
     void*       vk_instance
 ,   const char* function_name
 ){
-    if( vk_instance   ){ /** NOOP **/ };  
-    if( function_name ){ /** NOOP **/ };
+    #define H f50_Halt /////////////////////////////////////////
+    if( NULL==vk_instance                   ){ H("[VKI]"); };  
+    if( NULL==function_name                 ){ H("[FNN]"); };
+    if( NULL==f50_FUN_vkGetInstanceProcAddr ){ H("[FUN]"); };
+    #undef  H //////////////////////////////////////////////////
 
-    //:TODO: logic.
+    F02_VOF vulkan_instance_function_address = NULL;
 
-    return( (F02_VOF)0 ); //:VOID FUNCTION.
+    ////////////////////////////////////////////////////////////
+
+
+
+    vulkan_instance_function_address=(
+        f50_FUN_vkGetInstanceProcAddr(
+            vk_instance   /** instance **/
+        ,   function_name /**    pName **/
+        )
+    );;
+
+
+
+    ////////////////////////////////////////////////////////////
+    if(NULL==vulkan_instance_function_address){
+        f50_Halt("[FTGA]");//:FailedToGetInstanceFunctionAddress
+    };;
+    return( vulkan_instance_function_address );//:VOID FUNCTION.
 
 }//[;]//
 
 static void
 f50_fetchAndLoad_VulkanInstanceFunctions(){
+    printf("[BEG:f50_fetchAndLoad_VulkanInstanceFunctions]\n");
+    if(NULL==f40_instance){ f50_Halt("[I]"); };
+    
+        //:Setup function pointer GIPA uses:
+        ////////////////////////////////////////////////////////
+        f50_FUN_vkGetInstanceProcAddr=(
+            (f50_PFN_vkGetInstanceProcAddr)
+                 F02_vkGetInstanceProcAddr
+        );;
+        ////////////////////////////////////////////////////////
 
-    F50_vkCreateDebugUtilsMessengerEXT=f50_GIPA(
-        f40_instance
-    ,   "vkCreateDebugUtilsMessengerEXT"
-    );;
+        
+        //:Begin fetching functions:
+        ////////////////////////////////////////////////////////
 
+        if( f40_use_validation_layers > 0 ){
+
+            //:Validation Layer Functions:
+
+            F50_vkCreateDebugUtilsMessengerEXT=f50_GIPA(
+                f40_instance
+            ,   "vkCreateDebugUtilsMessengerEXT"
+            );;
+            if(NULL==F50_vkCreateDebugUtilsMessengerEXT){
+                f50_Halt("[CDUME:VOF]");
+            };;
+
+        };;
+
+        ////////////////////////////////////////////////////////
+
+
+    printf("[END:f50_fetchAndLoad_VulkanInstanceFunctions]\n");
 }//[;]//
 
 
@@ -3972,79 +4156,234 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
 
 
 //#FILE_REGION[ F.50 ]END#####################################//
+//#FILE_REGION[ F.55 ]BEG#####################################//
+
+
+//:DOTADIW: CAS_VK_EXT_FUNC_PTRS
+//: ( Casted Vulkan Extension Function Pointers )
+//: ( specific_pointers_for_instance_funcs      )
+//:
+//:         Cast previously fetched raw pointers to 
+//:         vulkan instance extension functions into
+//:         more specific function pointers complete
+//:         with proper calling convention.
+
+
+typedef
+    signed int /** VkResult **/ 
+    ( __stdcall * F55_PFN_vkCreateDebugUtilsMessengerEXT )(
+
+    void*        /** VkInstance --------------**/   
+    instance
+    ,
+    const struct
+    F35_VkDebugUtilsMessengerCreateInfoEXT*   
+    pCreateInfo
+    ,
+    const void*  /** VkAllocationCallbacks    **/   
+    pAllocator
+    ,
+    //:VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkDebugUtilsMessengerEXT)
+    void*  /** VkDebugUtilsMessengerEXT **/   
+    pMessenger
+
+    );
+    F55_PFN_vkCreateDebugUtilsMessengerEXT
+    F55_FUN_vkCreateDebugUtilsMessengerEXT=NULL;
+
+
+////////////////////////////////////////////////////////////////
+static void 
+f55_Halt( const char* msg ){ 
+    printf( "[f60_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+
+static void
+f55_SRC( F02_VOF func_ptr, const char* on_err_msg ){
+
+    if(NULL==func_ptr){
+        printf("[f55_SRC:NULL!MSG=]:%s\n", on_err_msg);
+        f55_Halt("[SEE_MESSAGE_TAGGED:f55_SRC]");
+    };;
+
+}//[;]//
+
+static void
+f55_DST( F02_VOF func_ptr, const char* on_err_msg ){
+
+    if(NULL==func_ptr){
+        printf("[f55_DST:NULL!MSG=]:%s\n", on_err_msg);
+        f55_Halt("[SEE_MESSAGE_TAGGED:f55_DST]");
+    };;
+
+}//[;]//
+
+
+//:R:Reload
+//[RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR]//
+
+static void
+f55_RLIFPTST_ValidationLayerFunctions( void ){
+
+    #define V F02_VOF //////////////////////////////////////////
+
+    //:Check source pointers for null:
+    f55_SRC( (V)F50_vkCreateDebugUtilsMessengerEXT , "[A]");
+
+    F55_FUN_vkCreateDebugUtilsMessengerEXT=(
+  ( F55_PFN_vkCreateDebugUtilsMessengerEXT )
+        F50_vkCreateDebugUtilsMessengerEXT
+    );;
+
+    //:Check destination pointers for null:
+    f55_DST( (V)F55_FUN_vkCreateDebugUtilsMessengerEXT , "[A]");
+
+    #undef  V //////////////////////////////////////////////////
+
+}//[;]//
+
+static void
+f55_ReLoadInstanceFunctionPointersToSpecificTypes( void ){
+
+    if( f40_use_validation_layers > 0 ){
+        //: RLIFPTST:
+        //: ReLoadInstanceFunctionPointersToSpecificTypes
+        //: R L   I       F       P       T S       T
+        f55_RLIFPTST_ValidationLayerFunctions();
+    };;
+
+}//[;]//
+
+//[RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F55_Init(){
+        printf("[BEG:F55:Init]\n");
+
+        //:Get instance function pointers:
+        int ret = F50_Init(); //: ".SUPER_CHAIN()"
+
+        //## f55 init logic goes AFTER super!!! ##//
+        //:Initialize re-casted function pointers:
+        f55_ReLoadInstanceFunctionPointersToSpecificTypes();
+
+
+        printf("[END:F55:Init]\n");
+        return( ret );
+    }//[;]//
+    int F55_Main(){
+
+        printf("[F55_Main:Before:F55_Init()]\n");
+
+        F55_Init();
+
+        printf("[F55_Main:Afterr:F55_Init()]\n");
+
+        //:Stand in for a renderloop, so that program does
+        //:not immediately exit and you never see window and
+        //:assume error is in your code.
+        printf("[F55:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+
+
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+
+
+
+//#FILE_REGION[ F.55 ]END#####################################//
 //#FILE_REGION[ F.60 ]BEG#####################################//
 
 //:
 //: DOTADIW: VULKAN_INIT_PART_02
 //:   
 
+      //:F20_VkDebugUtilsMessengerEXT
+void* //:AKA: DECLARE_HANDLE( VkDebugUtilsMessengerEXT )
+f60_debug_utils_messenger = NULL;
 
 
-
-
-
-static int //:NOOP: No-operation.
-f60_NOOP1( void* arg1 ){ 
-    if( arg1 ){ /** NOOP **/ };
-    return( 0 );
+////////////////////////////////////////////////////////////////
+//:First function always "Halt":
+static void 
+f60_Halt( const char* msg ){ 
+    printf( "[f60_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
 }//[;]//
+static void
+f60_DebugMessage( const char* msg ){
+    printf( "[f60_DMSG]:%s\n", msg ); //:DMSG:Debug_MeSsaGe
+    fflush(stdout);
+}//[;]//
+////////////////////////////////////////////////////////////////
+
+// static int //:NOOP: No-operation.
+// f60_NOOP1( void* arg1 ){ 
+//     if( arg1 ){ /** NOOP **/ };
+//     return( 0 );
+// }//[;]//
 
 
 //:PG[55]SC[VKT2018]
 static unsigned int __stdcall
 f60_debugCallback(
-/**/  
-/**/      /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
-/**/      unsigned int 
-/**/      messageSeverity
-/**/  
-/**/      /** VkDebugUtilsMessageTypeFlagsEXT        **/
-/**/  ,   unsigned int
-/**/      messageType
-/**/  
-/**/  ,   const struct F20_VkDebugUtilsMessengerCallbackDataEXT* 
-/**/      pCallbackData
-/**/  
-/**/  ,   void* 
-/**/      pUserData
-/**/  
+/* ------ */  
+/* ------ */      /** VkDebugUtilsMessageSeverityFlagBitsEXT **/
+/* ------ */      signed int 
+/* ------ */      messageSeverity
+/* ------ */  
+/* ------ */      /** VkDebugUtilsMessageTypeFlagsEXT        **/
+/* ------ */  ,   signed int
+/* ------ */      messageType
+/* ------ */  
+/* ------ */  ,   const struct 
+/* ------ */      F20_VkDebugUtilsMessengerCallbackDataEXT* 
+/* ------ */      pCallbackData
+/* ------ */  
+/* ------ */  ,   void* 
+/* ------ */      pUserData
+/* ------ */  
 ){
+    printf("[DO_WE_GET_HERE?]\n");
+    fflush(stdout);
 
     if( messageSeverity ){ /** NOOP **/ };
     if( messageType     ){ /** NOOP **/ };
     if( pUserData       ){ /** NOOP **/ };
+    
+    if(NULL==pCallbackData){
+        f60_Halt("[NullCallbackData]");
+    };;
 
     printf("[Validation_Layer]:%s\n", pCallbackData->pMessage);
 
-    return( 0 /** VK_FALSE **/ );
+    return( 0 /** VK_FALSE **/ ); //:<<<<SupposedToDoThis
+    //return( 1 /** VK_TRUE **/ );
 
 }//[;]//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+////////////////////////////////////////////////////////////////
 //:  Picking up from where we left off with                  ://
 //:  f40_OpenWindowAndInitializeEngine after a               ://
 //:  short intermission to gather vulkan instance funcs.     ://
 static void
 f60_EngineInit_PART2_WindowAlreadyOpen( void ){
+f60_DebugMessage( "[BEG:f60_EngineInit_PART2_WAO]" );
 
     //:BOOK_PAGE[57]://
     /** f40_MACRO_use_validation_layers **/
     if( f40_use_validation_layers > 0 ){
+
+        printf("[SEE[ debug-layer-crash-(01|02|03|04) ]]\n");
+        f60_Halt("[VALIDATION_LAYERS_WILL_CRASH]");
+        
 
         struct F35_VkDebugUtilsMessengerCreateInfoEXT
         create_info={ 0 };
@@ -4064,7 +4403,7 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
             | 0x00000002 /** VALIDATION_BIT  **/
             | 0x00000004 /** PERFORMANCE_BIT **/
         |0);;
-        create_info.pfnUserCallback = f60_debugCallback;
+        create_info.pfnUserCallback =&( f60_debugCallback );
         create_info.pUserData       = NULL; /** Optional **/
 
         printf("[TODO:vkGetInstanceProcAddr, page 58]\n");
@@ -4072,11 +4411,65 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
             f40_Halt("[sType!=1000128004]\n");
         };;
 
-        f60_NOOP1( &create_info );
-     //:f60_NOOP1( f40_callback );
+        //:Check on what could go wrong with calling:
+        //:F50_vkCreateDebugUtilsMessengerEXT
+        ////////////////////////////////////////////////////////
+        if(NULL==F50_vkCreateDebugUtilsMessengerEXT){
+            f60_Halt("[NULL:CDUME]");
+        };;
+        if(NULL==F55_FUN_vkCreateDebugUtilsMessengerEXT){
+            f60_Halt("[NULL:CDUME:Strict]");
+        };;
+        if(NULL==f40_instance){ f60_Halt("[NULL:INST]"); }
+
+        ////////////////////////////////////////////////////////
+
+        f60_DebugMessage("[BEF:vk_CDUME]"); //:BEF:BEFORE
+
+        //: vulkan_core.h ___________________________________://
+        //|    VKAPI_ATTR VkResult                           |//
+        //|    VKAPI_CALL vkCreateDebugUtilsMessengerEXT(    |//
+        //|                                                  |//
+        //|        VkInstance                                |// 
+        //|        instance,                                 |//
+        //|                                                  |//
+        //|        const VkDebugUtilsMessengerCreateInfoEXT* |// 
+        //|        pCreateInfo,                              |//
+        //|                                                  |//
+        //|        const VkAllocationCallbacks*              |// 
+        //|        pAllocator,                               |//
+        //|                                                  |//
+        //|        VkDebugUtilsMessengerEXT*                 |//  
+        //|        pMessenger                                |//
+        //|    );                                            |//
+        //:--------------------------------------------------://
+
+        //: https://github.com/KhronosGroup/Vulkan-ValidationLayers/
+        //:       issues/134
+        //: Crash when enabling EXT_debug_utils and 
+        //: EXT_debug_report concurrently #134
+
+        //:PAGE[58]VKTUT2018PDF
+        int res=
+        F55_FUN_vkCreateDebugUtilsMessengerEXT(
+            f40_instance    /** VkInstance  **/
+        ,   &(create_info)  /** pCreateInfo **/
+        ,   (void*)NULL     /** pAllocator  **/
+        ,
+            /** DECLARE_HANDLE( VkDebugUtilsMessengerEXT )   **/
+            /** F20_VkDebugUtilsMessengerEXT* : pMessenger   **/
+            /** pMessenger is just a void* to opaque type.   **/
+            f60_debug_utils_messenger 
+        );;
+
+        f60_DebugMessage("[AFT:vk_CDUME]"); //:AFT:AFTER
+
+        if( res!=0 /**VK_SUCCESS**/ ){ f60_Halt("[A]"); };
+        if( NULL==f60_debug_utils_messenger){ f60_Halt("[B]");};
 
     };;
 
+f60_DebugMessage( "[END:f60_EngineInit_PART2_WAO]" );
 }//[;]//
 
 
@@ -4086,7 +4479,8 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
         printf("[BEG:F60:Init]\n");
 
         //:Get instance function pointers:
-        int ret = F50_Init(); //: ".SUPER_CHAIN()"
+        int ret = F55_Init(); //: ".SUPER_CHAIN()"
+
 
         f60_EngineInit_PART2_WindowAlreadyOpen();
 
@@ -4094,13 +4488,19 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
         return( ret );
     }//[;]//
     int F60_Main(){
+
+        printf("[F60_Main:Before:F60_Init()]\n");
+
         F60_Init();
+
+        printf("[F60_Main:Afterr:F60_Init()]\n");
 
         //:Stand in for a renderloop, so that program does
         //:not immediately exit and you never see window and
         //:assume error is in your code.
         printf("[F60:TO_EXIT:CTRL+C]\n");
         fflush(stdout );
+
 
         while( 1 ){ }; //:LOOP_FOREVER
 
@@ -4143,8 +4543,8 @@ VG03_Demo( void ){
     //:F10_Main();
     //:F35_Main();
     //:F40_Main();
-    //:F50_Main();
-    F60_Main();
+    //F50_Main();
+     F60_Main();
 
 
     printf("[END:VG03_DEMO]\n");

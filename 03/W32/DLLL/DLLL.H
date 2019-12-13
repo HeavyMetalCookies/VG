@@ -155,12 +155,20 @@ DLLL_GetProcAddress(
     /**/    )
     );;
 
+    #define MACRO_DLLL_H_fail_fast 1 ///////////////////////////
     if(NULL==ret){
         printf(
-            "[DLLL_GetProcAddress:FAIL]:%s\n"
+            "((([FILE:DLLL.H][DLLL_GetProcAddress:FAIL]))):%s\n"
         ,   name
         );;
+
+        fflush(stdout);
+
+        if( MACRO_DLLL_H_fail_fast != 0 ){
+            exit(666);
+        };;
     };;
+    #undef  MACRO_DLLL_H_fail_fast /////////////////////////////
 
 
     return( ret );

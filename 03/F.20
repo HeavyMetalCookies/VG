@@ -1,7 +1,12 @@
 //#FILE_REGION[ F.20 ]BEG#####################################//
 
 //: DOTADIW: VULKAN_STRUCT
+//: (ALSO SEE: F.35: Structs that take function pointers)
 //: (Declarations, no instantiation!)
+
+
+//:void* types (via DECLARE_HANDLE( whatever ) )
+//[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
 
 struct F20_VkApplicationInfo {
     unsigned int       sType; //:VkStructureType
@@ -120,9 +125,52 @@ F20_VkDebugUtilsMessengerCallbackDataEXT {
 
 };
 
-//[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
+//:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
+//:First function always "Halt":
+static void 
+f20_Halt( const char* msg ){ 
+    printf( "[f20_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+//:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
 
+//:BUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBU://
+//:BU:BlowUp
+static void
+f20_BlowUpIfStructSizesIncorrect( void ){
 
+    int siz;
+
+    siz = (int)sizeof( 
+        struct F20_VkDebugUtilsMessengerCallbackDataEXT 
+    );;if( 96 != siz ){ f20_Halt("[!96]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkDebugUtilsObjectNameInfoEXT
+    );;if( 40 != siz ){ f20_Halt("[!40:DUONIE]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkDebugUtilsLabelEXT
+    );;if( 40 != siz ){ f20_Halt("[!40:DULE]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkLayerProperties 
+    );;if( 520 != siz ){ f20_Halt("[!520:LP]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkExtensionProperties 
+    );;if( 260 != siz ){ f20_Halt("[!260:EP]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkInstanceCreateInfo 
+    );;if( 64 != siz ){ f20_Halt("[!64:ICI]"); };
+
+    siz = (int)sizeof( 
+        struct F20_VkApplicationInfo 
+    );;if( 48 != siz ){ f20_Halt("[!48:AI]"); };
+
+}//[;]//
+//:BUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBU://
 
 
 //:IM:Init_And_Main:
@@ -132,6 +180,8 @@ F20_VkDebugUtilsMessengerCallbackDataEXT {
         printf("[BEG:F20:Init]\n");
 
         int ret = F10_Init();
+
+        f20_BlowUpIfStructSizesIncorrect();
 
         printf("[END:F20:Init]\n");
         return( ret );

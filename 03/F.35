@@ -9,19 +9,19 @@
 struct 
 F35_VkDebugUtilsMessengerCreateInfoEXT {
 
-    unsigned int  /** VkStructureType **/   
+    signed int  /** VkStructureType **/   
     sType;
 
     const void*                             
     pNext;
 
-    unsigned int  /** VkDebugUtilsMessengerCreateFlagsEXT **/
+    signed int  /** VkDebugUtilsMessengerCreateFlagsEXT **/
     flags;
 
-    unsigned int  /** VkDebugUtilsMessageSeverityFlagsEXT **/
+    signed int  /** VkDebugUtilsMessageSeverityFlagsEXT **/
     messageSeverity;
 
-    unsigned int  /** VkDebugUtilsMessageTypeFlagsEXT     **/         
+    signed int  /** VkDebugUtilsMessageTypeFlagsEXT     **/         
     messageType;
 
     F30_PFN_vkDebugUtilsMessengerCallbackEXT      
@@ -29,7 +29,45 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
 
     void*                                   
     pUserData;
+
 };//[struct]//
+
+// //       www.khronos.org/registry/vulkan/specs/1.1-extensions
+// //       /man/html/VkAllocationCallbacks.html
+// struct
+// F35_VkAllocationCallbacks{
+//     
+//     void*                                   pUserData;
+//     PFN_vkAllocationFunction                pfnAllocation;
+//     PFN_vkReallocationFunction              pfnReallocation;
+//     PFN_vkFreeFunction                      pfnFree;
+//     PFN_vkInternalAllocationNotification    pfnInternalAllocation;
+//     PFN_vkInternalFreeNotification          pfnInternalFree;
+// 
+// };//[struct]//
+
+
+//:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
+//:First function always "Halt":
+static void 
+f35_Halt( const char* msg ){ 
+    printf( "[f35_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+//:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
+
+static void
+f35_BlowUpIfStructSizesIncorrect( void ){
+
+    int siz;
+    siz = (int)sizeof( 
+        struct F35_VkDebugUtilsMessengerCreateInfoEXT );;
+
+    if( 48 != siz ){
+        f35_Halt("[!48]");
+    };;
+
+}//[;]//
 
 
 //:IM:Init_And_Main:
@@ -39,6 +77,8 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
 
             //:Call previous initialiers on chain:
             int ret = F30_Init(); //: ".SUPER_CHAIN()"
+
+            f35_BlowUpIfStructSizesIncorrect();
 
         printf("[END:F35:Init]\n");
         return( ret );

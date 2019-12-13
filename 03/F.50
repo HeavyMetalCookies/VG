@@ -12,32 +12,107 @@
 //:and end up with much less obfuscated code.
 
 
-F02_VOF
+//:PUBLIC Functions Fetched+Loaded in [ F.50 / F50 ]:
+//:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
+F02_VOF //:<--GenericFunctionPointer
 F50_vkCreateDebugUtilsMessengerEXT = NULL;
+
+//:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
+////////////////////////////////////////////////////////////////
+
+    //:Private typedef and casted function pointer for
+    //:getting instance functions:
+
+    typedef
+        F02_VOF //:RET:GenericFuncPtr
+        (*f50_PFN_vkGetInstanceProcAddr)(
+            void*       vk_instance   /**VkInstance:instance**/
+        ,   const char* function_name /**----------:pName   **/
+        );
+
+    f50_PFN_vkGetInstanceProcAddr
+    f50_FUN_vkGetInstanceProcAddr=NULL;
+
+////////////////////////////////////////////////////////////////
+static void //[ #FFAH# ]//
+f50_Halt( const char* msg ){ 
+    printf( "[f50_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+////////////////////////////////////////////////////////////////
 
 
 static F02_VOF //:<--returns generic function pointer.
-f50_GIPA( /** vkGetInstanceProcAddr **/
+f50_GIPA( /** WRAPPER:vkGetInstanceProcAddr **/
     void*       vk_instance
 ,   const char* function_name
 ){
-    if( vk_instance   ){ /** NOOP **/ };  
-    if( function_name ){ /** NOOP **/ };
+    #define H f50_Halt /////////////////////////////////////////
+    if( NULL==vk_instance                   ){ H("[VKI]"); };  
+    if( NULL==function_name                 ){ H("[FNN]"); };
+    if( NULL==f50_FUN_vkGetInstanceProcAddr ){ H("[FUN]"); };
+    #undef  H //////////////////////////////////////////////////
 
-    //:TODO: logic.
+    F02_VOF vulkan_instance_function_address = NULL;
 
-    return( (F02_VOF)0 ); //:VOID FUNCTION.
+    ////////////////////////////////////////////////////////////
+
+
+
+    vulkan_instance_function_address=(
+        f50_FUN_vkGetInstanceProcAddr(
+            vk_instance   /** instance **/
+        ,   function_name /**    pName **/
+        )
+    );;
+
+
+
+    ////////////////////////////////////////////////////////////
+    if(NULL==vulkan_instance_function_address){
+        f50_Halt("[FTGA]");//:FailedToGetInstanceFunctionAddress
+    };;
+    return( vulkan_instance_function_address );//:VOID FUNCTION.
 
 }//[;]//
 
 static void
 f50_fetchAndLoad_VulkanInstanceFunctions(){
+    printf("[BEG:f50_fetchAndLoad_VulkanInstanceFunctions]\n");
+    if(NULL==f40_instance){ f50_Halt("[I]"); };
+    
+        //:Setup function pointer GIPA uses:
+        ////////////////////////////////////////////////////////
+        f50_FUN_vkGetInstanceProcAddr=(
+            (f50_PFN_vkGetInstanceProcAddr)
+                 F02_vkGetInstanceProcAddr
+        );;
+        ////////////////////////////////////////////////////////
 
-    F50_vkCreateDebugUtilsMessengerEXT=f50_GIPA(
-        f40_instance
-    ,   "vkCreateDebugUtilsMessengerEXT"
-    );;
+        
+        //:Begin fetching functions:
+        ////////////////////////////////////////////////////////
 
+        if( f40_use_validation_layers > 0 ){
+
+            //:Validation Layer Functions:
+
+            F50_vkCreateDebugUtilsMessengerEXT=f50_GIPA(
+                f40_instance
+            ,   "vkCreateDebugUtilsMessengerEXT"
+            );;
+            if(NULL==F50_vkCreateDebugUtilsMessengerEXT){
+                f50_Halt("[CDUME:VOF]");
+            };;
+
+        };;
+
+        ////////////////////////////////////////////////////////
+
+
+    printf("[END:f50_fetchAndLoad_VulkanInstanceFunctions]\n");
 }//[;]//
 
 

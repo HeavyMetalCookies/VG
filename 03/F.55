@@ -1,0 +1,144 @@
+//#FILE_REGION[ F.55 ]BEG#####################################//
+
+
+//:DOTADIW: CAS_VK_EXT_FUNC_PTRS
+//: ( Casted Vulkan Extension Function Pointers )
+//: ( specific_pointers_for_instance_funcs      )
+//:
+//:         Cast previously fetched raw pointers to 
+//:         vulkan instance extension functions into
+//:         more specific function pointers complete
+//:         with proper calling convention.
+
+
+typedef
+    signed int /** VkResult **/ 
+    ( __stdcall * F55_PFN_vkCreateDebugUtilsMessengerEXT )(
+
+    void*        /** VkInstance --------------**/   
+    instance
+    ,
+    const struct
+    F35_VkDebugUtilsMessengerCreateInfoEXT*   
+    pCreateInfo
+    ,
+    const void*  /** VkAllocationCallbacks    **/   
+    pAllocator
+    ,
+    //:VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkDebugUtilsMessengerEXT)
+    void*  /** VkDebugUtilsMessengerEXT **/   
+    pMessenger
+
+    );
+    F55_PFN_vkCreateDebugUtilsMessengerEXT
+    F55_FUN_vkCreateDebugUtilsMessengerEXT=NULL;
+
+
+////////////////////////////////////////////////////////////////
+static void 
+f55_Halt( const char* msg ){ 
+    printf( "[f60_Halt]:%s\n", msg ); 
+    fflush(stdout); exit(666);
+}//[;]//
+
+static void
+f55_SRC( F02_VOF func_ptr, const char* on_err_msg ){
+
+    if(NULL==func_ptr){
+        printf("[f55_SRC:NULL!MSG=]:%s\n", on_err_msg);
+        f55_Halt("[SEE_MESSAGE_TAGGED:f55_SRC]");
+    };;
+
+}//[;]//
+
+static void
+f55_DST( F02_VOF func_ptr, const char* on_err_msg ){
+
+    if(NULL==func_ptr){
+        printf("[f55_DST:NULL!MSG=]:%s\n", on_err_msg);
+        f55_Halt("[SEE_MESSAGE_TAGGED:f55_DST]");
+    };;
+
+}//[;]//
+
+
+//:R:Reload
+//[RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR]//
+
+static void
+f55_RLIFPTST_ValidationLayerFunctions( void ){
+
+    #define V F02_VOF //////////////////////////////////////////
+
+    //:Check source pointers for null:
+    f55_SRC( (V)F50_vkCreateDebugUtilsMessengerEXT , "[A]");
+
+    F55_FUN_vkCreateDebugUtilsMessengerEXT=(
+  ( F55_PFN_vkCreateDebugUtilsMessengerEXT )
+        F50_vkCreateDebugUtilsMessengerEXT
+    );;
+
+    //:Check destination pointers for null:
+    f55_DST( (V)F55_FUN_vkCreateDebugUtilsMessengerEXT , "[A]");
+
+    #undef  V //////////////////////////////////////////////////
+
+}//[;]//
+
+static void
+f55_ReLoadInstanceFunctionPointersToSpecificTypes( void ){
+
+    if( f40_use_validation_layers > 0 ){
+        //: RLIFPTST:
+        //: ReLoadInstanceFunctionPointersToSpecificTypes
+        //: R L   I       F       P       T S       T
+        f55_RLIFPTST_ValidationLayerFunctions();
+    };;
+
+}//[;]//
+
+//[RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F55_Init(){
+        printf("[BEG:F55:Init]\n");
+
+        //:Get instance function pointers:
+        int ret = F50_Init(); //: ".SUPER_CHAIN()"
+
+        //## f55 init logic goes AFTER super!!! ##//
+        //:Initialize re-casted function pointers:
+        f55_ReLoadInstanceFunctionPointersToSpecificTypes();
+
+
+        printf("[END:F55:Init]\n");
+        return( ret );
+    }//[;]//
+    int F55_Main(){
+
+        printf("[F55_Main:Before:F55_Init()]\n");
+
+        F55_Init();
+
+        printf("[F55_Main:Afterr:F55_Init()]\n");
+
+        //:Stand in for a renderloop, so that program does
+        //:not immediately exit and you never see window and
+        //:assume error is in your code.
+        printf("[F55:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+
+
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+
+
+
+//#FILE_REGION[ F.55 ]END#####################################//

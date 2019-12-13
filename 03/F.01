@@ -54,6 +54,12 @@ F02_F01_MACRO(
 ,   vulkan-1
 )
 
+//:MAKES: F02_vkGetInstanceProcAddr
+F02_F01_MACRO(
+    vkGetInstanceProcAddr
+,   vulkan-1
+)
+
 ////////////////////////////////////////////////////////////////
 
 
