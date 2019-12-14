@@ -108,6 +108,7 @@ printf "\n"                             >> "VG03.ALL"
     nl_cat "./F.50"     "VG03.ALL"  ## RAW_VK_EXT_FUNC_PTRS
     nl_cat "./F.55"     "VG03.ALL"  ## CAS_VK_EXT_FUNC_PTRS
     nl_cat "./F.60"     "VG03.ALL"  ## VULKAN_INIT_CONTINUED
+    nl_cat "./F.62"     "VG03.ALL"  ## VULKAN_CHAPTER_SEVEN
 
 ########################################
 

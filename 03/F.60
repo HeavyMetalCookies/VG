@@ -2,6 +2,7 @@
 
 //:
 //: DOTADIW: VULKAN_INIT_PART_02
+//:          Setting up debug callback for validation layers.
 //:   
 
       //:F20_VkDebugUtilsMessengerEXT

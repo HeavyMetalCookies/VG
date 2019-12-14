@@ -125,6 +125,113 @@ F20_VkDebugUtilsMessengerCallbackDataEXT {
 
 };
 
+//+----------------------------------------------------------+//
+//|                                                          |//
+//|          www.khronos.org/registry/vulkan/specs/          |//
+//|          1.1-extensions/man/html/                        |//
+//|          VkPhysicalDeviceFeatures.html                   |//
+//|                                                          |//
+//+----------------------------------------------------------+//
+/** UI32  =~=  typedef uint32_t VkBool32 **/ ///////////////////
+#define UI32 unsigned int //////////////////////////////////////
+struct F20_VkPhysicalDeviceFeatures {
+
+        UI32    robustBufferAccess;
+        UI32    fullDrawIndexUint32;
+        UI32    imageCubeArray;
+        UI32    independentBlend;
+        UI32    geometryShader;
+        UI32    tessellationShader;
+        UI32    sampleRateShading;
+        UI32    dualSrcBlend;
+        UI32    logicOp;
+        UI32    multiDrawIndirect;
+        UI32    drawIndirectFirstInstance;
+        UI32    depthClamp;
+        UI32    depthBiasClamp;
+        UI32    fillModeNonSolid;
+        UI32    depthBounds;
+        UI32    wideLines;
+        UI32    largePoints;
+        UI32    alphaToOne;
+        UI32    multiViewport;
+        UI32    samplerAnisotropy;
+        UI32    textureCompressionETC2;
+        UI32    textureCompressionASTC_LDR;
+        UI32    textureCompressionBC;
+        UI32    occlusionQueryPrecise;
+        UI32    pipelineStatisticsQuery;
+        UI32    vertexPipelineStoresAndAtomics;
+        UI32    fragmentStoresAndAtomics;
+        UI32    shaderTessellationAndGeometryPointSize;
+        UI32    shaderImageGatherExtended;
+        UI32    shaderStorageImageExtendedFormats;
+        UI32    shaderStorageImageMultisample;
+        UI32    shaderStorageImageReadWithoutFormat;
+        UI32    shaderStorageImageWriteWithoutFormat;
+        UI32    shaderUniformBufferArrayDynamicIndexing;
+        UI32    shaderSampledImageArrayDynamicIndexing;
+        UI32    shaderStorageBufferArrayDynamicIndexing;
+        UI32    shaderStorageImageArrayDynamicIndexing;
+        UI32    shaderClipDistance;
+        UI32    shaderCullDistance;
+        UI32    shaderFloat64;
+        UI32    shaderInt64;
+        UI32    shaderInt16;
+        UI32    shaderResourceResidency;
+        UI32    shaderResourceMinLod;
+        UI32    sparseBinding;
+        UI32    sparseResidencyBuffer;
+        UI32    sparseResidencyImage2D;
+        UI32    sparseResidencyImage3D;
+        UI32    sparseResidency2Samples;
+        UI32    sparseResidency4Samples;
+        UI32    sparseResidency8Samples;
+        UI32    sparseResidency16Samples;
+        UI32    sparseResidencyAliased;
+        UI32    variableMultisampleRate;
+        UI32    inheritedQueries;
+
+};
+
+#undef  UI32 ///////////////////////////////////////////////////
+
+struct F20_VkPhysicalDeviceProperties {
+
+    !! NOTICE_ME_SENPAI !! (TODO:Finish Mapping here)
+
+    unsigned int /** uint32_t **/ apiVersion;
+    unsigned int /** uint32_t **/ driverVersion;
+    unsigned int /** uint32_t **/ vendorID;
+    unsigned int /** uint32_t **/ deviceID;
+
+    unsigned int /** enum VkPhysicalDeviceType **/                
+    deviceType;
+
+    char                                
+    deviceName[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE];
+
+    uint8_t                             
+    pipelineCacheUUID[VK_UUID_SIZE];
+
+    VkPhysicalDeviceLimits              
+    limits;
+
+    VkPhysicalDeviceSparseProperties    
+    sparseProperties;
+
+    !! NOTICE_ME_SENPAI !! (TODO:Finish Mapping here)
+
+} VkPhysicalDeviceProperties;
+
+
+
+
+////////////////////////////////////////////////////////////////
+//    ABOVE: DATA                                             //
+//    BELOW: FUNC                                             //
+////////////////////////////////////////////////////////////////
+
 //:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
 //:First function always "Halt":
 static void 
@@ -138,6 +245,10 @@ f20_Halt( const char* msg ){
 //:BU:BlowUp
 static void
 f20_BlowUpIfStructSizesIncorrect( void ){
+
+    //:The hardcoded sizes are from my x64 windows 10 machine.
+    //:AKA: ZOTAC_BOX
+    //:(Comparing against lunarG vulkan headers)
 
     int siz;
 
@@ -168,6 +279,10 @@ f20_BlowUpIfStructSizesIncorrect( void ){
     siz = (int)sizeof( 
         struct F20_VkApplicationInfo 
     );;if( 48 != siz ){ f20_Halt("[!48:AI]"); };
+
+    siz = (int)sizeof(
+        struct F20_VkPhysicalDeviceFeatures
+    );;if( 220 != siz ){ f20_Halt("[!220:PDF]"); };
 
 }//[;]//
 //:BUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBU://

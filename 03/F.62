@@ -1,0 +1,199 @@
+//#FILE_REGION[ F.62 ]BEG#####################################//
+
+//:DOTADIW: VULKAN_CHAPTER_SEVEN
+//:        (Physical Device Selection)
+
+//:When more confident, we increment file numbers by 2
+//:instead of 10. Confident in not making more insertion
+//:files between numbers.
+
+
+//:The choosen physical device:
+////////////////////////////////////////////////////////////////
+
+    void*
+    F62_physical_device = NULL; 
+    /** physicalDevice : DEFINE_HANDLE( VkPhysicalDevice ) **/
+
+////////////////////////////////////////////////////////////////
+
+//:Features of the choosen physical device:
+////////////////////////////////////////////////////////////////
+
+    
+    struct F20_VkPhysicalDeviceFeatures
+    F62_physical_device_features={0};
+    
+////////////////////////////////////////////////////////////////
+
+//:Properties of the choosen physical device:
+////////////////////////////////////////////////////////////////
+
+    struct F20_VkPhysicalDeviceProperties
+    F62_physical_device_properties={0};
+
+////////////////////////////////////////////////////////////////
+
+            
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:First function always "Halt":    /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f62_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f62_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+////////////////////////////////////////////////////////////////
+
+static void
+f62_PrivateInitChapterSeven_07( void ){
+
+    unsigned int device_count = 0;
+
+    ((F03_03)F02_vkEnumeratePhysicalDevices)(
+        f40_instance
+    ,   &device_count
+    ,   NULL
+    );;
+
+    if( 0==device_count ){
+        f62_Halt("[No_Physical_Devices]");
+    }else{
+        printf("[WE_HAVE_THIS_MANY_DEVICES]:%d\n"
+            ,device_count
+        );;fflush(stdout);
+    };;
+
+    //:Skip this bullshit for now, we only have 1 device
+    //:on our ZOTAC machine. -[JMIM.2019.12.14]
+    if( device_count != 1 ){
+
+        f62_Halt("[MUST_ADD:ChooseCorrectDeviceFromMany]");
+
+        //:ADD the "isDeviceSuitable" method from page 62
+        //:of SC[ VKTUTPDF2018 ]
+
+    };;
+
+    //:Create temporary device array:
+    //:int one = sizeof( void* ); /** one: VkPhysicalDevice **/
+    //:int num = device_count;    /** num/amt of elements.  **/
+    //:int all = malloc( one * num );
+    void** arr = calloc( device_count, sizeof( void* ) );
+
+    ((F03_03)F02_vkEnumeratePhysicalDevices)(
+        f40_instance
+    ,   &device_count
+    ,   arr //:array of devices to populate.
+    );;
+
+    F62_physical_device = arr[ 0 ];
+
+    if( NULL == F62_physical_device ){
+        f62_Halt("[OhFuck]");
+    }else{
+        printf("[WeGotOurPhysicalDeviceBoys!]\n");
+        fflush(stdout);
+    };;
+
+    //:Device Features:
+    ////////////////////////////////////////////////////////////
+    ((F03_02)F02_vkGetPhysicalDeviceFeatures)(
+          F62_physical_device
+    ,   &(F62_physical_device_features)
+    );;
+
+    if( F62_physical_device_features.shaderInt64 != 1 ){
+
+        f62_Halt("[NOT_SUPPORTED:shaderInt64]");
+    
+    }else{
+
+        printf("[SUPPORTED:shaderInt64]\n");
+        fflush(stdout);
+    
+    };;
+    ////////////////////////////////////////////////////////////
+
+
+    //:Device Properties:
+    ////////////////////////////////////////////////////////////
+    ((F03_02)F02_vkGetPhysicalDeviceProperties)(
+          F62_physical_device
+    ,   &(F62_physical_device_properties)
+    );;
+
+    if( F62_physical_device_properties.deviceType
+        !=  
+       xxxxxxxxxxxxxxxxx /** VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU  **/
+    ){
+
+        f62_Halt("[I_NEED_A_FUCKING_GPU]");
+    
+    }else{
+
+        printf("[I_HAVE_A_FUCKING_GPU]\n");
+        fflush(stdout);
+    
+    };;
+    ////////////////////////////////////////////////////////////
+    
+
+    free( arr );
+    return;
+}//[;]//
+
+////////////////////////////////////////////////////////////////
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F62_Init(){
+        printf("[BEG:F62:Init]\n");
+
+            ////////////////////////////////////////////////////
+
+            //: ".SUPER_CHAIN()"
+            int ret = F60_Init(); 
+
+            //: LAST_ITEM_IN_CODE_CHAIN:
+            f62_PrivateInitChapterSeven_07();
+
+            ////////////////////////////////////////////////////
+
+        printf("[END:F62:Init]\n");
+        return( ret );
+    }//[;]//
+    int F62_Main(){
+
+        printf("[F62_Main:Before:F62_Init()]\n");
+        ////////////////////////////////////////////////////////
+
+        F62_Init();
+
+        ////////////////////////////////////////////////////////
+        printf("[F62_Main:Afterr:F62_Init()]\n");
+
+
+        
+        //:RLSI:RENDER_LOOP_STAND_IN
+        ////////////////////////////////////////////////////////
+
+        printf("[F62:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        ////////////////////////////////////////////////////////
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+
+//#FILE_REGION[ F.62 ]END#####################################//

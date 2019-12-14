@@ -60,6 +60,18 @@ F02_F01_MACRO(
 ,   vulkan-1
 )
 
+//:MAKES: F02_vkEnumeratePhysicalDevices
+F02_F01_MACRO(
+    vkEnumeratePhysicalDevices
+,   vulkan-1
+)
+
+//:MAKES: F02_vkGetPhysicalDeviceFeatures
+F02_F01_MACRO(
+    vkGetPhysicalDeviceFeatures
+,   vulkan-1
+)
+
 ////////////////////////////////////////////////////////////////
 
 
