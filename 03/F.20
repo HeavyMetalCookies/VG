@@ -7,6 +7,8 @@
 
 //:void* types (via DECLARE_HANDLE( whatever ) )
 //[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
+//[ F20_VkDeviceSize ================ UI64   ]//
+//[ F20_VkSurfaceKHR ================ void*  ]//
 
 struct F20_VkApplicationInfo {
     unsigned int       sType; //:VkStructureType
@@ -82,6 +84,12 @@ F20_VkDebugUtilsObjectNameInfoEXT {
     unsigned long long   objectHandle; /** uint64_t        **/
     const char*          pObjectName;
 };
+
+////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////
 
 struct 
 F20_VkDebugUtilsMessengerCallbackDataEXT {
@@ -196,9 +204,252 @@ struct F20_VkPhysicalDeviceFeatures {
 
 #undef  UI32 ///////////////////////////////////////////////////
 
-struct F20_VkPhysicalDeviceProperties {
+////////////////////////////////////////////////////////////////
 
-    !! NOTICE_ME_SENPAI !! (TODO:Finish Mapping here)
+
+#define I_32   signed int  /////////////////////////////////////
+#define UI32 unsigned int  /////////////////////////////////////
+#define UI64 unsigned long long ////////////////////////////////
+#define FLOT float /////////////////////////////////////////////
+
+struct F20_VkPhysicalDeviceLimits {
+
+    //:ImageDimension:
+    UI32    maxImageDimension1D;
+    UI32    maxImageDimension2D;
+    UI32    maxImageDimension3D;
+    UI32    maxImageDimensionCube;
+
+    //:max.... whatever.
+    UI32    maxImageArrayLayers;
+    UI32    maxTexelBufferElements;
+    UI32    maxUniformBufferRange;
+    UI32    maxStorageBufferRange;
+    UI32    maxPushConstantsSize;
+    UI32    maxMemoryAllocationCount;
+    UI32    maxSamplerAllocationCount;
+
+    
+    UI64    bufferImageGranularity; /** VkDeviceSize **/
+    UI64    sparseAddressSpaceSize; /** VkDeviceSize **/
+
+    //:DescriptorSets (PLURAL)
+    //:DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD://
+
+    //:Max number of descriptor sets that can 
+    //:be simultaneously used by a pipeline. 
+    UI32    maxBoundDescriptorSets;
+
+    //:Descriptor
+    UI32        maxPerStageDescriptorSamplers;
+    UI32        maxPerStageDescriptorUniformBuffers;
+    UI32        maxPerStageDescriptorStorageBuffers;
+    UI32        maxPerStageDescriptorSampledImages;
+    UI32        maxPerStageDescriptorStorageImages;
+    UI32        maxPerStageDescriptorInputAttachments;
+
+    //:Max number of resources that can be accessible 
+    //:to a single shader stage in a pipeline layout.
+    UI32    maxPerStageResources;
+
+    //:DescriptorSet:
+    UI32        maxDescriptorSetSamplers;
+    UI32        maxDescriptorSetUniformBuffers;
+    UI32        maxDescriptorSetUniformBuffersDynamic;
+    UI32        maxDescriptorSetStorageBuffers;
+    UI32        maxDescriptorSetStorageBuffersDynamic;
+    UI32        maxDescriptorSetSampledImages;
+    UI32        maxDescriptorSetStorageImages;
+    UI32        maxDescriptorSetInputAttachments;
+
+    //:DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD://
+
+    //:Vertex:
+    UI32    maxVertexInputAttributes;
+    UI32    maxVertexInputBindings;
+    UI32    maxVertexInputAttributeOffset;
+    UI32    maxVertexInputBindingStride;
+    UI32    maxVertexOutputComponents;
+
+    //:Tessellation:
+    UI32    maxTessellationGenerationLevel;
+    UI32    maxTessellationPatchSize;
+    UI32    maxTessellationControlPerVertexInputComponents;
+    UI32    maxTessellationControlPerVertexOutputComponents;
+    UI32    maxTessellationControlPerPatchOutputComponents;
+    UI32    maxTessellationControlTotalOutputComponents;
+    UI32    maxTessellationEvaluationInputComponents;
+    UI32    maxTessellationEvaluationOutputComponents;
+
+    //:Geometry:
+    UI32    maxGeometryShaderInvocations;
+    UI32    maxGeometryInputComponents;
+    UI32    maxGeometryOutputComponents;
+    UI32    maxGeometryOutputVertices;
+    UI32    maxGeometryTotalOutputComponents;
+
+    //:Fragment:
+    UI32    maxFragmentInputComponents;
+    UI32    maxFragmentOutputAttachments;
+    UI32    maxFragmentDualSrcAttachments;
+    UI32    maxFragmentCombinedOutputResources;
+
+    //:Compute:
+    UI32    maxComputeSharedMemorySize;
+    UI32    maxComputeWorkGroupCount[3];
+    UI32    maxComputeWorkGroupInvocations;
+    UI32    maxComputeWorkGroupSize[3];
+
+    //:PrecisionBits
+    UI32    subPixelPrecisionBits;
+    UI32    subTexelPrecisionBits;
+    UI32    mipmapPrecisionBits;
+
+    UI32    maxDrawIndexedIndexValue;
+    UI32    maxDrawIndirectCount;
+   
+    FLOT    maxSamplerLodBias;
+    FLOT    maxSamplerAnisotropy;
+
+    UI32    maxViewports;
+    UI32    maxViewportDimensions[2];
+
+    FLOT    viewportBoundsRange[2];
+    
+    UI32    viewportSubPixelBits;
+    
+    UI64    minMemoryMapAlignment; /** size_t type **/
+
+    //:VkDeviceSize: UI64 (unsigned long long)
+    //:[ _____________ BufferOffsetAlignment ]            
+    ////////////////////////////////////////////////////////////
+                                                           /////
+                                                           /////
+    UI64      minTexelBufferOffsetAlignment;   //:SEE_01   /////
+    UI64    minUniformBufferOffsetAlignment;   //:SEE_02   /////
+    UI64    minStorageBufferOffsetAlignment;   //:SEE_03   /////
+                                                           /////
+            //: SEE_01: VkBufferViewCreateInfo             /////
+            //: SEE_02: VkDescriptorBufferInfo             /////
+            //: SEE_03: VkDescriptorBufferInfo             /////
+                                                           /////
+    ////////////////////////////////////////////////////////////
+
+    I_32    minTexelOffset;
+    UI32    maxTexelOffset;
+
+    I_32    minTexelGatherOffset;
+    UI32    maxTexelGatherOffset;
+
+    FLOT    minInterpolationOffset;
+    FLOT    maxInterpolationOffset;
+
+    UI32    subPixelInterpolationOffsetBits;
+
+    UI32    maxFramebufferWidth;
+    UI32    maxFramebufferHeight;
+    UI32    maxFramebufferLayers;
+
+    //: VkSampleCountFlags: UI32 ///////////////////////////////
+    ////////////////////////////////////////////////////////////
+                                                   /////////////
+    UI32    framebufferColorSampleCounts        ;  /////////////
+    UI32    framebufferDepthSampleCounts        ;  /////////////
+    UI32    framebufferStencilSampleCounts      ;  /////////////
+    UI32    framebufferNoAttachmentsSampleCounts;  /////////////
+                                                   /////////////
+    ////////////////////////////////////////////////////////////
+
+    UI32    maxColorAttachments; /** uint32_t **/
+
+    //: VkSampleCountFlags: UI32 ///////////////////////////////
+    ////////////////////////////////////////////////////////////
+                                              //////////////////
+    UI32    sampledImageColorSampleCounts  ;  //////////////////
+    UI32    sampledImageIntegerSampleCounts;  //////////////////
+    UI32    sampledImageDepthSampleCounts  ;  //////////////////
+    UI32    sampledImageStencilSampleCounts;  //////////////////
+    UI32    storageImageSampleCounts       ;  //////////////////
+                                              //////////////////
+    ////////////////////////////////////////////////////////////
+
+    //:uint32_t: UI32 ( unsigned int )
+    ////////////////////////////////////////////////////////////
+
+    UI32    maxSampleMaskWords;
+
+    ////////////////////////////////////////////////////////////
+
+    //:VkBool32: UI32
+    ////////////////////////////////////////////////////////////
+
+    UI32    imestampComputeAndGraphics;
+
+    ////////////////////////////////////////////////////////////
+
+    FLOT    timestampPeriod;
+
+    //:uint32_t: UI32 ( unsigned int )
+    ////////////////////////////////////////////////////////////
+
+    UI32    maxClipDistances;
+    UI32    maxCullDistances;
+    UI32    maxCombinedClipAndCullDistances;
+    UI32    discreteQueuePriorities;
+
+    ////////////////////////////////////////////////////////////
+
+    FLOT    pointSizeRange[2];
+    FLOT    lineWidthRange[2];
+    FLOT    pointSizeGranularity;
+    FLOT    lineWidthGranularity;
+
+    //:VkBool32: UI32
+    ////////////////////////////////////////////////////////////
+
+    UI32    strictLines;
+    UI32    standardSampleLocations;
+
+    ////////////////////////////////////////////////////////////
+
+    //:VkDeviceSize: UI64 ( unsigned long long )
+    ////////////////////////////////////////////////////////////
+
+    UI64    optimalBufferCopyOffsetAlignment;
+    UI64    optimalBufferCopyRowPitchAlignment;
+    UI64    nonCoherentAtomSize;
+
+    ////////////////////////////////////////////////////////////
+};
+#undef  I_32  //////////////////////////////////////////////////
+#undef  UI32  //////////////////////////////////////////////////
+#undef  UI64  //////////////////////////////////////////////////
+#undef  FLOT  //////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////
+
+struct F20_VkPhysicalDeviceSparseProperties {
+
+    //:residency:
+    //:    An object is considered to be resident 
+    //:    when it is accessible by the GPU. -MSDN
+   
+    #define UI32 unsigned int //////////////////////////////////
+
+            /////// residency //////////////////////////////////
+            UI32    residencyStandard2DBlockShape;
+            UI32    residencyStandard2DMultisampleBlockShape;
+            UI32    residencyStandard3DBlockShape;
+            UI32    residencyAlignedMipSize;
+            UI32    residencyNonResidentStrict;
+            /////// residency //////////////////////////////////
+
+    #undef  UI32 ///////////////////////////////////////////////
+};
+
+////////////////////////////////////////////////////////////////
+
+struct F20_VkPhysicalDeviceProperties {
 
     unsigned int /** uint32_t **/ apiVersion;
     unsigned int /** uint32_t **/ driverVersion;
@@ -209,20 +460,89 @@ struct F20_VkPhysicalDeviceProperties {
     deviceType;
 
     char                                
-    deviceName[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE];
+    deviceName[ 256 /** VK_MAX_PHYSICAL_DEVICE_NAME_SIZE **/ ];
 
-    uint8_t                             
-    pipelineCacheUUID[VK_UUID_SIZE];
+    unsigned char /** uint8_t **/              
+    pipelineCacheUUID[ 16 /** VK_UUID_SIZE **/ ];
 
-    VkPhysicalDeviceLimits              
+    struct F20_VkPhysicalDeviceLimits              
     limits;
 
-    VkPhysicalDeviceSparseProperties    
+    struct F20_VkPhysicalDeviceSparseProperties    
     sparseProperties;
 
-    !! NOTICE_ME_SENPAI !! (TODO:Finish Mapping here)
-
 } VkPhysicalDeviceProperties;
+
+struct F20_VkExtent3D {
+
+    #define UI32 unsigned int //////////////////////////////////
+            UI32    width ;
+            UI32    height;
+            UI32    depth ;
+    #undef  UI32 ///////////////////////////////////////////////
+};
+
+struct F20_VkQueueFamilyProperties {
+    unsigned int    queueFlags; /** VkQueueFlags --> VkFlags **/
+    unsigned int    queueCount;          /** uint32_t **/
+    unsigned int    timestampValidBits;  /** uint32_t **/
+    
+    struct F20_VkExtent3D  
+    minImageTransferGranularity;
+};
+
+struct F20_VkDeviceQueueCreateInfo {
+    unsigned int   sType; /** VkStructureType **/
+    const void*    pNext; 
+    unsigned int   flags; /** VkDeviceQueueCreateFlags **/
+
+    unsigned int   queueFamilyIndex; /** uint32_t **/
+    unsigned int   queueCount      ; /** uint32_t **/
+    const float*   pQueuePriorities;
+};
+
+//:For creating "Logical" device.
+struct F20_VkDeviceCreateInfo{
+    unsigned int                       sType; /** VkStructureType **/
+    const void*                        pNext;
+    unsigned int                       flags; /** VkDeviceCreateFlags **/
+
+    // ------------------------------------------------------ //
+
+    unsigned int /** uint32_t **/                           
+    queueCreateInfoCount;
+
+    const struct F20_VkDeviceQueueCreateInfo*     
+    pQueueCreateInfos;
+    
+    // ------------------------------------------------------ //
+
+    unsigned int                       enabledLayerCount;
+
+    //:Just a read only char** (List of strings):
+    const char* const*                 ppEnabledLayerNames;
+
+    unsigned int                       enabledExtensionCount;
+
+    //:Another read-only char** (List Of Strings):
+    const char* const*                 ppEnabledExtensionNames;
+
+    //:
+    const struct F20_VkPhysicalDeviceFeatures*    
+    pEnabledFeatures;
+};
+
+//: VkWin32SurfaceCreateInfoKHR 
+struct 
+F20_VkWin32SurfaceCreateInfoKHR{
+
+    unsigned int    sType; /** VkStructureType **/
+    const void*     pNext;
+    unsigned int    flags; /** VkWin32SurfaceCreateFlagsKHR **/
+    void*       hinstance; /** HINSTANCE **/
+    void*            hwnd; /** HWND      **/
+
+};//
 
 
 
@@ -249,6 +569,7 @@ f20_BlowUpIfStructSizesIncorrect( void ){
     //:The hardcoded sizes are from my x64 windows 10 machine.
     //:AKA: ZOTAC_BOX
     //:(Comparing against lunarG vulkan headers)
+    //:SEE[ SC[ edit_vk_struct_sizes_c11 ] ]
 
     int siz;
 
@@ -283,6 +604,47 @@ f20_BlowUpIfStructSizesIncorrect( void ){
     siz = (int)sizeof(
         struct F20_VkPhysicalDeviceFeatures
     );;if( 220 != siz ){ f20_Halt("[!220:PDF]"); };
+
+    siz = (int)sizeof(
+        struct F20_VkPhysicalDeviceLimits
+    );;if( 504 != siz ){ f20_Halt("[!504:PDL]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkPhysicalDeviceProperties
+    );;if( 824 != siz ){ f20_Halt("[!824:PDP]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkPhysicalDeviceSparseProperties
+    );;if( 20 != siz ){ f20_Halt("[!20:PDSP]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkExtent3D
+    );;if( 12 != siz ){ f20_Halt("[!12:E3D]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkQueueFamilyProperties
+    );;if( 24 != siz ){ f20_Halt("[!24:QFP]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkDeviceQueueCreateInfo
+    );;if( 40 != siz ){ f20_Halt("[!40:DQCI]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkDeviceCreateInfo
+    );;if( 72 != siz ){ f20_Halt("[!72:DCI]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkWin32SurfaceCreateInfoKHR
+    );;if( 40 != siz ){ f20_Halt("[!40:W32SCI]"); }
+
+        
+
+    
+    printf("\n");
+    printf("[f20:struct_size_checks_pass]\n");
+    printf("\n");
+    fflush(stdout);
+
 
 }//[;]//
 //:BUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBU://

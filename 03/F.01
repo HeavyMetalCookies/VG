@@ -38,39 +38,60 @@ F02_F01_MACRO( HeapAlloc        , kernel32)  //[ 22 ]//
 
 //:MAKES: F02_vkEnumerateInstanceExtensionProperties
 F02_F01_MACRO(  
-    vkEnumerateInstanceExtensionProperties 
+              vkEnumerateInstanceExtensionProperties 
 ,   vulkan-1 
 )
 
 //:MAKES: F02_vkCreateInstance
 F02_F01_MACRO( 
-    vkCreateInstance 
+              vkCreateInstance 
 ,   vulkan-1 
 )
 
 //:MAKES: F02_vkEnumerateInstanceLayerProperties
 F02_F01_MACRO(
-    vkEnumerateInstanceLayerProperties
+              vkEnumerateInstanceLayerProperties
 ,   vulkan-1
 )
 
 //:MAKES: F02_vkGetInstanceProcAddr
 F02_F01_MACRO(
-    vkGetInstanceProcAddr
+              vkGetInstanceProcAddr
 ,   vulkan-1
 )
 
 //:MAKES: F02_vkEnumeratePhysicalDevices
 F02_F01_MACRO(
-    vkEnumeratePhysicalDevices
+              vkEnumeratePhysicalDevices
 ,   vulkan-1
 )
 
 //:MAKES: F02_vkGetPhysicalDeviceFeatures
 F02_F01_MACRO(
-    vkGetPhysicalDeviceFeatures
+              vkGetPhysicalDeviceFeatures
 ,   vulkan-1
 )
+
+//:MAKES: F02_vkGetPhysicalDeviceProperties
+F02_F01_MACRO(
+              vkGetPhysicalDeviceProperties
+,   vulkan-1
+)
+
+//:MAKES: F02_vkGetPhysicalDeviceQueueFamilyProperties
+F02_F01_MACRO(
+              vkGetPhysicalDeviceQueueFamilyProperties
+,   vulkan-1
+)
+
+//:MAKES: F02_vkCreateDevice
+F02_F01_MACRO(
+              vkCreateDevice
+,   vulkan-1
+)
+
+//:MAKES:  F02_vkGetDeviceQueue
+F02_F01_MACRO( vkGetDeviceQueue , vulkan-1 )
 
 ////////////////////////////////////////////////////////////////
 

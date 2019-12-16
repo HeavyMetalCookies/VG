@@ -18,6 +18,7 @@ int f09_HIG  = 512 ; /**  GLEB_SWIN.HIG  **/
       
     void* f09_handle_to_window      = NULL; //:HWND
     void* f09_window_device_context = NULL; //:HDC
+    void* f09_handle_to_exe         = NULL; //:HINSTANCE
     
     //:Forward declare so we can keep variables
     //:at top of file.
@@ -30,11 +31,33 @@ int f09_HIG  = 512 ; /**  GLEB_SWIN.HIG  **/
 
 //[H:Halt Always first function in file._____________________]//
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
-void F09_Halt( const char*     msg ){ 
-    printf( "[F09_Halt]:%s\n", msg ); 
+static void 
+f09_Halt( const char*     msg ){ 
+    printf( "[f09_Halt]:%s\n", msg ); 
     fflush(stdout); exit(666);
 }//[;]//
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+//:PUBLIC GETTERS:
+////////////////////////////////////////////////////////////////
+void*
+F09_GetHWND( void ){
+    if(NULL==f09_handle_to_window){
+        f09_Halt("[WindowHandleIsNull]");
+    };;
+    return( f09_handle_to_window );
+}//[;]//
+
+void*
+F09_GetHINSTANCE( void ){
+    if(NULL==f09_handle_to_exe){
+        f09_Halt("[ExeHandleIsNull]");
+    };;
+    return( f09_handle_to_exe );
+}//[;]//
+
+
+////////////////////////////////////////////////////////////////
 
 //[SI:Structs_And_Initializers (Initializers For The Structs)]//
 //[SISISISISISISISISISISISISISISISISISISISISISISISISISISISISI]//
@@ -139,7 +162,7 @@ f09_InitPixelFormatDescriptor(
     void                                   
 ){          
     if( f09_InitPixelFormatDescriptor_DONE != 0 ){
-        F09_Halt("[AlreadyInited:PFD]");
+        f09_Halt("[AlreadyInited:PFD]");
     };;
                                                                            
     struct F09_STRUCT_PIXELFORMATDESCRIPTOR                  
@@ -212,14 +235,14 @@ f09_InitPixelFormatDescriptor(
     //:Quick smoke test in case I missed a param
     //:and my data is mis-aligned.
     if( 32 != p.cColorBits   ){
-        F09_Halt( "[32!=p.cColorBits]" );
+        f09_Halt( "[32!=p.cColorBits]" );
     };;
     if( 24 != p.cDepthBits  ){
         printf("[p.cDepthBits]:%d\n" , p.cDepthBits );
-        F09_Halt( "[24!=p.cDepthBits]");
+        f09_Halt( "[24!=p.cDepthBits]");
     };;
     if(  8 != p.cStencilBits ){
-       F09_Halt( "[08!=p.cStencilBits]");
+       f09_Halt( "[08!=p.cStencilBits]");
     };;
                                            
     //[ Copy Over To Global Variable ]// 
@@ -307,7 +330,7 @@ F09_WinMsgHanWndPoc(
             ok = (int)(unsigned long long)
                  ((F03_01)(F02_DestroyWindow))(Hw);
 
-            if(0==ok){F09_Halt("[0OK_1]");}
+            if(0==ok){f09_Halt("[0OK_1]");}
 
         }else{
             //:KEBO_DOWN_HandleVirtualKey( wParam );
@@ -327,7 +350,7 @@ F09_WinMsgHanWndPoc(
         ok = (int)(unsigned long long)
             ((F03_01)(F02_DestroyWindow))(Hw);
 
-        if(0==ok){F09_Halt("[0OK_2]");}
+        if(0==ok){f09_Halt("[0OK_2]");}
 
     //:WM_DESTROY: ( DESTROYED|DESTROYING )
     case 0x0002 /**wm_destroy**/:  
@@ -399,7 +422,7 @@ F09_RegisterWindow(
         sizeof( struct F09_STRUCT_WNDCLASSEXW )
     );;
     if( struct_size != 80 ){
-        F09_Halt("[BadStructSize]");
+        f09_Halt("[BadStructSize]");
     };;//|-------------------------------|//
     
     //: WNDCLASSEXW W;
@@ -515,7 +538,7 @@ f09_MakeWindowCompatibleWith_GL(
     if( setting_pixel_format_worked ){
         //: printf("[SPF:OK]\n");
     }else{
-        F09_Halt("[SPF:FAIL]\n");
+        f09_Halt("[SPF:FAIL]\n");
     };;
 
     f09_window_device_context=(
@@ -551,7 +574,7 @@ f09_TakeOrLookMessage(
     if( 0 == take_the_message ){
         look_or_take = look;
     }else{
-        F09_Halt("[Exp:Pos|Or|Zero]");
+        f09_Halt("[Exp:Pos|Or|Zero]");
     };;
 
     int ret =(
@@ -663,14 +686,24 @@ F09_OpenWindowAndLoopForever(
     //: characters where I can. Thus resolved type is LPCWSTR.
 ){
      
-    void* /**HMODULE**/ hin=(
-        ((F03_01)F02_GetModuleHandleW)(
-            NULL
-        )
-    );;//[a]//
+    //: void* /**HMODULE**/ hin=(
+    //:     ((F03_01)F02_GetModuleHandleW)(
+    //:         NULL
+    //:     )
+    //: );;//[a]//
 
-    if(NULL==hin){
-        F09_Halt(
+    /** HMODULE / HINSTANCE / Handle_To_Running_Exe_File **/
+    if(NULL != f09_handle_to_exe ){
+        f09_Halt("[Expected_Null_exe_handle_to_start]");
+    };;
+    f09_handle_to_exe =(
+         ((F03_01)F02_GetModuleHandleW)(
+             NULL
+         )
+    );;
+
+    if(NULL==f09_handle_to_exe){
+        f09_Halt(
             "[FailedToGetModuleHandle]"
         );;
     };;//[b]//
@@ -685,12 +718,12 @@ F09_OpenWindowAndLoopForever(
 
     if(0 >=
         F09_RegisterWindow(
-            hin
+            f09_handle_to_exe /** HINSTANCE/HMODULE **/
         ,   unique_window_name
         )
     ){ 
 
-        F09_Halt( /** Originally: gleb_swin_Alert **/
+        f09_Halt( /** Originally: gleb_swin_Alert **/
             "[FailedToRegisterWindow]"
         );;
         return 0; 
@@ -717,7 +750,7 @@ F09_OpenWindowAndLoopForever(
     if( cs_owndc            ){ /** NOOP **/ };
     if( ws_overlappedwindow ){ /** NOOP **/ };
     if( X|Y|WID|HIG         ){ /** NOOP **/ };
-    if( hin                 ){ /** NOOP **/ };
+    if( f09_handle_to_exe   ){ /** NOOP **/ };
 
     void*
     the_desktop_window=((F03_00)F02_GetDesktopWindow)();
@@ -740,12 +773,12 @@ F09_OpenWindowAndLoopForever(
 
     ,   the_desktop_window //:-- hWndParent ---://
     ,   NULL   //:-------------- hMenu      ---://
-    ,   hin    //:-------------- hInstance  ---://        
+    ,   f09_handle_to_exe  //:-- hInstance  ---://        
     ,   NULL   //:-------------- lpParam    ---://  
     );//[e]//
 
     if(Hw==NULL){
-        F09_Halt("[F09:WindowCreateFail]");
+        f09_Halt("[F09:WindowCreateFail]");
         return 0;
     };;//[f]//
 

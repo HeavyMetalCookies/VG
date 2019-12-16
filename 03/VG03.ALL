@@ -1459,39 +1459,60 @@ F02_F01_MACRO( HeapAlloc        , kernel32)  //[ 22 ]//
 
 //:MAKES: F02_vkEnumerateInstanceExtensionProperties
 F02_F01_MACRO(  
-    vkEnumerateInstanceExtensionProperties 
+              vkEnumerateInstanceExtensionProperties 
 ,   vulkan-1 
 )
 
 //:MAKES: F02_vkCreateInstance
 F02_F01_MACRO( 
-    vkCreateInstance 
+              vkCreateInstance 
 ,   vulkan-1 
 )
 
 //:MAKES: F02_vkEnumerateInstanceLayerProperties
 F02_F01_MACRO(
-    vkEnumerateInstanceLayerProperties
+              vkEnumerateInstanceLayerProperties
 ,   vulkan-1
 )
 
 //:MAKES: F02_vkGetInstanceProcAddr
 F02_F01_MACRO(
-    vkGetInstanceProcAddr
+              vkGetInstanceProcAddr
 ,   vulkan-1
 )
 
 //:MAKES: F02_vkEnumeratePhysicalDevices
 F02_F01_MACRO(
-    vkEnumeratePhysicalDevices
+              vkEnumeratePhysicalDevices
 ,   vulkan-1
 )
 
 //:MAKES: F02_vkGetPhysicalDeviceFeatures
 F02_F01_MACRO(
-    vkGetPhysicalDeviceFeatures
+              vkGetPhysicalDeviceFeatures
 ,   vulkan-1
 )
+
+//:MAKES: F02_vkGetPhysicalDeviceProperties
+F02_F01_MACRO(
+              vkGetPhysicalDeviceProperties
+,   vulkan-1
+)
+
+//:MAKES: F02_vkGetPhysicalDeviceQueueFamilyProperties
+F02_F01_MACRO(
+              vkGetPhysicalDeviceQueueFamilyProperties
+,   vulkan-1
+)
+
+//:MAKES: F02_vkCreateDevice
+F02_F01_MACRO(
+              vkCreateDevice
+,   vulkan-1
+)
+
+//:MAKES:  F02_vkGetDeviceQueue
+F02_F01_MACRO( vkGetDeviceQueue , vulkan-1 )
 
 ////////////////////////////////////////////////////////////////
 
@@ -2254,6 +2275,7 @@ int f09_HIG  = 512 ; /**  GLEB_SWIN.HIG  **/
       
     void* f09_handle_to_window      = NULL; //:HWND
     void* f09_window_device_context = NULL; //:HDC
+    void* f09_handle_to_exe         = NULL; //:HINSTANCE
     
     //:Forward declare so we can keep variables
     //:at top of file.
@@ -2266,11 +2288,33 @@ int f09_HIG  = 512 ; /**  GLEB_SWIN.HIG  **/
 
 //[H:Halt Always first function in file._____________________]//
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
-void F09_Halt( const char*     msg ){ 
-    printf( "[F09_Halt]:%s\n", msg ); 
+static void 
+f09_Halt( const char*     msg ){ 
+    printf( "[f09_Halt]:%s\n", msg ); 
     fflush(stdout); exit(666);
 }//[;]//
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+//:PUBLIC GETTERS:
+////////////////////////////////////////////////////////////////
+void*
+F09_GetHWND( void ){
+    if(NULL==f09_handle_to_window){
+        f09_Halt("[WindowHandleIsNull]");
+    };;
+    return( f09_handle_to_window );
+}//[;]//
+
+void*
+F09_GetHINSTANCE( void ){
+    if(NULL==f09_handle_to_exe){
+        f09_Halt("[ExeHandleIsNull]");
+    };;
+    return( f09_handle_to_exe );
+}//[;]//
+
+
+////////////////////////////////////////////////////////////////
 
 //[SI:Structs_And_Initializers (Initializers For The Structs)]//
 //[SISISISISISISISISISISISISISISISISISISISISISISISISISISISISI]//
@@ -2375,7 +2419,7 @@ f09_InitPixelFormatDescriptor(
     void                                   
 ){          
     if( f09_InitPixelFormatDescriptor_DONE != 0 ){
-        F09_Halt("[AlreadyInited:PFD]");
+        f09_Halt("[AlreadyInited:PFD]");
     };;
                                                                            
     struct F09_STRUCT_PIXELFORMATDESCRIPTOR                  
@@ -2448,14 +2492,14 @@ f09_InitPixelFormatDescriptor(
     //:Quick smoke test in case I missed a param
     //:and my data is mis-aligned.
     if( 32 != p.cColorBits   ){
-        F09_Halt( "[32!=p.cColorBits]" );
+        f09_Halt( "[32!=p.cColorBits]" );
     };;
     if( 24 != p.cDepthBits  ){
         printf("[p.cDepthBits]:%d\n" , p.cDepthBits );
-        F09_Halt( "[24!=p.cDepthBits]");
+        f09_Halt( "[24!=p.cDepthBits]");
     };;
     if(  8 != p.cStencilBits ){
-       F09_Halt( "[08!=p.cStencilBits]");
+       f09_Halt( "[08!=p.cStencilBits]");
     };;
                                            
     //[ Copy Over To Global Variable ]// 
@@ -2543,7 +2587,7 @@ F09_WinMsgHanWndPoc(
             ok = (int)(unsigned long long)
                  ((F03_01)(F02_DestroyWindow))(Hw);
 
-            if(0==ok){F09_Halt("[0OK_1]");}
+            if(0==ok){f09_Halt("[0OK_1]");}
 
         }else{
             //:KEBO_DOWN_HandleVirtualKey( wParam );
@@ -2563,7 +2607,7 @@ F09_WinMsgHanWndPoc(
         ok = (int)(unsigned long long)
             ((F03_01)(F02_DestroyWindow))(Hw);
 
-        if(0==ok){F09_Halt("[0OK_2]");}
+        if(0==ok){f09_Halt("[0OK_2]");}
 
     //:WM_DESTROY: ( DESTROYED|DESTROYING )
     case 0x0002 /**wm_destroy**/:  
@@ -2635,7 +2679,7 @@ F09_RegisterWindow(
         sizeof( struct F09_STRUCT_WNDCLASSEXW )
     );;
     if( struct_size != 80 ){
-        F09_Halt("[BadStructSize]");
+        f09_Halt("[BadStructSize]");
     };;//|-------------------------------|//
     
     //: WNDCLASSEXW W;
@@ -2751,7 +2795,7 @@ f09_MakeWindowCompatibleWith_GL(
     if( setting_pixel_format_worked ){
         //: printf("[SPF:OK]\n");
     }else{
-        F09_Halt("[SPF:FAIL]\n");
+        f09_Halt("[SPF:FAIL]\n");
     };;
 
     f09_window_device_context=(
@@ -2787,7 +2831,7 @@ f09_TakeOrLookMessage(
     if( 0 == take_the_message ){
         look_or_take = look;
     }else{
-        F09_Halt("[Exp:Pos|Or|Zero]");
+        f09_Halt("[Exp:Pos|Or|Zero]");
     };;
 
     int ret =(
@@ -2899,14 +2943,24 @@ F09_OpenWindowAndLoopForever(
     //: characters where I can. Thus resolved type is LPCWSTR.
 ){
      
-    void* /**HMODULE**/ hin=(
-        ((F03_01)F02_GetModuleHandleW)(
-            NULL
-        )
-    );;//[a]//
+    //: void* /**HMODULE**/ hin=(
+    //:     ((F03_01)F02_GetModuleHandleW)(
+    //:         NULL
+    //:     )
+    //: );;//[a]//
 
-    if(NULL==hin){
-        F09_Halt(
+    /** HMODULE / HINSTANCE / Handle_To_Running_Exe_File **/
+    if(NULL != f09_handle_to_exe ){
+        f09_Halt("[Expected_Null_exe_handle_to_start]");
+    };;
+    f09_handle_to_exe =(
+         ((F03_01)F02_GetModuleHandleW)(
+             NULL
+         )
+    );;
+
+    if(NULL==f09_handle_to_exe){
+        f09_Halt(
             "[FailedToGetModuleHandle]"
         );;
     };;//[b]//
@@ -2921,12 +2975,12 @@ F09_OpenWindowAndLoopForever(
 
     if(0 >=
         F09_RegisterWindow(
-            hin
+            f09_handle_to_exe /** HINSTANCE/HMODULE **/
         ,   unique_window_name
         )
     ){ 
 
-        F09_Halt( /** Originally: gleb_swin_Alert **/
+        f09_Halt( /** Originally: gleb_swin_Alert **/
             "[FailedToRegisterWindow]"
         );;
         return 0; 
@@ -2953,7 +3007,7 @@ F09_OpenWindowAndLoopForever(
     if( cs_owndc            ){ /** NOOP **/ };
     if( ws_overlappedwindow ){ /** NOOP **/ };
     if( X|Y|WID|HIG         ){ /** NOOP **/ };
-    if( hin                 ){ /** NOOP **/ };
+    if( f09_handle_to_exe   ){ /** NOOP **/ };
 
     void*
     the_desktop_window=((F03_00)F02_GetDesktopWindow)();
@@ -2976,12 +3030,12 @@ F09_OpenWindowAndLoopForever(
 
     ,   the_desktop_window //:-- hWndParent ---://
     ,   NULL   //:-------------- hMenu      ---://
-    ,   hin    //:-------------- hInstance  ---://        
+    ,   f09_handle_to_exe  //:-- hInstance  ---://        
     ,   NULL   //:-------------- lpParam    ---://  
     );//[e]//
 
     if(Hw==NULL){
-        F09_Halt("[F09:WindowCreateFail]");
+        f09_Halt("[F09:WindowCreateFail]");
         return 0;
     };;//[f]//
 
@@ -3293,6 +3347,8 @@ int F10_Main(){
 
 //:void* types (via DECLARE_HANDLE( whatever ) )
 //[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
+//[ F20_VkDeviceSize ================ UI64   ]//
+//[ F20_VkSurfaceKHR ================ void*  ]//
 
 struct F20_VkApplicationInfo {
     unsigned int       sType; //:VkStructureType
@@ -3368,6 +3424,12 @@ F20_VkDebugUtilsObjectNameInfoEXT {
     unsigned long long   objectHandle; /** uint64_t        **/
     const char*          pObjectName;
 };
+
+////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////
 
 struct 
 F20_VkDebugUtilsMessengerCallbackDataEXT {
@@ -3482,9 +3544,252 @@ struct F20_VkPhysicalDeviceFeatures {
 
 #undef  UI32 ///////////////////////////////////////////////////
 
-struct F20_VkPhysicalDeviceProperties {
+////////////////////////////////////////////////////////////////
 
-    !! NOTICE_ME_SENPAI !! (TODO:Finish Mapping here)
+
+#define I_32   signed int  /////////////////////////////////////
+#define UI32 unsigned int  /////////////////////////////////////
+#define UI64 unsigned long long ////////////////////////////////
+#define FLOT float /////////////////////////////////////////////
+
+struct F20_VkPhysicalDeviceLimits {
+
+    //:ImageDimension:
+    UI32    maxImageDimension1D;
+    UI32    maxImageDimension2D;
+    UI32    maxImageDimension3D;
+    UI32    maxImageDimensionCube;
+
+    //:max.... whatever.
+    UI32    maxImageArrayLayers;
+    UI32    maxTexelBufferElements;
+    UI32    maxUniformBufferRange;
+    UI32    maxStorageBufferRange;
+    UI32    maxPushConstantsSize;
+    UI32    maxMemoryAllocationCount;
+    UI32    maxSamplerAllocationCount;
+
+    
+    UI64    bufferImageGranularity; /** VkDeviceSize **/
+    UI64    sparseAddressSpaceSize; /** VkDeviceSize **/
+
+    //:DescriptorSets (PLURAL)
+    //:DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD://
+
+    //:Max number of descriptor sets that can 
+    //:be simultaneously used by a pipeline. 
+    UI32    maxBoundDescriptorSets;
+
+    //:Descriptor
+    UI32        maxPerStageDescriptorSamplers;
+    UI32        maxPerStageDescriptorUniformBuffers;
+    UI32        maxPerStageDescriptorStorageBuffers;
+    UI32        maxPerStageDescriptorSampledImages;
+    UI32        maxPerStageDescriptorStorageImages;
+    UI32        maxPerStageDescriptorInputAttachments;
+
+    //:Max number of resources that can be accessible 
+    //:to a single shader stage in a pipeline layout.
+    UI32    maxPerStageResources;
+
+    //:DescriptorSet:
+    UI32        maxDescriptorSetSamplers;
+    UI32        maxDescriptorSetUniformBuffers;
+    UI32        maxDescriptorSetUniformBuffersDynamic;
+    UI32        maxDescriptorSetStorageBuffers;
+    UI32        maxDescriptorSetStorageBuffersDynamic;
+    UI32        maxDescriptorSetSampledImages;
+    UI32        maxDescriptorSetStorageImages;
+    UI32        maxDescriptorSetInputAttachments;
+
+    //:DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD://
+
+    //:Vertex:
+    UI32    maxVertexInputAttributes;
+    UI32    maxVertexInputBindings;
+    UI32    maxVertexInputAttributeOffset;
+    UI32    maxVertexInputBindingStride;
+    UI32    maxVertexOutputComponents;
+
+    //:Tessellation:
+    UI32    maxTessellationGenerationLevel;
+    UI32    maxTessellationPatchSize;
+    UI32    maxTessellationControlPerVertexInputComponents;
+    UI32    maxTessellationControlPerVertexOutputComponents;
+    UI32    maxTessellationControlPerPatchOutputComponents;
+    UI32    maxTessellationControlTotalOutputComponents;
+    UI32    maxTessellationEvaluationInputComponents;
+    UI32    maxTessellationEvaluationOutputComponents;
+
+    //:Geometry:
+    UI32    maxGeometryShaderInvocations;
+    UI32    maxGeometryInputComponents;
+    UI32    maxGeometryOutputComponents;
+    UI32    maxGeometryOutputVertices;
+    UI32    maxGeometryTotalOutputComponents;
+
+    //:Fragment:
+    UI32    maxFragmentInputComponents;
+    UI32    maxFragmentOutputAttachments;
+    UI32    maxFragmentDualSrcAttachments;
+    UI32    maxFragmentCombinedOutputResources;
+
+    //:Compute:
+    UI32    maxComputeSharedMemorySize;
+    UI32    maxComputeWorkGroupCount[3];
+    UI32    maxComputeWorkGroupInvocations;
+    UI32    maxComputeWorkGroupSize[3];
+
+    //:PrecisionBits
+    UI32    subPixelPrecisionBits;
+    UI32    subTexelPrecisionBits;
+    UI32    mipmapPrecisionBits;
+
+    UI32    maxDrawIndexedIndexValue;
+    UI32    maxDrawIndirectCount;
+   
+    FLOT    maxSamplerLodBias;
+    FLOT    maxSamplerAnisotropy;
+
+    UI32    maxViewports;
+    UI32    maxViewportDimensions[2];
+
+    FLOT    viewportBoundsRange[2];
+    
+    UI32    viewportSubPixelBits;
+    
+    UI64    minMemoryMapAlignment; /** size_t type **/
+
+    //:VkDeviceSize: UI64 (unsigned long long)
+    //:[ _____________ BufferOffsetAlignment ]            
+    ////////////////////////////////////////////////////////////
+                                                           /////
+                                                           /////
+    UI64      minTexelBufferOffsetAlignment;   //:SEE_01   /////
+    UI64    minUniformBufferOffsetAlignment;   //:SEE_02   /////
+    UI64    minStorageBufferOffsetAlignment;   //:SEE_03   /////
+                                                           /////
+            //: SEE_01: VkBufferViewCreateInfo             /////
+            //: SEE_02: VkDescriptorBufferInfo             /////
+            //: SEE_03: VkDescriptorBufferInfo             /////
+                                                           /////
+    ////////////////////////////////////////////////////////////
+
+    I_32    minTexelOffset;
+    UI32    maxTexelOffset;
+
+    I_32    minTexelGatherOffset;
+    UI32    maxTexelGatherOffset;
+
+    FLOT    minInterpolationOffset;
+    FLOT    maxInterpolationOffset;
+
+    UI32    subPixelInterpolationOffsetBits;
+
+    UI32    maxFramebufferWidth;
+    UI32    maxFramebufferHeight;
+    UI32    maxFramebufferLayers;
+
+    //: VkSampleCountFlags: UI32 ///////////////////////////////
+    ////////////////////////////////////////////////////////////
+                                                   /////////////
+    UI32    framebufferColorSampleCounts        ;  /////////////
+    UI32    framebufferDepthSampleCounts        ;  /////////////
+    UI32    framebufferStencilSampleCounts      ;  /////////////
+    UI32    framebufferNoAttachmentsSampleCounts;  /////////////
+                                                   /////////////
+    ////////////////////////////////////////////////////////////
+
+    UI32    maxColorAttachments; /** uint32_t **/
+
+    //: VkSampleCountFlags: UI32 ///////////////////////////////
+    ////////////////////////////////////////////////////////////
+                                              //////////////////
+    UI32    sampledImageColorSampleCounts  ;  //////////////////
+    UI32    sampledImageIntegerSampleCounts;  //////////////////
+    UI32    sampledImageDepthSampleCounts  ;  //////////////////
+    UI32    sampledImageStencilSampleCounts;  //////////////////
+    UI32    storageImageSampleCounts       ;  //////////////////
+                                              //////////////////
+    ////////////////////////////////////////////////////////////
+
+    //:uint32_t: UI32 ( unsigned int )
+    ////////////////////////////////////////////////////////////
+
+    UI32    maxSampleMaskWords;
+
+    ////////////////////////////////////////////////////////////
+
+    //:VkBool32: UI32
+    ////////////////////////////////////////////////////////////
+
+    UI32    imestampComputeAndGraphics;
+
+    ////////////////////////////////////////////////////////////
+
+    FLOT    timestampPeriod;
+
+    //:uint32_t: UI32 ( unsigned int )
+    ////////////////////////////////////////////////////////////
+
+    UI32    maxClipDistances;
+    UI32    maxCullDistances;
+    UI32    maxCombinedClipAndCullDistances;
+    UI32    discreteQueuePriorities;
+
+    ////////////////////////////////////////////////////////////
+
+    FLOT    pointSizeRange[2];
+    FLOT    lineWidthRange[2];
+    FLOT    pointSizeGranularity;
+    FLOT    lineWidthGranularity;
+
+    //:VkBool32: UI32
+    ////////////////////////////////////////////////////////////
+
+    UI32    strictLines;
+    UI32    standardSampleLocations;
+
+    ////////////////////////////////////////////////////////////
+
+    //:VkDeviceSize: UI64 ( unsigned long long )
+    ////////////////////////////////////////////////////////////
+
+    UI64    optimalBufferCopyOffsetAlignment;
+    UI64    optimalBufferCopyRowPitchAlignment;
+    UI64    nonCoherentAtomSize;
+
+    ////////////////////////////////////////////////////////////
+};
+#undef  I_32  //////////////////////////////////////////////////
+#undef  UI32  //////////////////////////////////////////////////
+#undef  UI64  //////////////////////////////////////////////////
+#undef  FLOT  //////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////
+
+struct F20_VkPhysicalDeviceSparseProperties {
+
+    //:residency:
+    //:    An object is considered to be resident 
+    //:    when it is accessible by the GPU. -MSDN
+   
+    #define UI32 unsigned int //////////////////////////////////
+
+            /////// residency //////////////////////////////////
+            UI32    residencyStandard2DBlockShape;
+            UI32    residencyStandard2DMultisampleBlockShape;
+            UI32    residencyStandard3DBlockShape;
+            UI32    residencyAlignedMipSize;
+            UI32    residencyNonResidentStrict;
+            /////// residency //////////////////////////////////
+
+    #undef  UI32 ///////////////////////////////////////////////
+};
+
+////////////////////////////////////////////////////////////////
+
+struct F20_VkPhysicalDeviceProperties {
 
     unsigned int /** uint32_t **/ apiVersion;
     unsigned int /** uint32_t **/ driverVersion;
@@ -3495,20 +3800,89 @@ struct F20_VkPhysicalDeviceProperties {
     deviceType;
 
     char                                
-    deviceName[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE];
+    deviceName[ 256 /** VK_MAX_PHYSICAL_DEVICE_NAME_SIZE **/ ];
 
-    uint8_t                             
-    pipelineCacheUUID[VK_UUID_SIZE];
+    unsigned char /** uint8_t **/              
+    pipelineCacheUUID[ 16 /** VK_UUID_SIZE **/ ];
 
-    VkPhysicalDeviceLimits              
+    struct F20_VkPhysicalDeviceLimits              
     limits;
 
-    VkPhysicalDeviceSparseProperties    
+    struct F20_VkPhysicalDeviceSparseProperties    
     sparseProperties;
 
-    !! NOTICE_ME_SENPAI !! (TODO:Finish Mapping here)
-
 } VkPhysicalDeviceProperties;
+
+struct F20_VkExtent3D {
+
+    #define UI32 unsigned int //////////////////////////////////
+            UI32    width ;
+            UI32    height;
+            UI32    depth ;
+    #undef  UI32 ///////////////////////////////////////////////
+};
+
+struct F20_VkQueueFamilyProperties {
+    unsigned int    queueFlags; /** VkQueueFlags --> VkFlags **/
+    unsigned int    queueCount;          /** uint32_t **/
+    unsigned int    timestampValidBits;  /** uint32_t **/
+    
+    struct F20_VkExtent3D  
+    minImageTransferGranularity;
+};
+
+struct F20_VkDeviceQueueCreateInfo {
+    unsigned int   sType; /** VkStructureType **/
+    const void*    pNext; 
+    unsigned int   flags; /** VkDeviceQueueCreateFlags **/
+
+    unsigned int   queueFamilyIndex; /** uint32_t **/
+    unsigned int   queueCount      ; /** uint32_t **/
+    const float*   pQueuePriorities;
+};
+
+//:For creating "Logical" device.
+struct F20_VkDeviceCreateInfo{
+    unsigned int                       sType; /** VkStructureType **/
+    const void*                        pNext;
+    unsigned int                       flags; /** VkDeviceCreateFlags **/
+
+    // ------------------------------------------------------ //
+
+    unsigned int /** uint32_t **/                           
+    queueCreateInfoCount;
+
+    const struct F20_VkDeviceQueueCreateInfo*     
+    pQueueCreateInfos;
+    
+    // ------------------------------------------------------ //
+
+    unsigned int                       enabledLayerCount;
+
+    //:Just a read only char** (List of strings):
+    const char* const*                 ppEnabledLayerNames;
+
+    unsigned int                       enabledExtensionCount;
+
+    //:Another read-only char** (List Of Strings):
+    const char* const*                 ppEnabledExtensionNames;
+
+    //:
+    const struct F20_VkPhysicalDeviceFeatures*    
+    pEnabledFeatures;
+};
+
+//: VkWin32SurfaceCreateInfoKHR 
+struct 
+F20_VkWin32SurfaceCreateInfoKHR{
+
+    unsigned int    sType; /** VkStructureType **/
+    const void*     pNext;
+    unsigned int    flags; /** VkWin32SurfaceCreateFlagsKHR **/
+    void*       hinstance; /** HINSTANCE **/
+    void*            hwnd; /** HWND      **/
+
+};//
 
 
 
@@ -3535,6 +3909,7 @@ f20_BlowUpIfStructSizesIncorrect( void ){
     //:The hardcoded sizes are from my x64 windows 10 machine.
     //:AKA: ZOTAC_BOX
     //:(Comparing against lunarG vulkan headers)
+    //:SEE[ SC[ edit_vk_struct_sizes_c11 ] ]
 
     int siz;
 
@@ -3569,6 +3944,47 @@ f20_BlowUpIfStructSizesIncorrect( void ){
     siz = (int)sizeof(
         struct F20_VkPhysicalDeviceFeatures
     );;if( 220 != siz ){ f20_Halt("[!220:PDF]"); };
+
+    siz = (int)sizeof(
+        struct F20_VkPhysicalDeviceLimits
+    );;if( 504 != siz ){ f20_Halt("[!504:PDL]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkPhysicalDeviceProperties
+    );;if( 824 != siz ){ f20_Halt("[!824:PDP]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkPhysicalDeviceSparseProperties
+    );;if( 20 != siz ){ f20_Halt("[!20:PDSP]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkExtent3D
+    );;if( 12 != siz ){ f20_Halt("[!12:E3D]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkQueueFamilyProperties
+    );;if( 24 != siz ){ f20_Halt("[!24:QFP]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkDeviceQueueCreateInfo
+    );;if( 40 != siz ){ f20_Halt("[!40:DQCI]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkDeviceCreateInfo
+    );;if( 72 != siz ){ f20_Halt("[!72:DCI]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkWin32SurfaceCreateInfoKHR
+    );;if( 40 != siz ){ f20_Halt("[!40:W32SCI]"); }
+
+        
+
+    
+    printf("\n");
+    printf("[f20:struct_size_checks_pass]\n");
+    printf("\n");
+    fflush(stdout);
+
 
 }//[;]//
 //:BUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBU://
@@ -3691,8 +4107,13 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
 
 };//[struct]//
 
-// //       www.khronos.org/registry/vulkan/specs/1.1-extensions
-// //       /man/html/VkAllocationCallbacks.html
+//:PROBABLY_COMMENTED_OUT_BECAUSE:
+//:1: Don't want to create all of these "PFN_" types.
+//:2: Not using allocation callback params of any function
+//:   calls at the moment.
+//:----------------------------------------------------------://
+//       www.khronos.org/registry/vulkan/specs/1.1-extensions
+//       /man/html/VkAllocationCallbacks.html
 // struct
 // F35_VkAllocationCallbacks{
 //     
@@ -3704,6 +4125,7 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
 //     PFN_vkInternalFreeNotification          pfnInternalFree;
 // 
 // };//[struct]//
+//:----------------------------------------------------------://
 
 
 //:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
@@ -4152,11 +4574,31 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
 //:PUBLIC Functions Fetched+Loaded in [ F.50 / F50 ]:
 //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
 
-F02_VOF //:<--GenericFunctionPointer
-F50_vkCreateDebugUtilsMessengerEXT = NULL;
+
+
+
+
+    F02_VOF //:<--GenericFunctionPointer
+    F50_vkCreateDebugUtilsMessengerEXT = NULL;
+
+
+
+    F02_VOF  
+    F50_vkCreateWin32SurfaceKHR =NULL;
+
+
+
+
+
+
+
+
+
+
+
+
 
 //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
-
 ////////////////////////////////////////////////////////////////
 
     //:Private typedef and casted function pointer for
@@ -4172,6 +4614,7 @@ F50_vkCreateDebugUtilsMessengerEXT = NULL;
     f50_PFN_vkGetInstanceProcAddr
     f50_FUN_vkGetInstanceProcAddr=NULL;
 
+////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 static void //[ #FFAH# ]//
 f50_Halt( const char* msg ){ 
@@ -4246,6 +4689,11 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
 
         };;
 
+        F50_vkCreateWin32SurfaceKHR=f50_GIPA(
+            f40_instance
+        ,   "vkCreateWin32SurfaceKHR"
+        );;
+
         ////////////////////////////////////////////////////////
 
 
@@ -4296,6 +4744,10 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
 //:         with proper calling convention.
 
 
+//: TODO: Put the typedefs in a file before this file to
+//:       reduce clutter.
+
+////////////////////////////////////////////////////////////////
 typedef
     signed int /** VkResult **/ 
     ( __stdcall * F55_PFN_vkCreateDebugUtilsMessengerEXT )(
@@ -4317,7 +4769,25 @@ typedef
     );
     F55_PFN_vkCreateDebugUtilsMessengerEXT
     F55_FUN_vkCreateDebugUtilsMessengerEXT=NULL;
+////////////////////////////////////////////////////////////////
 
+    typedef
+        F02_VOF //:RET:GenericFuncPtr
+        (*F55_PFN_vkCreateWin32SurfaceKHR )(
+            void*       vk_instance   /**VkInstance:instance**/
+        ,   
+            struct F20_VkWin32SurfaceCreateInfoKHR*
+            create_info
+        ,
+            const void* /** VkAllocationCallbacks **/
+            pAllocator
+        ,
+            void* /** VkSurfaceKHR / F20_VkSurfaceKHR **/
+            pSurface
+        );
+
+    F55_PFN_vkCreateWin32SurfaceKHR  
+    F55_FUN_vkCreateWin32SurfaceKHR =NULL;
 
 ////////////////////////////////////////////////////////////////
 static void 
@@ -4358,13 +4828,40 @@ f55_RLIFPTST_ValidationLayerFunctions( void ){
     //:Check source pointers for null:
     f55_SRC( (V)F50_vkCreateDebugUtilsMessengerEXT , "[A]");
 
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
     F55_FUN_vkCreateDebugUtilsMessengerEXT=(
   ( F55_PFN_vkCreateDebugUtilsMessengerEXT )
         F50_vkCreateDebugUtilsMessengerEXT
     );;
 
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
     //:Check destination pointers for null:
     f55_DST( (V)F55_FUN_vkCreateDebugUtilsMessengerEXT , "[A]");
+
+    #undef  V //////////////////////////////////////////////////
+
+}//[;]//
+static void
+f55_RLIFPTST_NOTDEBUG_InstanceExtensionFunctions( void ){
+
+    #define V F02_VOF //////////////////////////////////////////
+
+    //:Check source pointers for null:
+    f55_SRC( (V)F50_vkCreateWin32SurfaceKHR        , "[B]");
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
+    F55_FUN_vkCreateWin32SurfaceKHR=(
+  ( F55_PFN_vkCreateWin32SurfaceKHR )
+        F50_vkCreateWin32SurfaceKHR
+    );;
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
+    //:Check destination pointers for null:
+    f55_DST( (V)F55_FUN_vkCreateWin32SurfaceKHR        , "[B]");
 
     #undef  V //////////////////////////////////////////////////
 
@@ -4379,6 +4876,8 @@ f55_ReLoadInstanceFunctionPointersToSpecificTypes( void ){
         //: R L   I       F       P       T S       T
         f55_RLIFPTST_ValidationLayerFunctions();
     };;
+
+    f55_RLIFPTST_NOTDEBUG_InstanceExtensionFunctions();
 
 }//[;]//
 
@@ -4638,14 +5137,180 @@ f60_DebugMessage( "[END:f60_EngineInit_PART2_WAO]" );
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
 //#FILE_REGION[ F.60 ]END#####################################//
+//#FILE_REGION[ F.61 ]BEG#####################################//
+
+//############################################################//
+//##  F61: Creating window surface:                         ##//
+//##  (Originally F45, but realize in wrong place)          ##//
+//############################################################//
+
+//: DOTADIW: WIN32_SURFACE
+//:         ( Create Window Surface )
+
+  
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+void*  /** F20_VkSurfaceKHR / VkSurfaceKHR **/
+F61_vulkan_surface = NULL;
+
+//: NOTE_01: VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkSurfaceKHR)
+//:
+//: NOTE_02: "VkWin32SurfaceKHR" does not exist!
+//:           You made that up!!!!!!!!!!!!!
+//: NOTE_03:
+//: Pretty sure VkSurfaceKHR wrapps/abstracts what type
+//: of operating system it is for, so there is no need
+//: to create a "F61_win32_surface" and "F61_linux_surface"
+//: or something like that.
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
+////////////////////////////////////////////////////////////////
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:First function always "Halt":    /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f61_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f61_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+static void
+f61_PrivateInit_CreateWindowSurface( void ){
+
+    struct F20_VkWin32SurfaceCreateInfoKHR 
+    ci = {0};
+
+    ci.sType     = 1000009000; //:WIN32_SURFACE_CREATE_INFO
+    ci.hwnd      = F09_GetHWND();
+    ci.hinstance = F09_GetHINSTANCE();
+
+    //:VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR 
+    //:==[1000009000]
+
+    ////////////////////////////////////////////////////////////
+    if( ci.sType != 1000009000 ){
+        f61_Halt("[NOOP_disguised_as_error_check]");
+    };;
+    if(NULL==F55_FUN_vkCreateWin32SurfaceKHR){
+        f61_Halt("[NULL:F55_FUN_vkCreateWin32SurfaceKHR]");
+    };;
+    ////////////////////////////////////////////////////////////
+
+    int res=(int)(unsigned long long)(
+    /**/   F55_FUN_vkCreateWin32SurfaceKHR(
+    /**/       f40_instance
+    /**/       
+    /**/       /** createInfo / VkWin32SurfaceCreateInfoKHR **/
+    /**/   ,   &( ci ) 
+    /**/   ,   NULL
+    /**/   ,   &( F61_vulkan_surface )
+    /**/   )
+    );;
+    
+    if( res != 0 /** VK_SUCCESS **/ ){
+        f61_Halt("[FailedToCreateWin32Surface]");
+    }else{
+        printf("[OK:MADE:F61_vulkan_surface]\n");
+    };;
+    
+    if(NULL == F61_vulkan_surface ){
+        f61_Halt("[I_Take_It_Back:win32_surface_create_fail]");
+    };;
+
+}//[;]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F61_Init(){
+        printf("[BEG:F61:Init]\n");
+
+            ////////////////////////////////////////////////////
+
+            //: ".SUPER_CHAIN()"
+            int ret = F60_Init(); 
+
+            //: LAST_ITEM_IN_CODE_CHAIN:
+            f61_PrivateInit_CreateWindowSurface();
+
+            ////////////////////////////////////////////////////
+
+        printf("[END:F61:Init]\n");
+        return( ret );
+    }//[;]//
+    int F61_Main(){
+
+        printf("[F61_Main:Before:F61_Init()]\n");
+        ////////////////////////////////////////////////////////
+
+        F61_Init();
+
+        ////////////////////////////////////////////////////////
+        printf("[F61_Main:Afterr:F61_Init()]\n");
+
+
+        
+        //:RLSI:RENDER_LOOP_STAND_IN
+        ////////////////////////////////////////////////////////
+
+        printf("[F61:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        ////////////////////////////////////////////////////////
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+//#FILE_REGION[ F.61 ]END#####################################//
+
 //#FILE_REGION[ F.62 ]BEG#####################################//
 
-//:DOTADIW: VULKAN_CHAPTER_SEVEN
+//:DOTADIW: PHYDEV_SELECT
+//:        ( vulkan_chapter_seven:   )
 //:        (Physical Device Selection)
 
 //:When more confident, we increment file numbers by 2
 //:instead of 10. Confident in not making more insertion
 //:files between numbers.
+
+//:PUBLIC_VARS:
+//:PVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPV://
+#define VAR_01 void*
+#define VAR_02 struct F20_VkPhysicalDeviceFeatures   ///////////
+#define VAR_03 struct F20_VkPhysicalDeviceProperties ///////////
+#define VAR_04 struct F20_VkQueueFamilyProperties    ///////////
+#define VAR_05 struct F20_VkQueueFamilyProperties    ///////////
+#define VAR_06 int                                   ///////////
+#define VAR_07 unsigned int                          ///////////
+#define VAR_08 unsigned int                          ///////////
+
+    VAR_01  F62_physical_device;
+    VAR_02  F62_physical_device_features;
+    VAR_03  F62_physical_device_properties;
+
+    VAR_04  F62_qfp_graphics  ; //:qfp:queue_family_properties
+    VAR_05  F62_qfp_compute   ;
+    VAR_06  F62_qfp_graphics_and_compute_are_same_object;
+
+    VAR_07  F62_qfi_graphics  ; //:qfi:queue_family_index
+    VAR_08  F62_qfi_compute   ;
+
+#undef  VAR_01  ////////////////////////////////////////////////
+#undef  VAR_02  ////////////////////////////////////////////////
+#undef  VAR_03  ////////////////////////////////////////////////
+#undef  VAR_04  ////////////////////////////////////////////////
+#undef  VAR_05  ////////////////////////////////////////////////
+#undef  VAR_06  ////////////////////////////////////////////////
+#undef  VAR_07  ////////////////////////////////////////////////
+#undef  VAR_08  ////////////////////////////////////////////////
+//:PVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPV://
 
 
 //:The choosen physical device:
@@ -4660,7 +5325,6 @@ f60_DebugMessage( "[END:f60_EngineInit_PART2_WAO]" );
 //:Features of the choosen physical device:
 ////////////////////////////////////////////////////////////////
 
-    
     struct F20_VkPhysicalDeviceFeatures
     F62_physical_device_features={0};
     
@@ -4671,6 +5335,27 @@ f60_DebugMessage( "[END:f60_EngineInit_PART2_WAO]" );
 
     struct F20_VkPhysicalDeviceProperties
     F62_physical_device_properties={0};
+
+////////////////////////////////////////////////////////////////
+
+//:Queue Family Properties Of Physical Device:
+////////////////////////////////////////////////////////////////
+
+    #define QFP struct F20_VkQueueFamilyProperties  ////////////
+            
+    QFP     F62_qfp_graphics = { 0 };
+    QFP     F62_qfp_compute  = { 0 };
+    int     F62_qfp_graphics_and_compute_are_same_object=0;
+
+    #undef QFP /////////////////////////////////////////////////
+
+    //:qfi:Queue_Family_Index:
+    #define U32 unsigned int ///////////////////////////////////
+
+            U32     F62_qfi_graphics = (777); //:#ITIV
+            U32     F62_qfi_compute  = (888); //:#ITIV#
+
+    #undef  U32 ////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////
 
@@ -4768,9 +5453,11 @@ f62_PrivateInitChapterSeven_07( void ){
     ,   &(F62_physical_device_properties)
     );;
 
-    if( F62_physical_device_properties.deviceType
-        !=  
-       xxxxxxxxxxxxxxxxx /** VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU  **/
+    int DT = F62_physical_device_properties.deviceType;
+    if( 11 
+        && (1 != DT) //:VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU 
+        && (2 != DT) //:VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU 
+        && (3 != DT) //:VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU 
     ){
 
         f62_Halt("[I_NEED_A_FUCKING_GPU]");
@@ -4781,10 +5468,147 @@ f62_PrivateInitChapterSeven_07( void ){
         fflush(stdout);
     
     };;
+
+        //:Id like to see what my texture limit is:
+        ////////////////////////////////////////////////////////
+
+        int lim =( F62_physical_device_properties.
+                   limits.maxImageDimension2D );;
+
+        printf("[maxImageDimension2D]:%d\n", lim); //:16384
+        //: 16384 / 2 == 8192
+        //:  8192 / 2 == 4096
+        //:  4096 / 2 == 2048
+        //:  2048 / 2 == 1024
+        //:  1024 / 2 == 512
+        //:   512 / 2 == 256 ......
+
+        ////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////
+
+    //:Queue Families:
+    ////////////////////////////////////////////////////////////
+
+        //:Making assumption that opaque handle would not
+        //:evaluate to [ NULL | 0 ] if valid.
+        if(NULL == F62_physical_device){
+            f62_Halt("[NULL:PD]");
+        };;
+        if(NULL== F02_vkGetPhysicalDeviceQueueFamilyProperties){
+            f62_Halt("[NULL:GET_PDQFP]");
+        };;
+            
+        struct F20_VkQueueFamilyProperties*
+        qfp_arr=NULL;
+        
+        unsigned int
+        qfp_num = 0;
+        
+        ((F03_03)F02_vkGetPhysicalDeviceQueueFamilyProperties)(
+        
+            F62_physical_device
+        
+        ,           &( qfp_num )
+        ,   NULL    //:qfp_arr
+        );;
+        
+        //:Allocate Space For qfp objects:
+        //:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC://
+        printf("[qfp_num]:%d\n", qfp_num );fflush(stdout);
+        int qfp_one = sizeof( 
+            struct F20_VkQueueFamilyProperties
+        );;
+        qfp_arr = calloc( qfp_num, qfp_one );
+        if(NULL==qfp_arr){ f62_Halt("[FUCK_01]"); };
+        //:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC://
+
+        ((F03_03)F02_vkGetPhysicalDeviceQueueFamilyProperties)(
+        
+            F62_physical_device
+        
+        ,           &( qfp_num )
+        ,              qfp_arr
+        );;
+
+        if(NULL==qfp_arr){ f62_Halt("[FUCK_02]"); };
+
+        printf("[qfp_arr[0].queueFlags]:%d\n"
+        ,        qfp_arr[0].queueFlags
+        );;fflush(stdout);;
+
+        //:LOOP:
+        //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
+        F62_qfp_graphics_and_compute_are_same_object=0;
+        int found_graphics = 0;
+        int found_compute  = 0;
+
+        struct F20_VkQueueFamilyProperties cur = {0};
+      //struct F20_VkQueueFamilyProperties emp = {0};
+        for(int dex = 0; dex < (int)qfp_num; dex++ ){
+        
+            //:Copy memory into cur to take a look:
+            cur = qfp_arr[ dex ];
+        
+            unsigned int f = cur.queueFlags;
+            unsigned int c = cur.queueCount;
+
+            printf("\n");
+        
+                printf("[dex]:%d\n", dex );
+                printf("[f,c]:(%d)(%d)\n", f,c);
+        
+            printf("\n");
+
+            if( 0==(f|c) ){
+                f62_Halt("[DataNotLoaded]");
+            };;
+
+            //: VK_QUEUE_GRAPHICS_BIT : 0x00000001
+            //: VK_QUEUE_COMPUTE_BIT  : 0x00000002
+            if( cur.queueFlags & 0x00000001 ){ //:Graphics
+            if( cur.queueFlags & 0x00000002 ){ //:Compute
+
+                F62_qfp_graphics = cur;
+                F62_qfp_compute  = cur;
+                F62_qfp_graphics_and_compute_are_same_object=1;
+                
+                found_graphics=1;
+                found_compute =1;
+
+                F62_qfi_graphics = dex;
+                F62_qfi_compute  = dex;
+
+                break; 
+            };;};;
+
+            if( cur.queueFlags & 0x00000001 ){ //:Graphics
+                F62_qfp_graphics = cur;
+                  found_graphics = 1;
+                F62_qfi_graphics = dex;
+            };;
+            if( cur.queueFlags & 0x00000002 ){ //:Compute
+                F62_qfp_compute  = cur;
+                  found_compute  = 1;
+                F62_qfi_compute  = dex;
+            };; 
+                
+        };;fflush(stdout);
+
+        if(0==(found_graphics|found_compute)){
+            f62_Halt("[DidNotFindBoth:QFP]");
+        }else{
+            printf("[QFP(s):Found]");
+            fflush(stdout);
+        };;
+
+        //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
     ////////////////////////////////////////////////////////////
     
-
-    free( arr );
+    free( qfp_arr );
+    free( arr     );
     return;
 }//[;]//
 
@@ -4798,7 +5622,7 @@ f62_PrivateInitChapterSeven_07( void ){
             ////////////////////////////////////////////////////
 
             //: ".SUPER_CHAIN()"
-            int ret = F60_Init(); 
+            int ret = F61_Init(); 
 
             //: LAST_ITEM_IN_CODE_CHAIN:
             f62_PrivateInitChapterSeven_07();
@@ -4835,11 +5659,266 @@ f62_PrivateInitChapterSeven_07( void ){
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
 
+    //: #ITIV# : Init_To_Invalid_Value
 
 //#FILE_REGION[ F.62 ]END#####################################//
 
-//#FILE_REGION[ VG03.H ]BEG###################################//
+//#FILE_REGION[ F.64 ]BEG#####################################//
 
+//:DOTADIW: MAK_LOGIC_DEV
+//:        (make logical device)
+//:        (chapter_8_of_vulkan_tutorial )
+
+////////////////////////////////////////////////////////////////
+
+    void*  /** VK_DEFINE_HANDLE(VkDevice) **/
+    F64_logical_device = NULL;
+
+    struct F20_VkPhysicalDeviceFeatures
+    F64_enabled_logical_device_features = { 0 };
+
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:First function always "Halt":    /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f64_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f64_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+////////////////////////////////////////////////////////////////
+static int f64_NOOP0(void){ return( 1 ); }
+
+static void
+f64_PrivateInitChapterEight_08( void ){
+
+    if( f64_NOOP0() != 1 ){ f64_Halt("[X_X]"); };
+
+    struct F20_VkDeviceQueueCreateInfo ci_qqq ={0};
+    ci_qqq.sType = 2; /** DEVICE_QUEUE_CREATE_INFO **/
+    ci_qqq.queueFamilyIndex = F62_qfi_graphics;
+    ci_qqq.queueCount       = 1;
+    float queue_priority = 1.0f; //:Array of 1 element.
+    ci_qqq.pQueuePriorities = &(queue_priority);
+
+    //:QUESTION:
+    //:Why does tutorial8 want VK_PDF? We already created
+    //:F62_physical_device_features when creating our
+    //:physical device in previous file.        
+    //:( VK_PDF / VkPhysicalDeviceFeatures )
+    //:
+    //:ANSWER:
+    //:F62_physical_device_features : 
+    //:         What hardware CAN do.
+    //:
+    //:F64_enabled_logical_device_features:
+    //:         What tasks you require of the logical
+    //:         abstraction of that hardware.
+    //:        
+    //:         Example: I may be able to:
+    //:              1: lift 50 LBS
+    //:              2; program
+    //:
+    //:         But as a logical device working for
+    //:         five guys burgers and fries, they only need
+    //:         to enable "LIFTING" but not "PROGRAMMING".
+    ////////////////////////////////////////////////////////////
+
+    //: F64_enabled_logical_device_features  (See top of file)
+
+    ////////////////////////////////////////////////////////////
+
+    struct F20_VkDeviceCreateInfo ci_dev = { 0 };
+    ci_dev.sType = 3; /** DEVICE_CREATE_INFO **/
+    ci_dev.pQueueCreateInfos = &( ci_qqq );
+    ci_dev.queueCreateInfoCount = 1;
+    ci_dev.pEnabledFeatures = &( 
+        F64_enabled_logical_device_features
+    );;
+
+    int res =(
+
+        (int)(unsigned long long)
+
+        ((F03_04)F02_vkCreateDevice)(
+        /**/      F62_physical_device
+        /**/    , &( ci_dev )
+        /**/    , NULL
+        /**/    ,&( F64_logical_device )
+        )
+    );;
+    if( res != 0 /** VK_SUCCESS **/ ){
+        f64_Halt("[FailedToMakeLogicalDevice]");
+    }else{
+        printf("[LOGICAL_DEVICE_GOT!]\n");
+        fflush(stdout);
+    };;
+
+}//[;]//
+
+
+////////////////////////////////////////////////////////////////
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F64_Init(){
+        printf("[BEG:F64:Init]\n");
+
+            ////////////////////////////////////////////////////
+
+            //: ".SUPER_CHAIN()"
+            int ret = F62_Init(); 
+
+            //: LAST_ITEM_IN_CODE_CHAIN:
+            f64_PrivateInitChapterEight_08();
+
+            ////////////////////////////////////////////////////
+
+        printf("[END:F64:Init]\n");
+        return( ret );
+    }//[;]//
+    int F64_Main(){
+
+        printf("[F64_Main:Before:F64_Init()]\n");
+        ////////////////////////////////////////////////////////
+
+        F64_Init();
+
+        ////////////////////////////////////////////////////////
+        printf("[F64_Main:Afterr:F64_Init()]\n");
+
+
+        
+        //:RLSI:RENDER_LOOP_STAND_IN
+        ////////////////////////////////////////////////////////
+
+        printf("[F64:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        ////////////////////////////////////////////////////////
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+
+//#FILE_REGION[ F.64 ]END#####################################//
+
+//#FILE_REGION[ F.66 ]BEG#####################################//
+
+//:DOTADIW:  RET_QUEUE_HAN
+//:         ( Retrieve Queue Handles )
+
+//:Page 70 of VKTUT_2018_PDF
+//:(Just page 70, last page of chapter)
+
+////////////////////////////////////////////////////////////////
+
+void* /** VK_DEFINE_HANDLE(VkQueue) **/
+F66_graphics_queue = NULL;
+
+////////////////////////////////////////////////////////////////
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:First function always "Halt":    /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f66_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f66_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+void f66_PrivateInitPage_70( void ){
+
+    //+----------------------------------------------+//
+    //| queueIndex must be less than the number of   |//
+    //| queues created for the specified queue       |//
+    //| family index when device was created,via the |//
+    //| queueCount member of the                     |//
+    //| VkDeviceQueueCreateInfo structure            |//
+    //+----------------------------------------------+//
+    ((F03_04)F02_vkGetDeviceQueue)(
+    /**/          F64_logical_device
+
+    /**/   ,        (void*)(unsigned long long)
+                    F62_qfi_graphics //:queueFamilyIndex
+
+    /**/   ,      0 //:queueIndex
+    /**/   ,   &( F66_graphics_queue )
+    );;
+
+    if(NULL==F66_graphics_queue){
+        f66_Halt("[Failed_To_Get_Graphics_Queue]");
+    }else{
+        printf("[Got:F66_graphics_queue]\n");
+        fflush(stdout);
+    };;
+
+}//[;]//
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F66_Init(){
+        printf("[BEG:F66:Init]\n");
+
+            ////////////////////////////////////////////////////
+
+            //: ".SUPER_CHAIN()"
+            int ret = F64_Init(); 
+
+            //: LAST_ITEM_IN_CODE_CHAIN:
+            f66_PrivateInitPage_70();
+
+            ////////////////////////////////////////////////////
+
+        printf("[END:F66:Init]\n");
+        return( ret );
+    }//[;]//
+    int F66_Main(){
+
+        printf("[F66_Main:Before:F66_Init()]\n");
+        ////////////////////////////////////////////////////////
+
+        F66_Init();
+
+        ////////////////////////////////////////////////////////
+        printf("[F66_Main:Afterr:F66_Init()]\n");
+
+
+        
+        //:RLSI:RENDER_LOOP_STAND_IN
+        ////////////////////////////////////////////////////////
+
+        printf("[F66:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        ////////////////////////////////////////////////////////
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+//#FILE_REGION[ F.66 ]END#####################################//
+//#FILE_REGION[ VG03.H ]BEG###################################//
+/////////////////////////////////. . . . . . 13
+/////////////////////////////////............|
+/////////////////////////////////123456789ABCD
 //|---- F01 ------|////[ DOTADIW:DLL_FUNC_LIST ]//
 //|---- F02 ------|////[ DOTADIW:DLL_FUNC_LOAD ]//
 //|-----F03 ------|////[ DOTADIW:DLL_CALL_CAST ]//
@@ -4861,6 +5940,11 @@ f62_PrivateInitChapterSeven_07( void ){
 //|-----F40 ------|////[ DOTADIW:VK_INIT_PART1 ]//
 //|-----F50 ------|////[ DOTADIW:VK_INST_FUNCS ]//
 //|-----F60 ------|////[ DOTADIW:VK_INIT_PART2 ]//
+
+//|-----F61 ------|////[ DOTADIW:WIN32_SURFACE ]//
+//|-----F62 ------|////[ DOTADIW:PHYDEV_SELECT ]//
+//|-----F64 ------|////[ DOTADIW:MAK_LOGIC_DEV ]//
+//|-----F66 ------|////[ DOTADIW:RET_QUEUE_HAN ]//
     
 
 int
@@ -4873,7 +5957,10 @@ VG03_Demo( void ){
     //:F40_Main();
     //:F50_Main();
     //:F60_Main();
-        F62_Main();
+   //F61_Main();
+    //:F62_Main();
+    //:F64_Main();
+    F66_Main();
 
 
     printf("[END:VG03_DEMO]\n");

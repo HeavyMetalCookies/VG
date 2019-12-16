@@ -15,11 +15,31 @@
 //:PUBLIC Functions Fetched+Loaded in [ F.50 / F50 ]:
 //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
 
-F02_VOF //:<--GenericFunctionPointer
-F50_vkCreateDebugUtilsMessengerEXT = NULL;
+
+
+
+
+    F02_VOF //:<--GenericFunctionPointer
+    F50_vkCreateDebugUtilsMessengerEXT = NULL;
+
+
+
+    F02_VOF  
+    F50_vkCreateWin32SurfaceKHR =NULL;
+
+
+
+
+
+
+
+
+
+
+
+
 
 //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
-
 ////////////////////////////////////////////////////////////////
 
     //:Private typedef and casted function pointer for
@@ -35,6 +55,7 @@ F50_vkCreateDebugUtilsMessengerEXT = NULL;
     f50_PFN_vkGetInstanceProcAddr
     f50_FUN_vkGetInstanceProcAddr=NULL;
 
+////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 static void //[ #FFAH# ]//
 f50_Halt( const char* msg ){ 
@@ -108,6 +129,11 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
             };;
 
         };;
+
+        F50_vkCreateWin32SurfaceKHR=f50_GIPA(
+            f40_instance
+        ,   "vkCreateWin32SurfaceKHR"
+        );;
 
         ////////////////////////////////////////////////////////
 

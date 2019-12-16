@@ -1,0 +1,103 @@
+//#FILE_REGION[ F.66 ]BEG#####################################//
+
+//:DOTADIW:  RET_QUEUE_HAN
+//:         ( Retrieve Queue Handles )
+
+//:Page 70 of VKTUT_2018_PDF
+//:(Just page 70, last page of chapter)
+
+////////////////////////////////////////////////////////////////
+
+void* /** VK_DEFINE_HANDLE(VkQueue) **/
+F66_graphics_queue = NULL;
+
+////////////////////////////////////////////////////////////////
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:First function always "Halt":    /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f66_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f66_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+void f66_PrivateInitPage_70( void ){
+
+    //+----------------------------------------------+//
+    //| queueIndex must be less than the number of   |//
+    //| queues created for the specified queue       |//
+    //| family index when device was created,via the |//
+    //| queueCount member of the                     |//
+    //| VkDeviceQueueCreateInfo structure            |//
+    //+----------------------------------------------+//
+    ((F03_04)F02_vkGetDeviceQueue)(
+    /**/          F64_logical_device
+
+    /**/   ,        (void*)(unsigned long long)
+                    F62_qfi_graphics //:queueFamilyIndex
+
+    /**/   ,      0 //:queueIndex
+    /**/   ,   &( F66_graphics_queue )
+    );;
+
+    if(NULL==F66_graphics_queue){
+        f66_Halt("[Failed_To_Get_Graphics_Queue]");
+    }else{
+        printf("[Got:F66_graphics_queue]\n");
+        fflush(stdout);
+    };;
+
+}//[;]//
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F66_Init(){
+        printf("[BEG:F66:Init]\n");
+
+            ////////////////////////////////////////////////////
+
+            //: ".SUPER_CHAIN()"
+            int ret = F64_Init(); 
+
+            //: LAST_ITEM_IN_CODE_CHAIN:
+            f66_PrivateInitPage_70();
+
+            ////////////////////////////////////////////////////
+
+        printf("[END:F66:Init]\n");
+        return( ret );
+    }//[;]//
+    int F66_Main(){
+
+        printf("[F66_Main:Before:F66_Init()]\n");
+        ////////////////////////////////////////////////////////
+
+        F66_Init();
+
+        ////////////////////////////////////////////////////////
+        printf("[F66_Main:Afterr:F66_Init()]\n");
+
+
+        
+        //:RLSI:RENDER_LOOP_STAND_IN
+        ////////////////////////////////////////////////////////
+
+        printf("[F66:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        ////////////////////////////////////////////////////////
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+//#FILE_REGION[ F.66 ]END#####################################//

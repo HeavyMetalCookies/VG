@@ -105,10 +105,14 @@ printf "\n"                             >> "VG03.ALL"
     nl_cat "./F.30"     "VG03.ALL"  ## VULKAN_PFN_TYPEDEFS
     nl_cat "./F.35"     "VG03.ALL"  ## STRUCTS_WITH_PFN_MEMBERS
     nl_cat "./F.40"     "VG03.ALL"  ## VULKAN_TUTORIAL_CODE
+ 
     nl_cat "./F.50"     "VG03.ALL"  ## RAW_VK_EXT_FUNC_PTRS
     nl_cat "./F.55"     "VG03.ALL"  ## CAS_VK_EXT_FUNC_PTRS
     nl_cat "./F.60"     "VG03.ALL"  ## VULKAN_INIT_CONTINUED
-    nl_cat "./F.62"     "VG03.ALL"  ## VULKAN_CHAPTER_SEVEN
+    nl_cat "./F.61"     "VG03.ALL"  ## WIN32_SURFACE
+    nl_cat "./F.62"     "VG03.ALL"  ## PHYDEV_SELECT
+    nl_cat "./F.64"     "VG03.ALL"  ## MAK_LOGIC_DEV
+    nl_cat "./F.66"     "VG03.ALL"  ## RET_QUEUE_HAN
 
 ########################################
 

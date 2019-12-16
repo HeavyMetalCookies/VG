@@ -1,0 +1,148 @@
+//#FILE_REGION[ F.64 ]BEG#####################################//
+
+//:DOTADIW: MAK_LOGIC_DEV
+//:        (make logical device)
+//:        (chapter_8_of_vulkan_tutorial )
+
+////////////////////////////////////////////////////////////////
+
+    void*  /** VK_DEFINE_HANDLE(VkDevice) **/
+    F64_logical_device = NULL;
+
+    struct F20_VkPhysicalDeviceFeatures
+    F64_enabled_logical_device_features = { 0 };
+
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:First function always "Halt":    /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f64_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f64_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+////////////////////////////////////////////////////////////////
+static int f64_NOOP0(void){ return( 1 ); }
+
+static void
+f64_PrivateInitChapterEight_08( void ){
+
+    if( f64_NOOP0() != 1 ){ f64_Halt("[X_X]"); };
+
+    struct F20_VkDeviceQueueCreateInfo ci_qqq ={0};
+    ci_qqq.sType = 2; /** DEVICE_QUEUE_CREATE_INFO **/
+    ci_qqq.queueFamilyIndex = F62_qfi_graphics;
+    ci_qqq.queueCount       = 1;
+    float queue_priority = 1.0f; //:Array of 1 element.
+    ci_qqq.pQueuePriorities = &(queue_priority);
+
+    //:QUESTION:
+    //:Why does tutorial8 want VK_PDF? We already created
+    //:F62_physical_device_features when creating our
+    //:physical device in previous file.        
+    //:( VK_PDF / VkPhysicalDeviceFeatures )
+    //:
+    //:ANSWER:
+    //:F62_physical_device_features : 
+    //:         What hardware CAN do.
+    //:
+    //:F64_enabled_logical_device_features:
+    //:         What tasks you require of the logical
+    //:         abstraction of that hardware.
+    //:        
+    //:         Example: I may be able to:
+    //:              1: lift 50 LBS
+    //:              2; program
+    //:
+    //:         But as a logical device working for
+    //:         five guys burgers and fries, they only need
+    //:         to enable "LIFTING" but not "PROGRAMMING".
+    ////////////////////////////////////////////////////////////
+
+    //: F64_enabled_logical_device_features  (See top of file)
+
+    ////////////////////////////////////////////////////////////
+
+    struct F20_VkDeviceCreateInfo ci_dev = { 0 };
+    ci_dev.sType = 3; /** DEVICE_CREATE_INFO **/
+    ci_dev.pQueueCreateInfos = &( ci_qqq );
+    ci_dev.queueCreateInfoCount = 1;
+    ci_dev.pEnabledFeatures = &( 
+        F64_enabled_logical_device_features
+    );;
+
+    int res =(
+
+        (int)(unsigned long long)
+
+        ((F03_04)F02_vkCreateDevice)(
+        /**/      F62_physical_device
+        /**/    , &( ci_dev )
+        /**/    , NULL
+        /**/    ,&( F64_logical_device )
+        )
+    );;
+    if( res != 0 /** VK_SUCCESS **/ ){
+        f64_Halt("[FailedToMakeLogicalDevice]");
+    }else{
+        printf("[LOGICAL_DEVICE_GOT!]\n");
+        fflush(stdout);
+    };;
+
+}//[;]//
+
+
+////////////////////////////////////////////////////////////////
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F64_Init(){
+        printf("[BEG:F64:Init]\n");
+
+            ////////////////////////////////////////////////////
+
+            //: ".SUPER_CHAIN()"
+            int ret = F62_Init(); 
+
+            //: LAST_ITEM_IN_CODE_CHAIN:
+            f64_PrivateInitChapterEight_08();
+
+            ////////////////////////////////////////////////////
+
+        printf("[END:F64:Init]\n");
+        return( ret );
+    }//[;]//
+    int F64_Main(){
+
+        printf("[F64_Main:Before:F64_Init()]\n");
+        ////////////////////////////////////////////////////////
+
+        F64_Init();
+
+        ////////////////////////////////////////////////////////
+        printf("[F64_Main:Afterr:F64_Init()]\n");
+
+
+        
+        //:RLSI:RENDER_LOOP_STAND_IN
+        ////////////////////////////////////////////////////////
+
+        printf("[F64:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        ////////////////////////////////////////////////////////
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+
+//#FILE_REGION[ F.64 ]END#####################################//

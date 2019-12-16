@@ -32,8 +32,13 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
 
 };//[struct]//
 
-// //       www.khronos.org/registry/vulkan/specs/1.1-extensions
-// //       /man/html/VkAllocationCallbacks.html
+//:PROBABLY_COMMENTED_OUT_BECAUSE:
+//:1: Don't want to create all of these "PFN_" types.
+//:2: Not using allocation callback params of any function
+//:   calls at the moment.
+//:----------------------------------------------------------://
+//       www.khronos.org/registry/vulkan/specs/1.1-extensions
+//       /man/html/VkAllocationCallbacks.html
 // struct
 // F35_VkAllocationCallbacks{
 //     
@@ -45,6 +50,7 @@ F35_VkDebugUtilsMessengerCreateInfoEXT {
 //     PFN_vkInternalFreeNotification          pfnInternalFree;
 // 
 // };//[struct]//
+//:----------------------------------------------------------://
 
 
 //:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://

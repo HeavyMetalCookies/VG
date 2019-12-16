@@ -1,5 +1,7 @@
 //#FILE_REGION[ VG03.H ]BEG###################################//
-
+/////////////////////////////////. . . . . . 13
+/////////////////////////////////............|
+/////////////////////////////////123456789ABCD
 //|---- F01 ------|////[ DOTADIW:DLL_FUNC_LIST ]//
 //|---- F02 ------|////[ DOTADIW:DLL_FUNC_LOAD ]//
 //|-----F03 ------|////[ DOTADIW:DLL_CALL_CAST ]//
@@ -21,6 +23,11 @@
 //|-----F40 ------|////[ DOTADIW:VK_INIT_PART1 ]//
 //|-----F50 ------|////[ DOTADIW:VK_INST_FUNCS ]//
 //|-----F60 ------|////[ DOTADIW:VK_INIT_PART2 ]//
+
+//|-----F61 ------|////[ DOTADIW:WIN32_SURFACE ]//
+//|-----F62 ------|////[ DOTADIW:PHYDEV_SELECT ]//
+//|-----F64 ------|////[ DOTADIW:MAK_LOGIC_DEV ]//
+//|-----F66 ------|////[ DOTADIW:RET_QUEUE_HAN ]//
     
 
 int
@@ -33,7 +40,10 @@ VG03_Demo( void ){
     //:F40_Main();
     //:F50_Main();
     //:F60_Main();
-        F62_Main();
+   //F61_Main();
+    //:F62_Main();
+    //:F64_Main();
+    F66_Main();
 
 
     printf("[END:VG03_DEMO]\n");

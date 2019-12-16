@@ -11,6 +11,10 @@
 //:         with proper calling convention.
 
 
+//: TODO: Put the typedefs in a file before this file to
+//:       reduce clutter.
+
+////////////////////////////////////////////////////////////////
 typedef
     signed int /** VkResult **/ 
     ( __stdcall * F55_PFN_vkCreateDebugUtilsMessengerEXT )(
@@ -32,7 +36,25 @@ typedef
     );
     F55_PFN_vkCreateDebugUtilsMessengerEXT
     F55_FUN_vkCreateDebugUtilsMessengerEXT=NULL;
+////////////////////////////////////////////////////////////////
 
+    typedef
+        F02_VOF //:RET:GenericFuncPtr
+        (*F55_PFN_vkCreateWin32SurfaceKHR )(
+            void*       vk_instance   /**VkInstance:instance**/
+        ,   
+            struct F20_VkWin32SurfaceCreateInfoKHR*
+            create_info
+        ,
+            const void* /** VkAllocationCallbacks **/
+            pAllocator
+        ,
+            void* /** VkSurfaceKHR / F20_VkSurfaceKHR **/
+            pSurface
+        );
+
+    F55_PFN_vkCreateWin32SurfaceKHR  
+    F55_FUN_vkCreateWin32SurfaceKHR =NULL;
 
 ////////////////////////////////////////////////////////////////
 static void 
@@ -73,13 +95,40 @@ f55_RLIFPTST_ValidationLayerFunctions( void ){
     //:Check source pointers for null:
     f55_SRC( (V)F50_vkCreateDebugUtilsMessengerEXT , "[A]");
 
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
     F55_FUN_vkCreateDebugUtilsMessengerEXT=(
   ( F55_PFN_vkCreateDebugUtilsMessengerEXT )
         F50_vkCreateDebugUtilsMessengerEXT
     );;
 
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
     //:Check destination pointers for null:
     f55_DST( (V)F55_FUN_vkCreateDebugUtilsMessengerEXT , "[A]");
+
+    #undef  V //////////////////////////////////////////////////
+
+}//[;]//
+static void
+f55_RLIFPTST_NOTDEBUG_InstanceExtensionFunctions( void ){
+
+    #define V F02_VOF //////////////////////////////////////////
+
+    //:Check source pointers for null:
+    f55_SRC( (V)F50_vkCreateWin32SurfaceKHR        , "[B]");
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
+    F55_FUN_vkCreateWin32SurfaceKHR=(
+  ( F55_PFN_vkCreateWin32SurfaceKHR )
+        F50_vkCreateWin32SurfaceKHR
+    );;
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
+    //:Check destination pointers for null:
+    f55_DST( (V)F55_FUN_vkCreateWin32SurfaceKHR        , "[B]");
 
     #undef  V //////////////////////////////////////////////////
 
@@ -94,6 +143,8 @@ f55_ReLoadInstanceFunctionPointersToSpecificTypes( void ){
         //: R L   I       F       P       T S       T
         f55_RLIFPTST_ValidationLayerFunctions();
     };;
+
+    f55_RLIFPTST_NOTDEBUG_InstanceExtensionFunctions();
 
 }//[;]//
 

@@ -1,0 +1,132 @@
+//#FILE_REGION[ F.61 ]BEG#####################################//
+
+//############################################################//
+//##  F61: Creating window surface:                         ##//
+//##  (Originally F45, but realize in wrong place)          ##//
+//############################################################//
+
+//: DOTADIW: WIN32_SURFACE
+//:         ( Create Window Surface )
+
+  
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+void*  /** F20_VkSurfaceKHR / VkSurfaceKHR **/
+F61_vulkan_surface = NULL;
+
+//: NOTE_01: VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkSurfaceKHR)
+//:
+//: NOTE_02: "VkWin32SurfaceKHR" does not exist!
+//:           You made that up!!!!!!!!!!!!!
+//: NOTE_03:
+//: Pretty sure VkSurfaceKHR wrapps/abstracts what type
+//: of operating system it is for, so there is no need
+//: to create a "F61_win32_surface" and "F61_linux_surface"
+//: or something like that.
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
+////////////////////////////////////////////////////////////////
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:First function always "Halt":    /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f61_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f61_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+static void
+f61_PrivateInit_CreateWindowSurface( void ){
+
+    struct F20_VkWin32SurfaceCreateInfoKHR 
+    ci = {0};
+
+    ci.sType     = 1000009000; //:WIN32_SURFACE_CREATE_INFO
+    ci.hwnd      = F09_GetHWND();
+    ci.hinstance = F09_GetHINSTANCE();
+
+    //:VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR 
+    //:==[1000009000]
+
+    ////////////////////////////////////////////////////////////
+    if( ci.sType != 1000009000 ){
+        f61_Halt("[NOOP_disguised_as_error_check]");
+    };;
+    if(NULL==F55_FUN_vkCreateWin32SurfaceKHR){
+        f61_Halt("[NULL:F55_FUN_vkCreateWin32SurfaceKHR]");
+    };;
+    ////////////////////////////////////////////////////////////
+
+    int res=(int)(unsigned long long)(
+    /**/   F55_FUN_vkCreateWin32SurfaceKHR(
+    /**/       f40_instance
+    /**/       
+    /**/       /** createInfo / VkWin32SurfaceCreateInfoKHR **/
+    /**/   ,   &( ci ) 
+    /**/   ,   NULL
+    /**/   ,   &( F61_vulkan_surface )
+    /**/   )
+    );;
+    
+    if( res != 0 /** VK_SUCCESS **/ ){
+        f61_Halt("[FailedToCreateWin32Surface]");
+    }else{
+        printf("[OK:MADE:F61_vulkan_surface]\n");
+    };;
+    
+    if(NULL == F61_vulkan_surface ){
+        f61_Halt("[I_Take_It_Back:win32_surface_create_fail]");
+    };;
+
+}//[;]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F61_Init(){
+        printf("[BEG:F61:Init]\n");
+
+            ////////////////////////////////////////////////////
+
+            //: ".SUPER_CHAIN()"
+            int ret = F60_Init(); 
+
+            //: LAST_ITEM_IN_CODE_CHAIN:
+            f61_PrivateInit_CreateWindowSurface();
+
+            ////////////////////////////////////////////////////
+
+        printf("[END:F61:Init]\n");
+        return( ret );
+    }//[;]//
+    int F61_Main(){
+
+        printf("[F61_Main:Before:F61_Init()]\n");
+        ////////////////////////////////////////////////////////
+
+        F61_Init();
+
+        ////////////////////////////////////////////////////////
+        printf("[F61_Main:Afterr:F61_Init()]\n");
+
+
+        
+        //:RLSI:RENDER_LOOP_STAND_IN
+        ////////////////////////////////////////////////////////
+
+        printf("[F61:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        ////////////////////////////////////////////////////////
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+//#FILE_REGION[ F.61 ]END#####################################//

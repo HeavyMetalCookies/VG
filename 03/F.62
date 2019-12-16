@@ -1,11 +1,44 @@
 //#FILE_REGION[ F.62 ]BEG#####################################//
 
-//:DOTADIW: VULKAN_CHAPTER_SEVEN
+//:DOTADIW: PHYDEV_SELECT
+//:        ( vulkan_chapter_seven:   )
 //:        (Physical Device Selection)
 
 //:When more confident, we increment file numbers by 2
 //:instead of 10. Confident in not making more insertion
 //:files between numbers.
+
+//:PUBLIC_VARS:
+//:PVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPV://
+#define VAR_01 void*
+#define VAR_02 struct F20_VkPhysicalDeviceFeatures   ///////////
+#define VAR_03 struct F20_VkPhysicalDeviceProperties ///////////
+#define VAR_04 struct F20_VkQueueFamilyProperties    ///////////
+#define VAR_05 struct F20_VkQueueFamilyProperties    ///////////
+#define VAR_06 int                                   ///////////
+#define VAR_07 unsigned int                          ///////////
+#define VAR_08 unsigned int                          ///////////
+
+    VAR_01  F62_physical_device;
+    VAR_02  F62_physical_device_features;
+    VAR_03  F62_physical_device_properties;
+
+    VAR_04  F62_qfp_graphics  ; //:qfp:queue_family_properties
+    VAR_05  F62_qfp_compute   ;
+    VAR_06  F62_qfp_graphics_and_compute_are_same_object;
+
+    VAR_07  F62_qfi_graphics  ; //:qfi:queue_family_index
+    VAR_08  F62_qfi_compute   ;
+
+#undef  VAR_01  ////////////////////////////////////////////////
+#undef  VAR_02  ////////////////////////////////////////////////
+#undef  VAR_03  ////////////////////////////////////////////////
+#undef  VAR_04  ////////////////////////////////////////////////
+#undef  VAR_05  ////////////////////////////////////////////////
+#undef  VAR_06  ////////////////////////////////////////////////
+#undef  VAR_07  ////////////////////////////////////////////////
+#undef  VAR_08  ////////////////////////////////////////////////
+//:PVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPV://
 
 
 //:The choosen physical device:
@@ -20,7 +53,6 @@
 //:Features of the choosen physical device:
 ////////////////////////////////////////////////////////////////
 
-    
     struct F20_VkPhysicalDeviceFeatures
     F62_physical_device_features={0};
     
@@ -31,6 +63,27 @@
 
     struct F20_VkPhysicalDeviceProperties
     F62_physical_device_properties={0};
+
+////////////////////////////////////////////////////////////////
+
+//:Queue Family Properties Of Physical Device:
+////////////////////////////////////////////////////////////////
+
+    #define QFP struct F20_VkQueueFamilyProperties  ////////////
+            
+    QFP     F62_qfp_graphics = { 0 };
+    QFP     F62_qfp_compute  = { 0 };
+    int     F62_qfp_graphics_and_compute_are_same_object=0;
+
+    #undef QFP /////////////////////////////////////////////////
+
+    //:qfi:Queue_Family_Index:
+    #define U32 unsigned int ///////////////////////////////////
+
+            U32     F62_qfi_graphics = (777); //:#ITIV
+            U32     F62_qfi_compute  = (888); //:#ITIV#
+
+    #undef  U32 ////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////
 
@@ -128,9 +181,11 @@ f62_PrivateInitChapterSeven_07( void ){
     ,   &(F62_physical_device_properties)
     );;
 
-    if( F62_physical_device_properties.deviceType
-        !=  
-       xxxxxxxxxxxxxxxxx /** VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU  **/
+    int DT = F62_physical_device_properties.deviceType;
+    if( 11 
+        && (1 != DT) //:VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU 
+        && (2 != DT) //:VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU 
+        && (3 != DT) //:VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU 
     ){
 
         f62_Halt("[I_NEED_A_FUCKING_GPU]");
@@ -141,10 +196,147 @@ f62_PrivateInitChapterSeven_07( void ){
         fflush(stdout);
     
     };;
+
+        //:Id like to see what my texture limit is:
+        ////////////////////////////////////////////////////////
+
+        int lim =( F62_physical_device_properties.
+                   limits.maxImageDimension2D );;
+
+        printf("[maxImageDimension2D]:%d\n", lim); //:16384
+        //: 16384 / 2 == 8192
+        //:  8192 / 2 == 4096
+        //:  4096 / 2 == 2048
+        //:  2048 / 2 == 1024
+        //:  1024 / 2 == 512
+        //:   512 / 2 == 256 ......
+
+        ////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////
+
+    //:Queue Families:
+    ////////////////////////////////////////////////////////////
+
+        //:Making assumption that opaque handle would not
+        //:evaluate to [ NULL | 0 ] if valid.
+        if(NULL == F62_physical_device){
+            f62_Halt("[NULL:PD]");
+        };;
+        if(NULL== F02_vkGetPhysicalDeviceQueueFamilyProperties){
+            f62_Halt("[NULL:GET_PDQFP]");
+        };;
+            
+        struct F20_VkQueueFamilyProperties*
+        qfp_arr=NULL;
+        
+        unsigned int
+        qfp_num = 0;
+        
+        ((F03_03)F02_vkGetPhysicalDeviceQueueFamilyProperties)(
+        
+            F62_physical_device
+        
+        ,           &( qfp_num )
+        ,   NULL    //:qfp_arr
+        );;
+        
+        //:Allocate Space For qfp objects:
+        //:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC://
+        printf("[qfp_num]:%d\n", qfp_num );fflush(stdout);
+        int qfp_one = sizeof( 
+            struct F20_VkQueueFamilyProperties
+        );;
+        qfp_arr = calloc( qfp_num, qfp_one );
+        if(NULL==qfp_arr){ f62_Halt("[FUCK_01]"); };
+        //:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC://
+
+        ((F03_03)F02_vkGetPhysicalDeviceQueueFamilyProperties)(
+        
+            F62_physical_device
+        
+        ,           &( qfp_num )
+        ,              qfp_arr
+        );;
+
+        if(NULL==qfp_arr){ f62_Halt("[FUCK_02]"); };
+
+        printf("[qfp_arr[0].queueFlags]:%d\n"
+        ,        qfp_arr[0].queueFlags
+        );;fflush(stdout);;
+
+        //:LOOP:
+        //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
+        F62_qfp_graphics_and_compute_are_same_object=0;
+        int found_graphics = 0;
+        int found_compute  = 0;
+
+        struct F20_VkQueueFamilyProperties cur = {0};
+      //struct F20_VkQueueFamilyProperties emp = {0};
+        for(int dex = 0; dex < (int)qfp_num; dex++ ){
+        
+            //:Copy memory into cur to take a look:
+            cur = qfp_arr[ dex ];
+        
+            unsigned int f = cur.queueFlags;
+            unsigned int c = cur.queueCount;
+
+            printf("\n");
+        
+                printf("[dex]:%d\n", dex );
+                printf("[f,c]:(%d)(%d)\n", f,c);
+        
+            printf("\n");
+
+            if( 0==(f|c) ){
+                f62_Halt("[DataNotLoaded]");
+            };;
+
+            //: VK_QUEUE_GRAPHICS_BIT : 0x00000001
+            //: VK_QUEUE_COMPUTE_BIT  : 0x00000002
+            if( cur.queueFlags & 0x00000001 ){ //:Graphics
+            if( cur.queueFlags & 0x00000002 ){ //:Compute
+
+                F62_qfp_graphics = cur;
+                F62_qfp_compute  = cur;
+                F62_qfp_graphics_and_compute_are_same_object=1;
+                
+                found_graphics=1;
+                found_compute =1;
+
+                F62_qfi_graphics = dex;
+                F62_qfi_compute  = dex;
+
+                break; 
+            };;};;
+
+            if( cur.queueFlags & 0x00000001 ){ //:Graphics
+                F62_qfp_graphics = cur;
+                  found_graphics = 1;
+                F62_qfi_graphics = dex;
+            };;
+            if( cur.queueFlags & 0x00000002 ){ //:Compute
+                F62_qfp_compute  = cur;
+                  found_compute  = 1;
+                F62_qfi_compute  = dex;
+            };; 
+                
+        };;fflush(stdout);
+
+        if(0==(found_graphics|found_compute)){
+            f62_Halt("[DidNotFindBoth:QFP]");
+        }else{
+            printf("[QFP(s):Found]");
+            fflush(stdout);
+        };;
+
+        //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
     ////////////////////////////////////////////////////////////
     
-
-    free( arr );
+    free( qfp_arr );
+    free( arr     );
     return;
 }//[;]//
 
@@ -158,7 +350,7 @@ f62_PrivateInitChapterSeven_07( void ){
             ////////////////////////////////////////////////////
 
             //: ".SUPER_CHAIN()"
-            int ret = F60_Init(); 
+            int ret = F61_Init(); 
 
             //: LAST_ITEM_IN_CODE_CHAIN:
             f62_PrivateInitChapterSeven_07();
@@ -195,5 +387,6 @@ f62_PrivateInitChapterSeven_07( void ){
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
 
+    //: #ITIV# : Init_To_Invalid_Value
 
 //#FILE_REGION[ F.62 ]END#####################################//
