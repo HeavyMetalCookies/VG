@@ -110,7 +110,13 @@ printf "\n"                             >> "VG03.ALL"
     nl_cat "./F.55"     "VG03.ALL"  ## CAS_VK_EXT_FUNC_PTRS
     nl_cat "./F.60"     "VG03.ALL"  ## VULKAN_INIT_CONTINUED
     nl_cat "./F.61"     "VG03.ALL"  ## WIN32_SURFACE
+
+    ## The graphics + compute queue selections
+    ## are in PHYDEV_SELECT. That is worthy
+    ## of refactor by splitting "F.62" into two files.
     nl_cat "./F.62"     "VG03.ALL"  ## PHYDEV_SELECT
+    nl_cat "./F.63"     "VG03.ALL"  ## GET_PRESENT_Q
+
     nl_cat "./F.64"     "VG03.ALL"  ## MAK_LOGIC_DEV
     nl_cat "./F.66"     "VG03.ALL"  ## RET_QUEUE_HAN
 

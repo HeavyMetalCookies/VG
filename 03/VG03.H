@@ -50,5 +50,27 @@ VG03_Demo( void ){
     return( 0 );
 }//[;]//
 
+//:WHAT IS WHERE?
+//[ F66_graphics_queue ]//
+
+//[ F64_logical_device                  ]//
+//[ F64_enabled_logical_device_features ]//
+
+//[ F62_physical_device;                                     ]//
+//[ F62_physical_device_features;                            ]//
+//[ F62_physical_device_properties;                          ]//
+//[                                                          ]//
+//[ F62_qfp_graphics  ; //:qfp:queue_family_properties       ]//
+//[ F62_qfp_compute   ;                                      ]//
+//[ F62_qfp_graphics_and_compute_are_same_object;            ]//
+//[                                                          ]//
+//[ F62_qfi_graphics  ; //:qfi:queue_family_index            ]//
+//[ F62_qfi_compute   ;                                      ]//
+
+//[ F61_vulkan_surface                                       ]//
+
+//[ f60_debug_utils_messenger                                ]//
+
+//[ ... ]//
 
 //#FILE_REGION[ VG03.H ]END###################################//

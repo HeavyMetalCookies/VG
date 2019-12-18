@@ -1,0 +1,164 @@
+//#FILE_REGION[ F.63 ]BEG#####################################//
+
+//:DOTADIW: GET_PRESENT_Q
+//:         ( Get present queue: )
+
+//: Other queues are in file: "F.62" / F62_*
+
+
+#define QFP struct F20_VkQueueFamilyProperties /////////////////
+#define QFI unsigned int //:queue_family_index /////////////////
+
+
+        //:For presenting images to screen:
+        //:(graphics and compute are in: "F.62" / F62_*
+        QFP    F63_qfp_present ;
+        QFI    F63_qfi_present ;
+
+
+#undef  QFP ////////////////////////////////////////////////////
+#undef  QFI ////////////////////////////////////////////////////
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:First function always "Halt":    /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f63_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f63_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+
+static void
+f63_PrivateInit( void ){
+
+    //:Does the current queue_family_index support
+    //:presenting an image to the screen?
+    unsigned int /** VkBool32 **/
+    supports_present = 0;
+
+    void* res_as_void = NULL;
+
+    unsigned int 
+    res = 0;
+
+    struct F20_VkQueueFamilyProperties*
+    qfp_arr=NULL;
+
+    int
+    qfp_one=0; //:The size of one element in qfp_arr.
+    
+    unsigned int
+    qfp_num = 0;
+
+    unsigned int
+    qfp_dex = 0; //: queue_family_index
+
+    int found = 0;
+
+    ////////////////////////////////////////////////////////////
+
+    //:GET: qfp_num && qfp_arr 
+    //:NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN://
+    ((F03_03)F02_vkGetPhysicalDeviceQueueFamilyProperties)(
+        F62_physical_device, &( qfp_num ), NULL
+    );;
+    qfp_one = sizeof( struct F20_VkQueueFamilyProperties );
+    qfp_arr = calloc( qfp_num, qfp_one );
+    ((F03_03)F02_vkGetPhysicalDeviceQueueFamilyProperties)(
+        F62_physical_device, &( qfp_num ), qfp_arr
+    );;
+    //:NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN://
+
+    //:LOOP_USING:[ qfp_arr && qfp_dex && qfp_num ]
+    //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+    for( qfp_dex = 0; qfp_dex < qfp_num; qfp_dex++ ){ //////////
+
+        res_as_void =(((F03_04) ///////////////////////////////
+        F50_vkGetPhysicalDeviceSurfaceSupportKHR)(
+
+            /** physicalDevice **/
+            F62_physical_device 
+        ,   
+            /** queue_family_index / queueFamilyIndex **/
+            (void*)(unsigned long long)
+            qfp_dex  
+        ,
+            /** VkSurfaceKHR  surface **/
+            F61_vulkan_surface 
+        ,
+            /** VkBool32*  pSupported **/
+            &( supports_present ) 
+
+        ));; ///////////////////////////////////////////////////
+
+        res = (int)(unsigned long long)res_as_void;
+
+        //:Even if current queue_family_index does NOT support
+        //:what you are looking for, this command should
+        //:still WORK!
+        if( res != 0 /** VK_SUCCESS **/ ){
+            f63_Halt("[CRASH:GPDSS]");
+        };;
+
+        if( supports_present ){
+
+            found=1;
+            F63_qfp_present = qfp_arr[ qfp_dex ];
+            F63_qfi_present =          qfp_dex  ;
+
+            break;
+        };;
+    
+    };; ////////////////////////////////////////////////////////
+    //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
+    if(found != 1 ){
+        f63_Halt( "[UNABLE_TO_FIND_PRESENT_QUEUE]" );
+    }else{
+        printf("[F63:FOUND_PRESENTATION_QUEUE_INFO]\n");
+        fflush(stdout);;
+    };;
+
+    free( qfp_arr );
+}//[;]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F63_Init(){
+        printf("[BEG:F63:Init]\n");
+
+            ////////////////////////////////////////////////////
+
+            int ret = F62_Init();  //: ".SUPER_CHAIN()"
+            f63_PrivateInit();     //: ".LAST_INVOKED_LINK"
+
+            ////////////////////////////////////////////////////
+
+        printf("[END:F63:Init]\n");
+        return( ret );
+    }//[;]//
+    int F63_Main(){
+
+        F63_Init();
+
+        //:RLSI:RENDER_LOOP_STAND_IN
+        ////////////////////////////////////////////////////////
+
+        printf("[F63:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        ////////////////////////////////////////////////////////
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+//#FILE_REGION[ F.63 ]BEG#####################################//

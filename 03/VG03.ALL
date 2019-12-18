@@ -4564,6 +4564,7 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
 //:         
 //:OUTISDE OF SCOPE:
 //:         Proper wrapper code for function pointers.
+//:         (SEE: "F.55" for that)
 //:
 //:GATHER VULKAN EXTENSION FUNCTIONS.
 //:Lets go light on the "macro magic" though.
@@ -4587,7 +4588,8 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
     F50_vkCreateWin32SurfaceKHR =NULL;
 
 
-
+    F02_VOF
+    F50_vkGetPhysicalDeviceSurfaceSupportKHR =NULL;
 
 
 
@@ -4692,6 +4694,11 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
         F50_vkCreateWin32SurfaceKHR=f50_GIPA(
             f40_instance
         ,   "vkCreateWin32SurfaceKHR"
+        );;
+
+        F50_vkGetPhysicalDeviceSurfaceSupportKHR=f50_GIPA(
+            f40_instance
+        ,  "vkGetPhysicalDeviceSurfaceSupportKHR"
         );;
 
         ////////////////////////////////////////////////////////
@@ -5417,6 +5424,7 @@ f62_PrivateInitChapterSeven_07( void ){
     ,   arr //:array of devices to populate.
     );;
 
+    //[[  [HACK]:Just take the first device ]]//
     F62_physical_device = arr[ 0 ];
 
     if( NULL == F62_physical_device ){
@@ -5663,6 +5671,170 @@ f62_PrivateInitChapterSeven_07( void ){
 
 //#FILE_REGION[ F.62 ]END#####################################//
 
+//#FILE_REGION[ F.63 ]BEG#####################################//
+
+//:DOTADIW: GET_PRESENT_Q
+//:         ( Get present queue: )
+
+//: Other queues are in file: "F.62" / F62_*
+
+
+#define QFP struct F20_VkQueueFamilyProperties /////////////////
+#define QFI unsigned int //:queue_family_index /////////////////
+
+
+        //:For presenting images to screen:
+        //:(graphics and compute are in: "F.62" / F62_*
+        QFP    F63_qfp_present ;
+        QFI    F63_qfi_present ;
+
+
+#undef  QFP ////////////////////////////////////////////////////
+#undef  QFI ////////////////////////////////////////////////////
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:First function always "Halt":    /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f63_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f63_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+
+static void
+f63_PrivateInit( void ){
+
+    //:Does the current queue_family_index support
+    //:presenting an image to the screen?
+    unsigned int /** VkBool32 **/
+    supports_present = 0;
+
+    void* res_as_void = NULL;
+
+    unsigned int 
+    res = 0;
+
+    struct F20_VkQueueFamilyProperties*
+    qfp_arr=NULL;
+
+    int
+    qfp_one=0; //:The size of one element in qfp_arr.
+    
+    unsigned int
+    qfp_num = 0;
+
+    unsigned int
+    qfp_dex = 0; //: queue_family_index
+
+    int found = 0;
+
+    ////////////////////////////////////////////////////////////
+
+    //:GET: qfp_num && qfp_arr 
+    //:NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN://
+    ((F03_03)F02_vkGetPhysicalDeviceQueueFamilyProperties)(
+        F62_physical_device, &( qfp_num ), NULL
+    );;
+    qfp_one = sizeof( struct F20_VkQueueFamilyProperties );
+    qfp_arr = calloc( qfp_num, qfp_one );
+    ((F03_03)F02_vkGetPhysicalDeviceQueueFamilyProperties)(
+        F62_physical_device, &( qfp_num ), qfp_arr
+    );;
+    //:NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN://
+
+    //:LOOP_USING:[ qfp_arr && qfp_dex && qfp_num ]
+    //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+    for( qfp_dex = 0; qfp_dex < qfp_num; qfp_dex++ ){ //////////
+
+        res_as_void =(((F03_04) ///////////////////////////////
+        F50_vkGetPhysicalDeviceSurfaceSupportKHR)(
+
+            /** physicalDevice **/
+            F62_physical_device 
+        ,   
+            /** queue_family_index / queueFamilyIndex **/
+            (void*)(unsigned long long)
+            qfp_dex  
+        ,
+            /** VkSurfaceKHR  surface **/
+            F61_vulkan_surface 
+        ,
+            /** VkBool32*  pSupported **/
+            &( supports_present ) 
+
+        ));; ///////////////////////////////////////////////////
+
+        res = (int)(unsigned long long)res_as_void;
+
+        //:Even if current queue_family_index does NOT support
+        //:what you are looking for, this command should
+        //:still WORK!
+        if( res != 0 /** VK_SUCCESS **/ ){
+            f63_Halt("[CRASH:GPDSS]");
+        };;
+
+        if( supports_present ){
+
+            found=1;
+            F63_qfp_present = qfp_arr[ qfp_dex ];
+            F63_qfi_present =          qfp_dex  ;
+
+            break;
+        };;
+    
+    };; ////////////////////////////////////////////////////////
+    //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+
+    if(found != 1 ){
+        f63_Halt( "[UNABLE_TO_FIND_PRESENT_QUEUE]" );
+    }else{
+        printf("[F63:FOUND_PRESENTATION_QUEUE_INFO]\n");
+        fflush(stdout);;
+    };;
+
+    free( qfp_arr );
+}//[;]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F63_Init(){
+        printf("[BEG:F63:Init]\n");
+
+            ////////////////////////////////////////////////////
+
+            int ret = F62_Init();  //: ".SUPER_CHAIN()"
+            f63_PrivateInit();     //: ".LAST_INVOKED_LINK"
+
+            ////////////////////////////////////////////////////
+
+        printf("[END:F63:Init]\n");
+        return( ret );
+    }//[;]//
+    int F63_Main(){
+
+        F63_Init();
+
+        //:RLSI:RENDER_LOOP_STAND_IN
+        ////////////////////////////////////////////////////////
+
+        printf("[F63:TO_EXIT:CTRL+C]\n");
+        fflush(stdout );
+        while( 1 ){ }; //:LOOP_FOREVER
+
+        ////////////////////////////////////////////////////////
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+//#FILE_REGION[ F.63 ]BEG#####################################//
 //#FILE_REGION[ F.64 ]BEG#####################################//
 
 //:DOTADIW: MAK_LOGIC_DEV
@@ -5699,12 +5871,22 @@ f64_PrivateInitChapterEight_08( void ){
 
     if( f64_NOOP0() != 1 ){ f64_Halt("[X_X]"); };
 
+    //********************************************************//
+    //:PAGE 75 says you need one of these structs for         //
+    //:each queue type you want to make.                      //
+    //:(one F20_VkDeviceQueueCreateInfo per queue made)       //
+    //:(Unless the queue indices for two or more of your)     //
+    //:(queue types (graphics,compute,present) are identical  //
+    //:indicies.                                              //
+    F64_NOTICE_ME_SENPAI
+    //********************************************************//
     struct F20_VkDeviceQueueCreateInfo ci_qqq ={0};
     ci_qqq.sType = 2; /** DEVICE_QUEUE_CREATE_INFO **/
     ci_qqq.queueFamilyIndex = F62_qfi_graphics;
     ci_qqq.queueCount       = 1;
     float queue_priority = 1.0f; //:Array of 1 element.
     ci_qqq.pQueuePriorities = &(queue_priority);
+    //********************************************************//
 
     //:QUESTION:
     //:Why does tutorial8 want VK_PDF? We already created
@@ -5735,7 +5917,7 @@ f64_PrivateInitChapterEight_08( void ){
 
     struct F20_VkDeviceCreateInfo ci_dev = { 0 };
     ci_dev.sType = 3; /** DEVICE_CREATE_INFO **/
-    ci_dev.pQueueCreateInfos = &( ci_qqq );
+    ci_dev.pQueueCreateInfos = &( ci_qqq ); //:<<<ARRAY!
     ci_dev.queueCreateInfoCount = 1;
     ci_dev.pEnabledFeatures = &( 
         F64_enabled_logical_device_features
@@ -5772,7 +5954,7 @@ f64_PrivateInitChapterEight_08( void ){
             ////////////////////////////////////////////////////
 
             //: ".SUPER_CHAIN()"
-            int ret = F62_Init(); 
+            int ret = F63_Init(); 
 
             //: LAST_ITEM_IN_CODE_CHAIN:
             f64_PrivateInitChapterEight_08();
@@ -5819,11 +6001,19 @@ f64_PrivateInitChapterEight_08( void ){
 
 //:Page 70 of VKTUT_2018_PDF
 //:(Just page 70, last page of chapter)
+//:(Page 74 hints I should do this for:
+//:( graphics, present, and compute )
 
 ////////////////////////////////////////////////////////////////
 
 void* /** VK_DEFINE_HANDLE(VkQueue) **/
 F66_graphics_queue = NULL;
+
+void* /** VK_DEFINE_HANDLE(VkQueue) **/
+ F66_compute_queue = NULL;
+
+void* /** VK_DEFINE_HANDLE(VkQueue) **/
+ F66_present_queue = NULL;
 
 ////////////////////////////////////////////////////////////////
 
@@ -5840,7 +6030,14 @@ F66_graphics_queue = NULL;
 /** ---- **/                                        /** ---- **/
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
 
-void f66_PrivateInitPage_70( void ){
+void* /** GQ:GetQueue **/
+f66_GQ( 
+    unsigned int        qfi /** queue_family_index **/
+,   const char*  debug_code /** What queue are you getting? **/
+){
+
+    void*
+    vulkan_queue_object = NULL;
 
     //+----------------------------------------------+//
     //| queueIndex must be less than the number of   |//
@@ -5853,18 +6050,34 @@ void f66_PrivateInitPage_70( void ){
     /**/          F64_logical_device
 
     /**/   ,        (void*)(unsigned long long)
-                    F62_qfi_graphics //:queueFamilyIndex
+                    qfi //:queueFamilyIndex
 
     /**/   ,      0 //:queueIndex
-    /**/   ,   &( F66_graphics_queue )
+    /**/   ,   &( vulkan_queue_object )
     );;
 
-    if(NULL==F66_graphics_queue){
-        f66_Halt("[Failed_To_Get_Graphics_Queue]");
+    //:Pass or Fail?
+    if(NULL==vulkan_queue_object){
+        printf("[FAIL:vulkan_queue_object]:%s\n", debug_code);
+        f66_Halt("[GET_QUEUE_FAIL:SEE_ABOVE_THIS_MESSAGE]");
     }else{
-        printf("[Got:F66_graphics_queue]\n");
-        fflush(stdout);
+      // printf("[Got!:vulkan_queue_object]:%s\n", debug_code);
+      // fflush(stdout);
     };;
+
+    return( vulkan_queue_object );
+
+}//[;]//
+
+
+void f66_PrivateInitPage_70( void ){
+
+    F66_graphics_queue =( f66_GQ( F62_qfi_graphics, "[G]"));
+     F66_compute_queue =( f66_GQ( F62_qfi_compute , "[C]"));
+     F66_present_queue =( f66_GQ( F63_qfi_present , "[P]"));
+
+    printf("[GOT_QUEUES(GRAPHICS,COMPUTE,PRESENT)]\n");
+    fflush(stdout);
 
 }//[;]//
 
@@ -5967,5 +6180,27 @@ VG03_Demo( void ){
     return( 0 );
 }//[;]//
 
+//:WHAT IS WHERE?
+//[ F66_graphics_queue ]//
+
+//[ F64_logical_device                  ]//
+//[ F64_enabled_logical_device_features ]//
+
+//[ F62_physical_device;                                     ]//
+//[ F62_physical_device_features;                            ]//
+//[ F62_physical_device_properties;                          ]//
+//[                                                          ]//
+//[ F62_qfp_graphics  ; //:qfp:queue_family_properties       ]//
+//[ F62_qfp_compute   ;                                      ]//
+//[ F62_qfp_graphics_and_compute_are_same_object;            ]//
+//[                                                          ]//
+//[ F62_qfi_graphics  ; //:qfi:queue_family_index            ]//
+//[ F62_qfi_compute   ;                                      ]//
+
+//[ F61_vulkan_surface                                       ]//
+
+//[ f60_debug_utils_messenger                                ]//
+
+//[ ... ]//
 
 //#FILE_REGION[ VG03.H ]END###################################//

@@ -34,12 +34,22 @@ f64_PrivateInitChapterEight_08( void ){
 
     if( f64_NOOP0() != 1 ){ f64_Halt("[X_X]"); };
 
+    //********************************************************//
+    //:PAGE 75 says you need one of these structs for         //
+    //:each queue type you want to make.                      //
+    //:(one F20_VkDeviceQueueCreateInfo per queue made)       //
+    //:(Unless the queue indices for two or more of your)     //
+    //:(queue types (graphics,compute,present) are identical  //
+    //:indicies.                                              //
+    F64_NOTICE_ME_SENPAI
+    //********************************************************//
     struct F20_VkDeviceQueueCreateInfo ci_qqq ={0};
     ci_qqq.sType = 2; /** DEVICE_QUEUE_CREATE_INFO **/
     ci_qqq.queueFamilyIndex = F62_qfi_graphics;
     ci_qqq.queueCount       = 1;
     float queue_priority = 1.0f; //:Array of 1 element.
     ci_qqq.pQueuePriorities = &(queue_priority);
+    //********************************************************//
 
     //:QUESTION:
     //:Why does tutorial8 want VK_PDF? We already created
@@ -70,7 +80,7 @@ f64_PrivateInitChapterEight_08( void ){
 
     struct F20_VkDeviceCreateInfo ci_dev = { 0 };
     ci_dev.sType = 3; /** DEVICE_CREATE_INFO **/
-    ci_dev.pQueueCreateInfos = &( ci_qqq );
+    ci_dev.pQueueCreateInfos = &( ci_qqq ); //:<<<ARRAY!
     ci_dev.queueCreateInfoCount = 1;
     ci_dev.pEnabledFeatures = &( 
         F64_enabled_logical_device_features
@@ -107,7 +117,7 @@ f64_PrivateInitChapterEight_08( void ){
             ////////////////////////////////////////////////////
 
             //: ".SUPER_CHAIN()"
-            int ret = F62_Init(); 
+            int ret = F63_Init(); 
 
             //: LAST_ITEM_IN_CODE_CHAIN:
             f64_PrivateInitChapterEight_08();

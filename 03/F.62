@@ -145,6 +145,7 @@ f62_PrivateInitChapterSeven_07( void ){
     ,   arr //:array of devices to populate.
     );;
 
+    //[[  [HACK]:Just take the first device ]]//
     F62_physical_device = arr[ 0 ];
 
     if( NULL == F62_physical_device ){

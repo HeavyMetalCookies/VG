@@ -5,6 +5,7 @@
 //:         
 //:OUTISDE OF SCOPE:
 //:         Proper wrapper code for function pointers.
+//:         (SEE: "F.55" for that)
 //:
 //:GATHER VULKAN EXTENSION FUNCTIONS.
 //:Lets go light on the "macro magic" though.
@@ -28,7 +29,8 @@
     F50_vkCreateWin32SurfaceKHR =NULL;
 
 
-
+    F02_VOF
+    F50_vkGetPhysicalDeviceSurfaceSupportKHR =NULL;
 
 
 
@@ -133,6 +135,11 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
         F50_vkCreateWin32SurfaceKHR=f50_GIPA(
             f40_instance
         ,   "vkCreateWin32SurfaceKHR"
+        );;
+
+        F50_vkGetPhysicalDeviceSurfaceSupportKHR=f50_GIPA(
+            f40_instance
+        ,  "vkGetPhysicalDeviceSurfaceSupportKHR"
         );;
 
         ////////////////////////////////////////////////////////

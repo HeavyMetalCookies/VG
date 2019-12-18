@@ -5,11 +5,19 @@
 
 //:Page 70 of VKTUT_2018_PDF
 //:(Just page 70, last page of chapter)
+//:(Page 74 hints I should do this for:
+//:( graphics, present, and compute )
 
 ////////////////////////////////////////////////////////////////
 
 void* /** VK_DEFINE_HANDLE(VkQueue) **/
 F66_graphics_queue = NULL;
+
+void* /** VK_DEFINE_HANDLE(VkQueue) **/
+ F66_compute_queue = NULL;
+
+void* /** VK_DEFINE_HANDLE(VkQueue) **/
+ F66_present_queue = NULL;
 
 ////////////////////////////////////////////////////////////////
 
@@ -26,7 +34,14 @@ F66_graphics_queue = NULL;
 /** ---- **/                                        /** ---- **/
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
 
-void f66_PrivateInitPage_70( void ){
+void* /** GQ:GetQueue **/
+f66_GQ( 
+    unsigned int        qfi /** queue_family_index **/
+,   const char*  debug_code /** What queue are you getting? **/
+){
+
+    void*
+    vulkan_queue_object = NULL;
 
     //+----------------------------------------------+//
     //| queueIndex must be less than the number of   |//
@@ -39,18 +54,34 @@ void f66_PrivateInitPage_70( void ){
     /**/          F64_logical_device
 
     /**/   ,        (void*)(unsigned long long)
-                    F62_qfi_graphics //:queueFamilyIndex
+                    qfi //:queueFamilyIndex
 
     /**/   ,      0 //:queueIndex
-    /**/   ,   &( F66_graphics_queue )
+    /**/   ,   &( vulkan_queue_object )
     );;
 
-    if(NULL==F66_graphics_queue){
-        f66_Halt("[Failed_To_Get_Graphics_Queue]");
+    //:Pass or Fail?
+    if(NULL==vulkan_queue_object){
+        printf("[FAIL:vulkan_queue_object]:%s\n", debug_code);
+        f66_Halt("[GET_QUEUE_FAIL:SEE_ABOVE_THIS_MESSAGE]");
     }else{
-        printf("[Got:F66_graphics_queue]\n");
-        fflush(stdout);
+      // printf("[Got!:vulkan_queue_object]:%s\n", debug_code);
+      // fflush(stdout);
     };;
+
+    return( vulkan_queue_object );
+
+}//[;]//
+
+
+void f66_PrivateInitPage_70( void ){
+
+    F66_graphics_queue =( f66_GQ( F62_qfi_graphics, "[G]"));
+     F66_compute_queue =( f66_GQ( F62_qfi_compute , "[C]"));
+     F66_present_queue =( f66_GQ( F63_qfi_present , "[P]"));
+
+    printf("[GOT_QUEUES(GRAPHICS,COMPUTE,PRESENT)]\n");
+    fflush(stdout);
 
 }//[;]//
 
