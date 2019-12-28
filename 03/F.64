@@ -12,6 +12,9 @@
     struct F20_VkPhysicalDeviceFeatures
     F64_enabled_logical_device_features = { 0 };
 
+    int*  F64_qfi_unique_set    =NULL;
+    int   F64_qfi_unique_set_len= 0  ;
+
 
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
 /** ---- **/                                        /** ---- **/
@@ -30,6 +33,68 @@
 static int f64_NOOP0(void){ return( 1 ); }
 
 static void
+f64_AllocateArrayOfUniqueQueueIndicies( void ){
+
+    printf("[BEG:AAOUQI]"); fflush(stdout);
+
+    int Q_01 = F62_qfi_graphics;  //: qfi[ qfi_ptr=0 ] == Q_01
+    int Q_02 = F62_qfi_compute ;  //: qfi[ qfi_ptr=1 ] == Q_02
+    int Q_03 = F63_qfi_present ;  //: qfi[ qfi_ptr=2 ] == Q_03
+
+    #define  MACRO_QFI_LEN 3 ///////////////////////////////////
+    int qfi[ MACRO_QFI_LEN ]={
+        Q_01
+    ,   Q_02
+    ,   Q_03
+    };;//[qinit]//
+
+    //:Empty Set:
+    int set_dat[3]={-1,-2,-3};
+    int set_len   = 0;
+    
+    
+
+    int qfi_ptr =( 0-1 );
+    int max_dex = (MACRO_QFI_LEN-1);
+    while( 1 ){
+        qfi_ptr++;
+        if( qfi_ptr > max_dex ){ break; }
+        
+        //:Loop through all set entries:
+        int already_exists = 0;
+        int potential_set_entry = qfi[ qfi_ptr ];
+        for( int se = 0; se < set_len; se++ ){
+
+            if( potential_set_entry == qfi[ se ] ){
+                already_exists = 1;
+            };;
+        };;
+        
+        if( 0==already_exists ){
+            set_dat[ set_len ] = potential_set_entry;
+                     set_len++ ;
+        };;//[ae]//
+    };;//[w1]//
+    
+    #undef  MACRO_QFI_LEN //////////////////////////////////////
+
+    //:Copy data into malloced array:
+    F64_qfi_unique_set      = calloc( set_len, sizeof(int) );
+    F64_qfi_unique_set_len  = set_len;
+    for( int se = 0; se < set_len; se++ ){
+        F64_qfi_unique_set[ se ] = set_dat[ se ];
+        printf("[ENTRY]%d [VALUE]%d \n", se, set_dat[ se ] );;
+    };;//[cd]//
+
+    printf("[Q_01]%d\n", Q_01 );
+    printf("[Q_02]%d\n", Q_02 );
+    printf("[Q_03]%d\n", Q_03 );
+       
+    printf("[END:AAOUQI]"); fflush(stdout);
+
+}//[;]//
+
+static void
 f64_PrivateInitChapterEight_08( void ){
 
     if( f64_NOOP0() != 1 ){ f64_Halt("[X_X]"); };
@@ -41,18 +106,46 @@ f64_PrivateInitChapterEight_08( void ){
     //:(Unless the queue indices for two or more of your)     //
     //:(queue types (graphics,compute,present) are identical  //
     //:indicies.                                              //
-    F64_NOTICE_ME_SENPAI
     //********************************************************//
-    struct F20_VkDeviceQueueCreateInfo ci_qqq ={0};
-    ci_qqq.sType = 2; /** DEVICE_QUEUE_CREATE_INFO **/
-    ci_qqq.queueFamilyIndex = F62_qfi_graphics;
-    ci_qqq.queueCount       = 1;
-    float queue_priority = 1.0f; //:Array of 1 element.
-    ci_qqq.pQueuePriorities = &(queue_priority);
+    // struct F20_VkDeviceQueueCreateInfo ci_qqq ={0};
+    // ci_qqq.sType = 2; /** DEVICE_QUEUE_CREATE_INFO **/
+    // ci_qqq.queueFamilyIndex = F62_qfi_graphics;
+    // ci_qqq.queueCount       = 1;
+    // float queue_priority = 1.0f; //:Array of 1 element.
+    // ci_qqq.pQueuePriorities = &(queue_priority);
     //********************************************************//
 
+    f64_AllocateArrayOfUniqueQueueIndicies();
+    struct F20_VkDeviceQueueCreateInfo*
+    ci_qqq_POINTER=(
+        calloc(     
+            F64_qfi_unique_set_len
+        ,   sizeof( struct F20_VkDeviceQueueCreateInfo)
+        )
+    );;
+    for( int i = 0; i < F64_qfi_unique_set_len; i++ ){
+        #define PTR ci_qqq_POINTER /////////////////////////////
+
+        PTR[i].sType = 2; /** DEVICE_QUEUE_CREATE_INFO **/
+
+        //:Example: F62_qfi_graphics
+        PTR[i].queueFamilyIndex =(
+            F64_qfi_unique_set[ i ]
+        );;
+
+        //:Number of queues from this qfi(queue_family_index)
+        //:you are requesting.
+        PTR[i].queueCount       = 1;
+
+        float queue_priority = 1.0f; //:Array of 1 element.
+        PTR[i].pQueuePriorities = &(queue_priority);
+
+        #undef  PTR  ///////////////////////////////////////////
+    };;
+
     //:QUESTION:
-    //:Why does tutorial8 want VK_PDF? We already created
+    //:Why does tutorial8 want VkPhysicalDeviceFeatures? 
+    //:We already created
     //:F62_physical_device_features when creating our
     //:physical device in previous file.        
     //:( VK_PDF / VkPhysicalDeviceFeatures )
@@ -78,10 +171,15 @@ f64_PrivateInitChapterEight_08( void ){
 
     ////////////////////////////////////////////////////////////
 
+    //: ci_qqq_POINTER=NULL; CAUSE_CRASH_TO_MAKE_SURE_WORKING
+
     struct F20_VkDeviceCreateInfo ci_dev = { 0 };
     ci_dev.sType = 3; /** DEVICE_CREATE_INFO **/
-    ci_dev.pQueueCreateInfos = &( ci_qqq ); //:<<<ARRAY!
-    ci_dev.queueCreateInfoCount = 1;
+
+//: ci_dev.pQueueCreateInfos = &( ci_qqq ); //:<<<ARRAY!
+    ci_dev.pQueueCreateInfos =  ( ci_qqq_POINTER );
+
+    ci_dev.queueCreateInfoCount = F64_qfi_unique_set_len;
     ci_dev.pEnabledFeatures = &( 
         F64_enabled_logical_device_features
     );;
@@ -104,6 +202,7 @@ f64_PrivateInitChapterEight_08( void ){
         fflush(stdout);
     };;
 
+    free( ci_qqq_POINTER );
 }//[;]//
 
 
