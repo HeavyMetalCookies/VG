@@ -1,7 +1,8 @@
 //#FILE_REGION[ F.40 ]BEG#####################################//
 
-//:DOTADIW: VK_INIT_PART1
-//:         Vulkan Tutorial Code Begins
+//:DOTADIW: Make_Vulkan_Instance
+//:        ( Originally: VK_INIT_PART1               )
+//:        ( Originally: Vulkan Tutorial Code Begins )
 
 static void 
 f40_Halt( const char* msg ){ 
@@ -57,7 +58,8 @@ f40_layers=NULL; //:f40_instance_validation_layers
         #define f40_wanted_extensions_count_MACRO 2
 
         static const char* 
-        f40_wanted_extensions[ 
+        f40_wanted_extensions[
+     //:f40_wanted_extensions=="instanceExtensions"
 
             f40_wanted_extensions_count_MACRO 
 
@@ -73,6 +75,7 @@ f40_layers=NULL; //:f40_instance_validation_layers
 
         static const char* 
         f40_wanted_extensions[ 
+     //:f40_wanted_extensions=="instanceExtensions"
 
             f40_wanted_extensions_count_MACRO 
 
@@ -161,8 +164,8 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
     ((F03_03)F02_vkEnumerateInstanceExtensionProperties)(
         NULL
     ,   &extensionCount
-    ,    f40_extensions
-    );;
+    ,    f40_extensions /** instanceExtensions **/
+    );;                 /** instance_extensions**/
 
     printf("[extensionCount]:%d\n", extensionCount);
     for( int i = 0; i < (int)extensionCount; i++ ){
@@ -284,7 +287,8 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
             ////////////////////////////////////////////////////
             /** ENABLE_VALIDATION_LAYERS ?  **/  
             /**       f40_use_validation_layers **/
-            if( f40_MACRO_use_validation_layers > 1 ){
+            /** f40_MACRO_use_validation_layers **/
+            if( f40_use_validation_layers > 1 ){
 
                 f40_createInfo.enabledLayerCount =(
                     f40_wanted_validation_layers_count_MACRO
@@ -346,14 +350,9 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
     int F40_Init(){
         printf("[BEG:F40:Init]\n");
 
-        int ret = F35_Init(); //: ".SUPER_CHAIN()"
+        int ret = F37_Init(); //: ".SUPER_CHAIN()"
 
-        //:Call here to avoid initialization fork:
-        //:You don't want "F.50" to have to call TWO previous
-        //:initializers and have to guess in which order they
-        //:need to be called.
-        //:f40_OpenWindowAndInitializeEngine();
-        f40_EngineInit();
+        f40_EngineInit(); /** f40_PrivateInit() **/
 
         printf("[END:F40:Init]\n");
         return( ret );
@@ -363,9 +362,6 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
 
         printf("[F40:TO_EXIT:CTRL+C]\n");
 
-        //:Stand in for where "mainLoop()" in future file.
-        //:(Tutorial uses name "mainLoop()", I probably won't
-        //:use that name. I'll probably call it: "EngineLoop()"
         while( 1 ){ }; //:LOOP_FOREVER
 
         return( 0 );

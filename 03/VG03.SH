@@ -104,6 +104,7 @@ printf "\n"                             >> "VG03.ALL"
     nl_cat "./F.20"     "VG03.ALL"  ## VULKAN_STRUCTS
     nl_cat "./F.30"     "VG03.ALL"  ## VULKAN_PFN_TYPEDEFS
     nl_cat "./F.35"     "VG03.ALL"  ## STRUCTS_WITH_PFN_MEMBERS
+    nl_cat "./F.37"     "VG03.ALL"  ## INST_EXT_LIST
     nl_cat "./F.40"     "VG03.ALL"  ## VULKAN_TUTORIAL_CODE
  
     nl_cat "./F.50"     "VG03.ALL"  ## RAW_VK_EXT_FUNC_PTRS

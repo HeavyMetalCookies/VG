@@ -1,0 +1,44 @@
+//#FILE_REGION[ F.37 ]BEG#####################################//
+
+    //:DOTADIW: INST_EXT_LIST
+    //:       ( instance_extension_list   )
+    //:       ( AND VALIDATION LAYERS LIST)
+    //: 1. Wanted_Instance_Extensions_Check
+    //: 2. Creation of instance extensions
+    //:    name array to use later in instance
+    //:    creation.
+
+    //:This is to prepare for INSTANCE creation.
+    //:Instance creation comes before device (logical device)
+    //:creation.
+
+static void
+f37_PrivateInit( void ){
+
+}//[;]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F37_Init(){
+        printf("[BEG:F37:Init]\n");
+        
+            int ret = F35_Init(); //: ".SUPER_CHAIN()"
+            f37_PrivateInit();
+        
+        printf("[END:F37:Init]\n");
+        
+            return( ret );
+    }//[;]//
+    int F37_Main(){
+        F37_Init();
+
+        printf("[F37:TO_EXIT:CTRL+C]\n");
+        while( 1 ){ }; //:FAKE_GAME_LOOP
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+//#FILE_REGION[ F.37 ]END#####################################//
