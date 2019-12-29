@@ -137,7 +137,7 @@ f55_RLIFPTST_NOTDEBUG_InstanceExtensionFunctions( void ){
 static void
 f55_ReLoadInstanceFunctionPointersToSpecificTypes( void ){
 
-    if( f40_use_validation_layers > 0 ){
+    if( F36_use_validation_layers > 0 ){
         //: RLIFPTST:
         //: ReLoadInstanceFunctionPointersToSpecificTypes
         //: R L   I       F       P       T S       T

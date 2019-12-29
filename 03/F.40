@@ -10,17 +10,7 @@ f40_Halt( const char* msg ){
     fflush(stdout); exit(666);
 }//[;]//
 
-          /** f40_use_validation_layers **/
-#define f40_MACRO_use_validation_layers 0 //:ENABLE==CRASH!
 
-//:For use outside this file, so we can undefine the
-//:macro before we leave.
-int f40_use_validation_layers=(
-
-    f40_MACRO_use_validation_layers
-
-);//[ON_SCOOBY_DOO_SHAGGYS_REAL_NAME_IS:Norville Rogers]//
-//:https://en.wikipedia.org/wiki/Shaggy_Rogers
 
 static struct 
 F20_VkApplicationInfo 
@@ -50,70 +40,7 @@ f40_layers=NULL; //:f40_instance_validation_layers
 //:     return( 0 );
 //: }//[;]//
 
-////////////////////////////////////////////////////////////////
 
-                 /** f40_use_validation_layers **/
-    #if(       f40_MACRO_use_validation_layers <= 0 ) //:OFF
-
-        #define f40_wanted_extensions_count_MACRO 2
-
-        static const char* 
-        f40_wanted_extensions[
-     //:f40_wanted_extensions=="instanceExtensions"
-
-            f40_wanted_extensions_count_MACRO 
-
-        ]={ 
-                "VK_KHR_surface"
-            ,   "VK_KHR_win32_surface"
-        };
-
-                 /** f40_use_validation_layers **/
-    #elif(     f40_MACRO_use_validation_layers >  0 ) //:ENABLE
-    
-        #define f40_wanted_extensions_count_MACRO 3
-
-        static const char* 
-        f40_wanted_extensions[ 
-     //:f40_wanted_extensions=="instanceExtensions"
-
-            f40_wanted_extensions_count_MACRO 
-
-        ]={ 
-                "VK_KHR_surface"
-            ,   "VK_KHR_win32_surface"
-            ,   "VK_EXT_debug_utils" //:PG[55]SC[VKT2018]
-        };
-
-                 /** f40_use_validation_layers **/
-    #endif //: f40_MACRO_use_validation_layers
-
-#undef  UNDEF_THAT_MACRO_AT_BOTTOM_OF_FILE /////////////////////
-#define f40_wanted_validation_layers_count_MACRO 1 /////////////
-
-    static const char*
-    f40_wanted_validation_layers[
-        f40_wanted_validation_layers_count_MACRO
-    ]={
-
-        "VK_LAYER_LUNARG_standard_validation"
-
-    };
-
-#undef  UNDEF_THAT_MACRO_AT_BOTTOM_OF_FILE /////////////////////
-
-////////////////////////////////////////////////////////////////
-
-//: This belongs somewhere in the future.
-//  int F40_EngineLoop( void ){
-//      while( 1 ){
-//  
-//          //:RenderingLogicHere
-//  
-//      };;
-//  }//[;]//
-
-////////////////////////////////////////////////////////////////
 
 //:    www.khronos.org/registry/vulkan/specs
 //: /1.1-extensions/man/html/VK_MAKE_VERSION.html
@@ -224,7 +151,7 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
     int found;
     
         int wanted_count =(
-            f40_wanted_validation_layers_count_MACRO
+            F36_wanted_validation_layers_count
         );;
         for( int w = 0; w <     wanted_count;  w++ ){ //:WANTED  
         for( int h = 0; h < (int)layer_count;  h++ ){ //:HAVE   
@@ -238,7 +165,7 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
             ////////////////////////////////////////////////////
             
             const char* have = f40_layers[h].layerName;
-            const char* want = f40_wanted_validation_layers[w];
+            const char* want = F36_wanted_validation_layers[w];
             int com_res =( strcmp( have, want ) );
             if(0==com_res){
                 found=1; break;
@@ -275,10 +202,11 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
         f40_createInfo.sType = 1; /** INSTANCE_CREATE_INFO **/
         f40_createInfo.pApplicationInfo = &(f40_appInfo);
         f40_createInfo.enabledExtensionCount=(
-            f40_wanted_extensions_count_MACRO
+            F37_wanted_instance_extensions_count
         );;
         f40_createInfo.ppEnabledExtensionNames=(
-            f40_wanted_extensions
+            (const char* const*) //:ReadOnly:char**
+            F37_wanted_instance_extensions
         );;
 
         f40_createInfo.enabledLayerCount=0;
@@ -286,15 +214,16 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
 
             ////////////////////////////////////////////////////
             /** ENABLE_VALIDATION_LAYERS ?  **/  
-            /**       f40_use_validation_layers **/
-            /** f40_MACRO_use_validation_layers **/
-            if( f40_use_validation_layers > 1 ){
+            /**       F36_use_validation_layers **/
+            /** f36_MACRO_use_validation_layers **/
+            if( F36_use_validation_layers > 1 ){
 
                 f40_createInfo.enabledLayerCount =(
-                    f40_wanted_validation_layers_count_MACRO
+                    F36_wanted_validation_layers_count
                 );;
                 f40_createInfo.ppEnabledLayerNames=(
-                    f40_wanted_validation_layers
+                    (const char* const*) //:ReadOnly:char**
+                    F36_wanted_validation_layers
                 );;
 
             };;
@@ -370,8 +299,5 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
 
-#undef  f40_wanted_extensions_count_MACRO         //////////////
-#undef  f40_wanted_validation_layers_count_MACRO  //////////////
-#undef  f40_MACRO_use_validation_layers           //////////////
 
 //#FILE_REGION[ F.40 ]END#####################################//

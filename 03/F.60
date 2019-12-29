@@ -77,8 +77,8 @@ f60_EngineInit_PART2_WindowAlreadyOpen( void ){
 f60_DebugMessage( "[BEG:f60_EngineInit_PART2_WAO]" );
 
     //:BOOK_PAGE[57]://
-    /** f40_MACRO_use_validation_layers **/
-    if( f40_use_validation_layers > 0 ){
+    /** F36_MACRO_use_validation_layers **/
+    if( F36_use_validation_layers > 0 ){
 
         printf("[SEE[ debug-layer-crash-(01|02|03|04) ]]\n");
         f60_Halt("[VALIDATION_LAYERS_WILL_CRASH]");

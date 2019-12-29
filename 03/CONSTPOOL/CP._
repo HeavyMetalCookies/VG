@@ -1,0 +1,533 @@
+//#FILE_REGION[ CP._ (CONSTPOOL) ]BEG#########################//
+
+
+//|   Usage:                                        |//
+//|                                                 |//
+//|   CONSTPOOL_Init(); //:Before First Use         |//
+//|                                                 |//
+//|   const char**                                  |//
+//|   arr = CONSTPOOL_Beg( sizeof(char*) );         |//
+//|                                                 |//
+//|         CONSTPOOL_Add( "ELEMENT_01" );          |//
+//|         CONSTPOOL_Add( "ELEMENT_02" );          |//
+//|         CONSTPOOL_Add( "ELEMENT_03" );          |//
+//|   int                                           |//
+//|   len = CONSTPOOL_End();                        |//
+//|                                                 |//
+//|   When done with all allocations and ready      |//
+//|   to remove them all:                           |//
+//|                                                 |//
+//|   CONSTPOOL_Kill();                             |//
+//|                                                 |//
+//|   There is no "EMPTY()" method.                 |//
+//|   This pool is for allocations that are not to  |//
+//|   be touched until the program terminates.      |//
+
+#include<stdlib.h> //: <-- for malloc(...)
+#include <stdio.h> //:printf(...)
+
+//:Dont bog down console with status messages:
+//:Really you only want to see this when running this
+//:code file in isolation as a demonstration.
+int CONSTPOOL_tell_me_about_everything = 0;
+
+//:Small enough to fit within a 32bit void*
+struct constpool_SmallStruct{
+
+    unsigned char A; //: 1 ://
+    unsigned char B; //: 2 ://
+
+};//[struct]//
+struct constpool_TestStruct{
+
+    //:This struct needs to be larger than the processor
+    //:word size. So for x64, struct needs to be larger
+    //:than 8bytes / 64bits
+
+    //: 8bytes:
+    unsigned char a; //: 1 ://
+    unsigned char b; //: 2 ://
+    unsigned char c; //: 3 ://
+    unsigned char d; //: 4 ://
+    unsigned char e; //: 5 ://
+    unsigned char f; //: 6 ://
+    unsigned char g; //: 7 ://
+    unsigned char h; //: 8 ://
+
+    //: Another 8 bytes:
+    unsigned char A; //: 1 ://
+    unsigned char B; //: 2 ://
+    unsigned char C; //: 3 ://
+    unsigned char D; //: 4 ://
+    unsigned char E; //: 5 ://
+    unsigned char F; //: 6 ://
+    unsigned char G; //: 7 ://
+    unsigned char H; //: 8 ://
+
+    
+
+};//[struct]//
+
+
+char* constpool_testdata_ELEMENT_01 = "ELM_01";
+char* constpool_testdata_ELEMENT_02 = "ELM_02";
+char* constpool_testdata_ELEMENT_03 = "ELM_03";
+
+//:Can never allocate more than this.
+const int /**PRIVATE**/
+constpool_size_in_bytes=1024;
+
+unsigned char*  /**PRIVATE**/
+constpool_pool=NULL;
+
+////////////////////////////////////////////////////////////////
+//nex      nex         nex      nex                           //
+// |        |           |        |                            //
+//[0][1][2][3][4][5][6][7][8][9][A]//                         //
+// |     |  |        |  |     |                               //
+//beg---end |        | beg---end                              //
+//         beg------end                                       //
+#define UI64 long long int /////////////////////////////////////
+UI64 constpool_addr_nex   =0; //| The next "beg" value.      |//
+UI64 constpool_addr_beg_T0=0; //| FIRST ADDRESS              |//
+UI64 constpool_addr_end_T1=0; //| LAST  ADDRESS              |//
+UI64 constpool_current_allocation_size_double_check=0;      
+#undef  UI64 ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+int constpool_entry_size=0;
+
+
+
+/** AKA: constpool_curalloc_in_elements **/
+int constpool_num_entries_made=0;
+
+
+
+int constpool_has_been_unit_tested = 0;
+int constpool_unit_test_is_running = 0;
+
+extern void CONSTPOOL_UnitTest( void ); //:FORWARD_DECLARATION
+
+////////////////////////////////////////////////////////////////
+
+void
+constpool_Halt( const char* msg ){
+
+    printf("[constpool_Halt]:[msg]:%s\n", msg );
+    fflush(stdout);
+    exit(666);
+
+}//[;]//
+void
+constpool_Tell( const char* msg ){
+
+    if( CONSTPOOL_tell_me_about_everything > 0 ){
+
+        printf("[constpool_Tell]:[msg]:%s\n", msg );
+        fflush(stdout);
+
+    };;
+
+}//[;]//////////////////////////////////////////////////////////
+void
+constpool_Print_01( const char* fmt, void* data ){
+
+    if( CONSTPOOL_tell_me_about_everything > 0 ){
+    printf( fmt, data );
+    };;
+
+}//[;]//////////////////////////////////////////////////////////
+void
+constpool_Print_00( const char* fmt ){
+    
+    if( CONSTPOOL_tell_me_about_everything > 0){
+    printf( fmt ); //:FormatStringNoArguments
+    };;
+
+}//[;]//////////////////////////////////////////////////////////
+void //:UC: Unsigned Char
+constpool_Print_UC( const char* fmt, unsigned char data ){
+
+    if( CONSTPOOL_tell_me_about_everything > 0 ){
+    printf( fmt, data );
+    };;
+
+}//[;]//////////////////////////////////////////////////////////
+void //:SI: Signed Integer
+constpool_Print_SI( const char* fmt, signed int data ){
+
+    if( CONSTPOOL_tell_me_about_everything > 0 ){
+    printf( fmt, data );
+    };;
+
+}//[;]//////////////////////////////////////////////////////////
+void //:SI: Signed Integer
+constpool_Print_STR( const char* fmt, const char* data ){
+
+    if( CONSTPOOL_tell_me_about_everything > 0 ){
+    printf( fmt, data );
+    };;
+
+}//[;]//////////////////////////////////////////////////////////
+void*                   //| 1.Begings allocating             |//
+CONSTPOOL_Beg(          //| 2.Returns begin memory address   |//
+    int   entry_size    /** << size of one added element     **/
+){ 
+
+    constpool_num_entries_made                    = 0;
+    constpool_current_allocation_size_double_check= 0;
+
+    constpool_entry_size =(
+              entry_size   );;
+
+    constpool_addr_beg_T0=(
+        constpool_addr_nex
+    );;
+
+    return( 
+        &( constpool_pool[ constpool_addr_beg_T0 ] )
+    );;
+
+}//[;]//////////////////////////////////////////////////////////
+
+
+const void*             //| 1.Add new element to allocation  |//
+constpool_private_Add(  //| 2.Return address of allocation   |//
+    void* entry_data    /** << data of one added element     **/
+   ,int passed_by_value
+ ){ 
+
+    constpool_num_entries_made++;
+
+    int element_offset =(constpool_num_entries_made-1);
+    int byte_offset=( element_offset * constpool_entry_size );
+
+    /// constpool_pool[ byte_offset ] =(
+    ///     (unsigned char) entry_data
+    /// );;
+
+    if( passed_by_value > 0 ){
+        #define CP char* ///////////////////////////////////////
+        //:Memcpy:
+        //:Use (&entry_data) not (entry_data) because we want
+        //:to copy the actual bytes of data inside the void*.
+        //:The void* type is "generic data" not a 
+        //:"pointer to whatever". (In this current context)
+        ////////////////////////////////////////////////////////
+        char* mem_src = (char*) (&entry_data) ;
+        char* mem_dst = (char*)&( constpool_pool[ byte_offset ] );
+        for( int i = 0; i < constpool_entry_size; i++ ){
+                mem_dst[ i ] = mem_src[ i ];
+        };;
+        ////////////////////////////////////////////////////////
+    }else{
+
+        //:Passed By Reference:
+        ////////////////////////////////////////////////////////
+        char* mem_src = (char*) (entry_data) ;
+        char* mem_dst = (char*)&( constpool_pool[ byte_offset ] );
+        for( int i = 0; i < constpool_entry_size; i++ ){
+                mem_dst[ i ] = mem_src[ i ];
+        };;
+        ////////////////////////////////////////////////////////
+
+        #undef  CP /////////////////////////////////////////////
+    };;
+    
+
+
+    //[ Inclusive range of allocated memory]//
+    //|  |---A---||---B---||---C---|       |//
+    //|  [0][1][2][3][4][5][6][7][8][9][A] |//
+    //|   |                       |        |//
+    //| constpool_addr_beg_T0     |        |//
+    //|           constpool_addr_end_T1    |//
+    constpool_addr_end_T1=(
+        //:We are not starting at zero!
+        constpool_addr_beg_T0
+        +
+        byte_offset
+        +
+       (constpool_entry_size-1)
+    );;
+
+    constpool_current_allocation_size_double_check+=(
+        constpool_entry_size
+    );;
+
+    if( 
+        (constpool_addr_end_T1 - constpool_addr_beg_T0 + 1)
+        !=
+        constpool_current_allocation_size_double_check
+    ){
+        constpool_Halt(
+            "[CONSTPOOL(CP.C11):AllocationSizeCheckFail]\n"
+        );;
+     
+    };;
+        
+    return( &( constpool_pool[ byte_offset ] ) );
+
+}//[;]//////////////////////////////////////////////////////////
+const void*
+CONSTPOOL_Add_ByVal(
+    void* entry_data 
+){
+    const void* ret = NULL;
+    
+    ret = constpool_private_Add(
+        entry_data
+    ,   1 /** passed_by_value == true **/
+    );;
+
+    return( ret );
+
+}//[;]//////////////////////////////////////////////////////////
+const void*
+CONSTPOOL_Add_ByRef(
+    void* entry_data 
+){
+    const void* ret = NULL;
+    
+    ret = constpool_private_Add(
+        entry_data
+    ,   0 /** passed_by_value == true **/
+    );;
+
+    return( ret );
+
+}//[;]//////////////////////////////////////////////////////////
+int                    //| 1. Ends allocation           ---- |//
+CONSTPOOL_End( void ){ //| 2. Returns allocation size   ---- |//
+
+    //:Next Byte After Previous Allocation:
+    constpool_addr_nex=constpool_addr_end_T1+1;
+
+    int expected_len =(
+        constpool_current_allocation_size_double_check
+        /
+        constpool_entry_size
+    );;
+
+    if( expected_len != constpool_num_entries_made ){
+        constpool_Halt("[EpectedLenFail]\n");
+    };;
+
+    return(
+        constpool_num_entries_made
+    );;
+
+}//[;]//////////////////////////////////////////////////////////
+void
+CONSTPOOL_Init( void ){
+
+    if( constpool_has_been_unit_tested != 1 &&
+        constpool_unit_test_is_running != 1
+    ){  CONSTPOOL_UnitTest(); }
+
+    //:Allocate the pool.
+    constpool_pool=calloc(
+        1 //:<--1 pool. It is a singleton.
+    ,   constpool_size_in_bytes
+    );;
+
+    //:After allocating, first free address is
+    //:the start of the allocation:
+    //:Address is relative to the pool.
+    constpool_addr_nex=( 0 );; 
+
+}//[;]//////////////////////////////////////////////////////////
+void
+CONSTPOOL_Kill( void ){
+    constpool_Tell("[BEG:Kill]");
+
+    free( constpool_pool );
+          constpool_pool=NULL;
+      constpool_addr_nex= 0  ;
+ 
+    constpool_Tell("[END:Kill]");   
+}//[;]//////////////////////////////////////////////////////////
+void
+CONSTPOOL_UnitTest( void ){
+    constpool_Tell("[BEG:CONSTPOOL_UnitTest]\n");
+    constpool_has_been_unit_tested = 0;
+    constpool_unit_test_is_running = 1;
+    CONSTPOOL_Init( );
+    // ------------------------------------------------------ //
+
+        const char**
+        arr = CONSTPOOL_Beg( sizeof(char*) ); 
+                      
+        constpool_Tell("[Adding...]");
+
+            #define VAL  CONSTPOOL_Add_ByVal ///////////////////
+
+                    VAL( "ELEMENT_01" );  
+                    VAL( "ELEMENT_02" );  
+                    VAL( "ELEMENT_03" ); 
+                    
+                    VAL( constpool_testdata_ELEMENT_01 ); 
+                    VAL( constpool_testdata_ELEMENT_02 ); 
+                    VAL( constpool_testdata_ELEMENT_03 ); 
+
+            #undef  VAL ////////////////////////////////////////
+
+        constpool_Tell("[Done_Adding]");
+ 
+        constpool_Tell("[Ending...]");
+        int                                   
+        len = CONSTPOOL_End();  
+        constpool_Tell("[DoneEnding]");
+
+        if( len != 6 ){
+            constpool_Halt("[BadLengthInElementUnits]");
+        }else{
+            constpool_Tell("[GoodLen3]");
+        };;
+
+        if( arr ){ /** NOOP **/ };
+
+        #define PS constpool_Print_STR /////////////////////////
+            PS("arr[0]:%s\n" , arr[0] );
+            PS("arr[1]:%s\n" , arr[1] );
+            PS("arr[2]:%s\n" , arr[2] );
+            PS("arr[3]:%s\n" , arr[3] );
+            PS("arr[4]:%s\n" , arr[4] );
+            PS("arr[5]:%s\n" , arr[5] );
+        #undef  PS /////////////////////////////////////////////
+
+    // ------------------------------------------------------ //
+    CONSTPOOL_Kill( );
+    CONSTPOOL_Init(  );
+
+        //:Try to store integers.
+        //:sizeof(int)
+        const int*
+        arr2 = CONSTPOOL_Beg( sizeof( int ) );
+
+
+        #define VAL  CONSTPOOL_Add_ByVal ///////////////////////
+
+                VAL( (void*)1       );
+                VAL( (void*)200     );
+                VAL( (void*)30000   );
+                VAL( (void*)4000000 );
+
+        #undef  VAL ////////////////////////////////////////////
+
+        int
+        len2 = CONSTPOOL_End( );
+
+        #define PI constpool_Print_SI //////////////////////////
+                PI("[len2]:%d\n", len2 );
+                PI("[arr2[0]]:%d\n", arr2[0]);
+                PI("[arr2[1]]:%d\n", arr2[1]);
+                PI("[arr2[2]]:%d\n", arr2[2]);
+                PI("[arr2[3]]:%d\n", arr2[3]);
+        #undef  PI /////////////////////////////////////////////
+
+    CONSTPOOL_Kill();
+    CONSTPOOL_Init( );
+
+        //:Try to store a struct by VALUE, not reference.
+        //:sizeof( struct constpool_TestStruct )
+
+        const struct constpool_TestStruct*
+        arr3 = CONSTPOOL_Beg(
+            sizeof( struct constpool_TestStruct )
+        );;
+
+        struct constpool_TestStruct s1 = { 0 };
+        struct constpool_TestStruct s2 = { 0 };
+        struct constpool_TestStruct s3 = { 0 };
+
+        s1.A = 'A';
+        s2.h = 'h';
+        s3.E = 'E';
+
+        CONSTPOOL_Add_ByRef( (void*) &s1 );
+        CONSTPOOL_Add_ByRef( (void*) &s2 );
+        CONSTPOOL_Add_ByRef( (void*) &s3 );
+
+        int
+        len3 = CONSTPOOL_End( );
+        
+        #define PI constpool_Print_SI //////////////////////////
+        #define PC constpool_Print_UC //////////////////////////
+                PI("[len3]:%d\n", len3 );
+                PC("[arr3[0].A]:%c\n", arr3[0].A);
+                PC("[arr3[1].h]:%c\n", arr3[1].h);
+                PC("[arr3[2].E]:%c\n", arr3[2].E);
+        #undef  PC /////////////////////////////////////////////
+        #undef  PI /////////////////////////////////////////////
+    CONSTPOOL_Kill();
+    CONSTPOOL_Init();
+
+        const struct constpool_SmallStruct*
+        arr4 = CONSTPOOL_Beg(
+            sizeof( struct constpool_SmallStruct )
+        );;
+
+        struct constpool_SmallStruct ss1 = { 0 };
+        struct constpool_SmallStruct ss2 = { 0 };
+        struct constpool_SmallStruct ss3 = { 0 };
+
+        ss1.A = 'A';
+        ss2.B = 'B';
+        ss3.A = 'a';
+
+        //:Though the small struct can fit within
+        //:a pointer, I am not allowed to convert
+        //:it to a pointer.
+        CONSTPOOL_Add_ByRef( (void*)  &ss1 );
+        CONSTPOOL_Add_ByRef( (void*)  &ss2 );
+        CONSTPOOL_Add_ByRef( (void*)  &ss3 );
+
+        CONSTPOOL_Add_ByRef( (void*)  &ss1 );
+        CONSTPOOL_Add_ByRef( (void*)  &ss2 );
+        CONSTPOOL_Add_ByRef( (void*)  &ss3 );
+
+        int
+        len4 = CONSTPOOL_End( );
+        #define PI constpool_Print_SI //////////////////////////
+                PI("[len4]:%d\n", len4 );
+        #undef  PI /////////////////////////////////////////////
+
+        for( int i = 0; i < len4; i++ ){
+            #define P0 constpool_Print_00 //////////////////////
+            #define P1 constpool_Print_01 //////////////////////
+            #define PC constpool_Print_UC //////////////////////
+
+                    P0("\n");
+                    PC("[arr4[i].A]:%c\n", arr4[i].A);
+                    PC("[arr4[i].B]:%c\n", arr4[i].B);
+                    P0("\n");
+
+            #undef  P0 /////////////////////////////////////////
+            #undef  P1 /////////////////////////////////////////
+            #undef  PC /////////////////////////////////////////
+        };;
+
+
+    CONSTPOOL_Kill();
+    constpool_has_been_unit_tested = 1;
+    constpool_unit_test_is_running = 0;
+    constpool_Tell("[END:CONSTPOOL_UnitTest]\n");
+}//[;]//////////////////////////////////////////////////////////
+int
+CONSTPOOL_Main( void ){ /** AKA: CONSTPOOL_Demo() **/
+
+    //:When compiling this file alone as a demo,
+    //:use this main entry point for the file.
+
+    printf("[BEG:CONSTPOOL_Main]\n"); fflush(stdout);
+
+    CONSTPOOL_tell_me_about_everything = 1;
+    CONSTPOOL_UnitTest();
+
+    printf("[END:CONSTPOOL_Main]\n"); fflush(stdout);
+
+    return( 0 );
+}//[;]//////////////////////////////////////////////////////////
+//#FILE_REGION[ CP._ (CONSTPOOL) ]END#########################//

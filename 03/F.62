@@ -130,6 +130,8 @@ f62_PrivateInitChapterSeven_07( void ){
 
         //:ADD the "isDeviceSuitable" method from page 62
         //:of SC[ VKTUTPDF2018 ]
+        //:Also see page 77,
+        //:which uses vkEnumerateDeviceExtensionProperties
 
     };;
 

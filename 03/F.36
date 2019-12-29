@@ -1,0 +1,103 @@
+//#FILE_REGION[ F.36 ]BEG#####################################//
+
+    //:DOTADIW: VALIDLAY_LIST
+    //:      ( Validation Layers List 
+
+
+
+          /** F36_use_validation_layers **/ ////////////////////
+#define F36_MACRO_use_validation_layers 0 //:ENABLE==CRASH!
+
+    //:For use outside this file, so we can undefine the
+    //:macro before we leave.
+    int F36_use_validation_layers=(
+
+        F36_MACRO_use_validation_layers
+
+    );//[ON_SCOOBY_DOO_SHAGGYS_REAL_NAME_IS:Norville Rogers]//
+    //:https://en.wikipedia.org/wiki/Shaggy_Rogers
+
+#undef  F36_MACRO_use_validation_layers            /////////////
+
+
+
+
+/// #define F36_wanted_validation_layers_count_MACRO 1 /////////////
+/// 
+///     static const char*
+///     F36_wanted_validation_layers[
+///         F36_wanted_validation_layers_count_MACRO
+///     ]={
+///     
+///         "VK_LAYER_LUNARG_standard_validation"
+///     
+///     };
+///     static int
+///     F36_wanted_validation_layers_count=(
+///     F36_wanted_validation_layers_count_MACRO
+///     );//[wvlc]//
+/// #undef  F36_wanted_validation_layers_count_MACRO   /////////////
+
+static char**
+F36_wanted_validation_layers=NULL;
+
+static int
+F36_wanted_validation_layers_count=(0-1);
+
+
+
+
+static void
+f36_PrivateInit(){
+
+    if( F36_use_validation_layers > 0 ){
+
+        F36_wanted_validation_layers_count=1;
+
+        F36_wanted_validation_layers=(
+            calloc( F36_wanted_validation_layers_count
+                   ,sizeof( char* )
+            )
+        );;
+
+        F36_wanted_validation_layers[0]=(
+            "VK_LAYER_LUNARG_standard_validation"
+        );;
+
+    }else{
+
+        F36_wanted_validation_layers_count=0;
+        F36_wanted_validation_layers=NULL;
+    
+    };;
+
+
+}//[;]//
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F36_Init(){
+        printf("[BEG:F36:Init]\n");
+        
+            int ret = F35_Init(); //: ".SUPER_CHAIN()"
+            f36_PrivateInit();
+        
+        printf("[END:F36:Init]\n");
+        
+            return( ret );
+    }//[;]//
+    int F36_Main(){
+        F36_Init();
+
+        printf("[F36:TO_EXIT:CTRL+C]\n");
+        while( 1 ){ }; //:FAKE_GAME_LOOP
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+
+//#FILE_REGION[ F.36 ]BEG#####################################//

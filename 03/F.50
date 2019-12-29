@@ -118,7 +118,7 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
         //:Begin fetching functions:
         ////////////////////////////////////////////////////////
 
-        if( f40_use_validation_layers > 0 ){
+        if( F36_use_validation_layers > 0 ){
 
             //:Validation Layer Functions:
 
