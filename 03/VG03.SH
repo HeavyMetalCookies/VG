@@ -39,11 +39,26 @@ touch "VG03.ALL"  ##Create
 ################################################################
 
 
+##NO Dependencies besides standard library includes:
+################################################################
+
+    nl_cat "./CONSTPOOL/CP._"       "VG03.ALL"
+
+################################################################
+
 nl_cat "./W32/DLLL/DLLL.COMSET"     "VG03.ALL"
 nl_cat "./W32/DLLL/TARG/W10.X64"    "VG03.ALL"
 nl_cat "./W32/DLLL/DLLL.H"          "VG03.ALL" 
 
+
 ################################################################
+
+## I can't back up any futher, so moving down to "E"
+## EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ##
+
+    nl_cat "./E.01" "VG03.ALL"
+
+## EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ##
 
 ##Concatted mostly for reference:
 #####################################################

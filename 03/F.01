@@ -103,13 +103,21 @@ F02_F01_MACRO( vkGetDeviceQueue , vulkan-1 )
 
 #else //: F01_BASH_CONCATTED
 
+static void
+f01_PrivateInit( void ){
+
+    //:For example purposes. No code here.
+
+}//[;]//
+
 //:IM:Init_And_Main:
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
     int F01_Init(){
         printf("[BEG:F01:Init]\n");
 
-        printf("[F01:Doing_Nothing:(DOTADIW:DLL_FUNC_LIST)]\n");
+        E01_Init(); //: .SUPER_CHAIN();
+        f01_PrivateInit();
 
         printf("[END:F03:Init]\n");
         return( 0 );

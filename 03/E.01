@@ -1,0 +1,38 @@
+//#FILE_REGION[ E.01 ]BEG#####################################//
+
+//: DOTADIW: Initialize any libraries that need initializing
+//:          that were added to the project.
+
+static void
+e01_PrivateInit( void ){
+
+    CONSTPOOL_Init();
+
+}//[;]//
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int E01_Init(){
+        printf("[BEG:E01:Init]\n");
+
+            //:Call previous initialiers on chain:
+            //:int ret = XXX_Init(); //: ".SUPER_CHAIN()"
+            int ret = 0;
+
+            e01_PrivateInit();
+
+        printf("[END:E01:Init]\n");
+        return( ret );
+    }//[;]//
+    int E01_Main(){
+        E01_Init();
+
+            printf("[E01:TO_EXIT:CTRL+C]\n");
+            while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ E.01 ]END#####################################//

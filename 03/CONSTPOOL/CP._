@@ -74,8 +74,11 @@ char* constpool_testdata_ELEMENT_02 = "ELM_02";
 char* constpool_testdata_ELEMENT_03 = "ELM_03";
 
 //:Can never allocate more than this.
-const int /**PRIVATE**/
-constpool_size_in_bytes=1024;
+    const int /**PRIVATE**/
+    constpool_size_in_bytes= 1024; 
+//  constpool_size_in_bytes= 8; //:For observing of of memory
+                                //:error.
+
 
 unsigned char*  /**PRIVATE**/
 constpool_pool=NULL;
@@ -108,6 +111,8 @@ int constpool_has_been_unit_tested = 0;
 int constpool_unit_test_is_running = 0;
 
 extern void CONSTPOOL_UnitTest( void ); //:FORWARD_DECLARATION
+
+int constpool_initialized = 0;
 
 ////////////////////////////////////////////////////////////////
 
@@ -185,6 +190,10 @@ CONSTPOOL_Beg(          //| 2.Returns begin memory address   |//
         constpool_addr_nex
     );;
 
+    //:Invalid trap value for end value: #T1_TRAP#
+    constpool_addr_end_T1=(
+    constpool_addr_beg_T0-1 );;//:MUST_BE_NEGATIVE_ONE
+
     return( 
         &( constpool_pool[ constpool_addr_beg_T0 ] )
     );;
@@ -203,9 +212,29 @@ constpool_private_Add(  //| 2.Return address of allocation   |//
     int element_offset =(constpool_num_entries_made-1);
     int byte_offset=( element_offset * constpool_entry_size );
 
-    /// constpool_pool[ byte_offset ] =(
-    ///     (unsigned char) entry_data
-    /// );;
+    //:Are we out of space?
+    ////////////////////////////////////////////////////////////
+    //[ Inclusive range of allocated memory]//
+    //|  |---A---||---B---||---C---|       |//
+    //|  [0][1][2][3][4][5][6][7][8][9][A] |//
+    //|   |                       |        |//
+    //| constpool_addr_beg_T0     |        |//
+    //|           constpool_addr_end_T1    |//
+    constpool_addr_end_T1=(
+        //:We are not starting at zero!
+        constpool_addr_beg_T0
+        +
+        byte_offset
+        +
+       (constpool_entry_size-1)
+    );;
+
+    int last_memory_index = (constpool_size_in_bytes-1);
+    if( constpool_addr_end_T1 > last_memory_index ){
+        constpool_Halt("[OUT_OF_MEMORY:Increase_Limits!]");
+    };;
+
+    ////////////////////////////////////////////////////////////
 
     if( passed_by_value > 0 ){
         #define CP char* ///////////////////////////////////////
@@ -237,20 +266,7 @@ constpool_private_Add(  //| 2.Return address of allocation   |//
     
 
 
-    //[ Inclusive range of allocated memory]//
-    //|  |---A---||---B---||---C---|       |//
-    //|  [0][1][2][3][4][5][6][7][8][9][A] |//
-    //|   |                       |        |//
-    //| constpool_addr_beg_T0     |        |//
-    //|           constpool_addr_end_T1    |//
-    constpool_addr_end_T1=(
-        //:We are not starting at zero!
-        constpool_addr_beg_T0
-        +
-        byte_offset
-        +
-       (constpool_entry_size-1)
-    );;
+
 
     constpool_current_allocation_size_double_check+=(
         constpool_entry_size
@@ -298,10 +314,36 @@ CONSTPOOL_Add_ByRef(
     return( ret );
 
 }//[;]//////////////////////////////////////////////////////////
-int                    //| 1. Ends allocation           ---- |//
-CONSTPOOL_End( void ){ //| 2. Returns allocation size   ---- |//
+int                     //| 1. Ends allocation           --- |//
+CONSTPOOL_End(          //| 2. Returns allocation size   --- |//
+    void*  ptr_beg      /** ptr_beg: Pointer to address      **/
+){                      /** returned by CONSTPOOL_Beg        **/
+
+    //:ptr_beg is really a void** not void*.
+    //:But signature is void* for ease of parameter passing.
+    void** PTR_BEG = (void**)ptr_beg;
+
+    if(0==PTR_BEG){
+        constpool_Halt("[Invalid:PTR_BEG]");
+    };;
+    void* beg = (*PTR_BEG);
+    if( beg != &( constpool_pool[ constpool_addr_beg_T0 ] ) ){
+
+        //:OACPMM:Opening_And_Closing_Pointers_Must_Match
+        constpool_Halt("[OACPMM]");
+
+    };;
+    
+    //:If no entries were made, the initial address given
+    //:to the pointer was invalid. Change it back to zero/null.
+    if( constpool_num_entries_made == 0 ){
+        (*PTR_BEG) = NULL;
+    };;
 
     //:Next Byte After Previous Allocation:
+    //:If no allocations were made, +1 is added
+    //:to the trap value, and you end up where you
+    //:began. SEE[ #T1_TRAP# ]
     constpool_addr_nex=constpool_addr_end_T1+1;
 
     int expected_len =(
@@ -326,6 +368,12 @@ CONSTPOOL_Init( void ){
         constpool_unit_test_is_running != 1
     ){  CONSTPOOL_UnitTest(); }
 
+    if( constpool_initialized != 0 ){
+        constpool_Halt("[Already_Initialized]");
+    };;
+
+    constpool_initialized = 1 ;
+
     //:Allocate the pool.
     constpool_pool=calloc(
         1 //:<--1 pool. It is a singleton.
@@ -342,9 +390,15 @@ void
 CONSTPOOL_Kill( void ){
     constpool_Tell("[BEG:Kill]");
 
+    if( constpool_initialized != 1 ){
+        constpool_Halt("[Already_Killed]");
+    };;
+
     free( constpool_pool );
           constpool_pool=NULL;
       constpool_addr_nex= 0  ;
+
+    constpool_initialized = 0;
  
     constpool_Tell("[END:Kill]");   
 }//[;]//////////////////////////////////////////////////////////
@@ -353,6 +407,24 @@ CONSTPOOL_UnitTest( void ){
     constpool_Tell("[BEG:CONSTPOOL_UnitTest]\n");
     constpool_has_been_unit_tested = 0;
     constpool_unit_test_is_running = 1;
+    CONSTPOOL_Init( );
+
+        //:Very small allocation, so I can see 1 allocation
+        //:work, then another fail because out of space.
+        #define UI08 unsigned char /////////////////////////////
+
+        UI08* a = CONSTPOOL_Beg( sizeof( UI08 ) );
+        CONSTPOOL_Add_ByVal( (void*)1 );
+        CONSTPOOL_Add_ByVal( (void*)2 );
+        CONSTPOOL_Add_ByVal( (void*)3 );
+        int l = CONSTPOOL_End( &a );
+
+        if( l != 3 ){ constpool_Halt("[NotLen3:L]"); };
+        constpool_Tell("[Small_Alloc_Worked]");
+
+        #undef  UI08 ///////////////////////////////////////////
+
+    CONSTPOOL_Kill( );
     CONSTPOOL_Init( );
     // ------------------------------------------------------ //
 
@@ -377,7 +449,7 @@ CONSTPOOL_UnitTest( void ){
  
         constpool_Tell("[Ending...]");
         int                                   
-        len = CONSTPOOL_End();  
+        len = CONSTPOOL_End( &arr );  
         constpool_Tell("[DoneEnding]");
 
         if( len != 6 ){
@@ -417,7 +489,7 @@ CONSTPOOL_UnitTest( void ){
         #undef  VAL ////////////////////////////////////////////
 
         int
-        len2 = CONSTPOOL_End( );
+        len2 = CONSTPOOL_End( &arr2 );
 
         #define PI constpool_Print_SI //////////////////////////
                 PI("[len2]:%d\n", len2 );
@@ -451,7 +523,7 @@ CONSTPOOL_UnitTest( void ){
         CONSTPOOL_Add_ByRef( (void*) &s3 );
 
         int
-        len3 = CONSTPOOL_End( );
+        len3 = CONSTPOOL_End( &arr3 );
         
         #define PI constpool_Print_SI //////////////////////////
         #define PC constpool_Print_UC //////////////////////////
@@ -489,7 +561,7 @@ CONSTPOOL_UnitTest( void ){
         CONSTPOOL_Add_ByRef( (void*)  &ss3 );
 
         int
-        len4 = CONSTPOOL_End( );
+        len4 = CONSTPOOL_End( &arr4 );
         #define PI constpool_Print_SI //////////////////////////
                 PI("[len4]:%d\n", len4 );
         #undef  PI /////////////////////////////////////////////
@@ -507,6 +579,54 @@ CONSTPOOL_UnitTest( void ){
             #undef  P0 /////////////////////////////////////////
             #undef  P1 /////////////////////////////////////////
             #undef  PC /////////////////////////////////////////
+        };;
+
+    CONSTPOOL_Kill();
+    CONSTPOOL_Init();
+
+        //:What about the case of allocating NOTHING?
+        const char**
+        arr5 = CONSTPOOL_Beg( sizeof(char*) );
+
+            //:Dont add anything.
+
+        int
+        len5 = CONSTPOOL_End( &arr5 );
+
+        if( len5 != 0 ){
+            constpool_Halt("[Len5_Not_Zero]");
+        }else{
+            constpool_Tell("[Len5_Is_Zero!]");
+        };;
+
+        if( arr5 != 0 ){
+            constpool_Halt("[CONSTPOOL/CP._:NOT_ZERO]\n");
+        }else{
+            constpool_Tell("[arr5_was_zeroed]");
+        };;
+
+        //:Try another allocation. Make the allocation
+        //:exactly 1 byte, thus the address returned should
+        //:be the same address as the pool itself.
+        const unsigned char*
+        arr6 = CONSTPOOL_Beg( sizeof( unsigned char ) );
+
+            CONSTPOOL_Add_ByVal( (void*)'A' );
+
+        int
+        len6 = CONSTPOOL_End( &arr6 );
+
+        if( len6 != 1 ){
+            constpool_Halt("[ExpectedLen==1]");
+        };;
+        if( arr6[0] != 'A' ){ 
+            constpool_Halt("[Not_A]");
+        };;
+
+        if( arr6 != constpool_pool ){
+            constpool_Halt("[Expected_At_Base]");
+        }else{
+            constpool_Tell("[AtBaseAsExpected]");
         };;
 
 

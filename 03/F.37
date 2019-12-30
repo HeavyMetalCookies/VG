@@ -21,46 +21,46 @@
     ////////////////////////////////////////////////////////////
 
 
-//  //:IEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIE://
-//               /** F36_use_validation_layers **/
-//  #if(       F36_MACRO_use_validation_layers <= 0 ) //:OFF
-//
-//      #define F37_wanted_instance_extensions_count_MACRO 2
-//
-//      static const char* 
-//      F37_wanted_instance_extensions[  
-//
-//          F37_wanted_instance_extensions_count_MACRO 
-//
-//      ]={ 
-//              "VK_KHR_surface"
-//          ,   "VK_KHR_win32_surface"
-//      };
-//
-//               /** F36_use_validation_layers **/
-//  #elif(     F36_MACRO_use_validation_layers >  0 ) //:ENABLE
-//  
-//      #define F37_wanted_instance_extensions_count_MACRO 3
-//
-//      static const char* 
-//      F37_wanted_instance_extensions[ 
-//
-//          F37_wanted_instance_extensions_count_MACRO 
-//
-//      ]={ 
-//              "VK_KHR_surface"
-//          ,   "VK_KHR_win32_surface"
-//          ,   "VK_EXT_debug_utils" //:PG[55]SC[VKT2018]
-//      };
-//
-//               /** F36_use_validation_layers **/
-//  #endif //: F36_MACRO_use_validation_layers
-//  //:IEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIE://
-
-//  static const int
-//  F37_wanted_instance_extensions_count=(
-//  F37_wanted_instance_extensions_count_MACRO
-//  );//[wiec]//
+//----//  //:IEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIE://
+//----//               /** F36_use_validation_layers **/
+//----//  #if(       F36_MACRO_use_validation_layers <= 0 ) //:OFF
+//----//
+//----//      #define F37_wanted_instance_extensions_count_MACRO 2
+//----//
+//----//      static const char* 
+//----//      F37_wanted_instance_extensions[  
+//----//
+//----//          F37_wanted_instance_extensions_count_MACRO 
+//----//
+//----//      ]={ 
+//----//              "VK_KHR_surface"
+//----//          ,   "VK_KHR_win32_surface"
+//----//      };
+//----//
+//----//               /** F36_use_validation_layers **/
+//----//  #elif(     F36_MACRO_use_validation_layers >  0 ) //:ENABLE
+//----//  
+//----//      #define F37_wanted_instance_extensions_count_MACRO 3
+//----//
+//----//      static const char* 
+//----//      F37_wanted_instance_extensions[ 
+//----//
+//----//          F37_wanted_instance_extensions_count_MACRO 
+//----//
+//----//      ]={ 
+//----//              "VK_KHR_surface"
+//----//          ,   "VK_KHR_win32_surface"
+//----//          ,   "VK_EXT_debug_utils" //:PG[55]SC[VKT2018]
+//----//      };
+//----//
+//----//               /** F36_use_validation_layers **/
+//----//  #endif //: F36_MACRO_use_validation_layers
+//----//  //:IEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIE://
+//----//
+//----//  static const int
+//----//  F37_wanted_instance_extensions_count=(
+//----//  F37_wanted_instance_extensions_count_MACRO
+//----//  );//[wiec]//
 
     static char**
     F37_wanted_instance_extensions = NULL;
@@ -71,32 +71,57 @@
     static void
     f37_SetupWantedInstanceExtensionsArray(){
 
-        if( F36_use_validation_layers <= 0 ){ //[UVL]//
-            F37_wanted_instance_extensions_count=2;
-        }else{
-            F37_wanted_instance_extensions_count=3;
-        };;
+       //   if( F36_use_validation_layers <= 0 ){ //[UVL]//
+       //       F37_wanted_instance_extensions_count=2;
+       //   }else{
+       //       F37_wanted_instance_extensions_count=3;
+       //   };;
+       //  
+       //   F37_wanted_instance_extensions=(
+       //       calloc( F37_wanted_instance_extensions_count
+       //              ,sizeof( char* )
+       //       )
+       //   );;
+       //  
+       //   #define ARR  F37_wanted_instance_extensions ////////////
+       //   if( F36_use_validation_layers <= 0 ){
+       //  
+       //       ARR[0]="VK_KHR_surface"      ;
+       //       ARR[1]="VK_KHR_win32_surface";
+       //  
+       //   }else{
+       //  
+       //       ARR[0]="VK_KHR_surface"      ;
+       //       ARR[1]="VK_KHR_win32_surface";
+       //       ARR[2]="VK_EXT_debug_utils"  ;
+       //  
+       //   };;
+       //   #undef  ARR ////////////////////////////////////////////
 
-        F37_wanted_instance_extensions=(
-            calloc( F37_wanted_instance_extensions_count
-                   ,sizeof( char* )
-            )
-        );;
 
-        #define ARR  F37_wanted_instance_extensions ////////////
-        if( F36_use_validation_layers <= 0 ){
-       
-            ARR[0]="VK_KHR_surface"      ;
-            ARR[1]="VK_KHR_win32_surface";
+        #define BEG CONSTPOOL_Beg       ////////////////////////
+        #define END CONSTPOOL_End       ////////////////////////
+        #define VAL CONSTPOOL_Add_ByVal ////////////////////////
+        #define len F37_wanted_instance_extensions_count ///////
+        #define arr F37_wanted_instance_extensions /////////////
+                arr=BEG( sizeof( char* ) );
 
-        }else{
+                        VAL("VK_KHR_surface");
+                        VAL("VK_KHR_win32_surface");
 
-            ARR[0]="VK_KHR_surface"      ;
-            ARR[1]="VK_KHR_win32_surface";
-            ARR[2]="VK_EXT_debug_utils"  ;
+                    if( F36_use_validation_layers ){
+                
+                        VAL("VK_EXT_debug_utils");
+                
+                    };;
+                len=END( &arr );
+        #undef  len  ///////////////////////////////////////////
+        #undef  VAL  ///////////////////////////////////////////
+        #undef  BEG  ///////////////////////////////////////////
+        #undef  END  ///////////////////////////////////////////
+        #undef  arr  ///////////////////////////////////////////
+        
 
-        };;
-        #undef  ARR ////////////////////////////////////////////
 
     }//[;]//
 
