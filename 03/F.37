@@ -14,15 +14,6 @@
 
 //:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx://
 
-
-
-
-
-    ////////////////////////////////////////////////////////////
-
-
-
-
     static char**
     F37_wanted_instance_extensions = NULL;
 
@@ -55,16 +46,6 @@
         #undef  arr  ///////////////////////////////////////////
         
     }//[;]//
-
-
-
-
-
-
-#undef  F37_wanted_instance_extensions_count_MACRO /////////////
-
-
-
 
 //:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx://
 
