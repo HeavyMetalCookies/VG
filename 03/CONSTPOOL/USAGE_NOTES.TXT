@@ -1,0 +1,105 @@
+    
+//:FINAL DRAFT:
+//:26 lines of code INCLUDING the function header+footer.
+//:A lot of the code is BLA. But you can ignore it mostly.
+//:Much easier to zone in on what is going on here.
+//:Also, memory allocated into one giant pool that can be
+//:freed at end of program. No more trying to count all the
+//:malloc+free calls. And no conditional compilation logic.
+
+    static void
+    f37_SetupWantedInstanceExtensionsArray(){
+
+        #define BEG CONSTPOOL_Beg       ////////////////////////
+        #define END CONSTPOOL_End       ////////////////////////
+        #define VAL CONSTPOOL_Add_ByVal ////////////////////////
+        #define len F37_wanted_instance_extensions_count ///////
+        #define arr F37_wanted_instance_extensions /////////////
+                arr=BEG( sizeof( char* ) );
+
+                        VAL("VK_KHR_surface");
+                        VAL("VK_KHR_win32_surface");
+
+                    if( F36_use_validation_layers ){
+                
+                        VAL("VK_EXT_debug_utils");
+                
+                    };;
+                len=END( &arr );
+        #undef  len  ///////////////////////////////////////////
+        #undef  VAL  ///////////////////////////////////////////
+        #undef  BEG  ///////////////////////////////////////////
+        #undef  END  ///////////////////////////////////////////
+        #undef  arr  ///////////////////////////////////////////
+        
+    }//[;]//
+
+SECOND_DRAFT: 26 LINES OF CODE INSIDE FUNCTION:
+//   if( F36_use_validation_layers <= 0 ){ //[UVL]//
+//       F37_wanted_instance_extensions_count=2;
+//   }else{
+//       F37_wanted_instance_extensions_count=3;
+//   };;
+//  
+//   F37_wanted_instance_extensions=(
+//       calloc( F37_wanted_instance_extensions_count
+//              ,sizeof( char* )
+//       )
+//   );;
+//  
+//   #define ARR  F37_wanted_instance_extensions ////////////
+//   if( F36_use_validation_layers <= 0 ){
+//  
+//       ARR[0]="VK_KHR_surface"      ;
+//       ARR[1]="VK_KHR_win32_surface";
+//  
+//   }else{
+//  
+//       ARR[0]="VK_KHR_surface"      ;
+//       ARR[1]="VK_KHR_win32_surface";
+//       ARR[2]="VK_EXT_debug_utils"  ;
+//  
+//   };;
+//   #undef  ARR ////////////////////////////////////////////
+
+FIRST_DRAFT: 40 LINES OF CODE
+//----//  //:IEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIE://
+//----//               /** F36_use_validation_layers **/
+//----//  #if(       F36_MACRO_use_validation_layers <= 0 ) //:OFF
+//----//
+//----//      #define F37_wanted_instance_extensions_count_MACRO 2
+//----//
+//----//      static const char* 
+//----//      F37_wanted_instance_extensions[  
+//----//
+//----//          F37_wanted_instance_extensions_count_MACRO 
+//----//
+//----//      ]={ 
+//----//              "VK_KHR_surface"
+//----//          ,   "VK_KHR_win32_surface"
+//----//      };
+//----//
+//----//               /** F36_use_validation_layers **/
+//----//  #elif(     F36_MACRO_use_validation_layers >  0 ) //:ENABLE
+//----//  
+//----//      #define F37_wanted_instance_extensions_count_MACRO 3
+//----//
+//----//      static const char* 
+//----//      F37_wanted_instance_extensions[ 
+//----//
+//----//          F37_wanted_instance_extensions_count_MACRO 
+//----//
+//----//      ]={ 
+//----//              "VK_KHR_surface"
+//----//          ,   "VK_KHR_win32_surface"
+//----//          ,   "VK_EXT_debug_utils" //:PG[55]SC[VKT2018]
+//----//      };
+//----//
+//----//               /** F36_use_validation_layers **/
+//----//  #endif //: F36_MACRO_use_validation_layers
+//----//  //:IEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIEIE://
+//----//
+//----//  static const int
+//----//  F37_wanted_instance_extensions_count=(
+//----//  F37_wanted_instance_extensions_count_MACRO
+//----//  );//[wiec]//
