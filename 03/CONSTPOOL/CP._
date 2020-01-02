@@ -728,16 +728,19 @@ CONSTPOOL_UnitTest( void ){
         //:(The values describe an inclusive range of the)
         //:(allocated bytes)
         ////////////////////////////////////////////////////////
-        printf("\n\n");
-        printf("[arr_01_beg]:%d]\n", arr_01_beg);
-        printf("[arr_01_end]:%d]\n", arr_01_end);
 
-        printf("[arr_02_beg]:%d]\n", arr_02_beg);
-        printf("[arr_02_end]:%d]\n", arr_02_end);
+        #define P_SI constpool_Print_SI ////////////////////////
+        constpool_Print_00("\n\n");
+        P_SI("[arr_01_beg]:%d]\n", arr_01_beg);
+        P_SI("[arr_01_end]:%d]\n", arr_01_end);
 
-        printf("[arr_03_beg]:%d]\n", arr_03_beg);
-        printf("[arr_03_end]:%d]\n", arr_03_end);
-        printf("\n\n");
+        P_SI("[arr_02_beg]:%d]\n", arr_02_beg);
+        P_SI("[arr_02_end]:%d]\n", arr_02_end);
+
+        P_SI("[arr_03_beg]:%d]\n", arr_03_beg);
+        P_SI("[arr_03_end]:%d]\n", arr_03_end);
+        constpool_Print_00("\n\n");
+        #undef P_SI ////////////////////////////////////////////
 
         // |  4bytes|  |     8bytes          ||
         // |--------|  |---------------------||
@@ -753,16 +756,18 @@ CONSTPOOL_UnitTest( void ){
         //:Setting up memory to get trampled, but printouts
         //:shoulld work here:
         ////////////////////////////////////////////////////////
-        printf("\n\n");
-        printf("[int_arr_01[0]]:%d\n", int_arr_01[0]);
+        #define P_SI constpool_Print_SI ////////////////////////
+        constpool_Print_00("\n\n");
+        P_SI("[int_arr_01[0]]:%d\n", int_arr_01[0]);
 
-        printf("[int_arr_02[0]]:%d\n", int_arr_02[0]);
-        printf("[int_arr_02[1]]:%d\n", int_arr_02[1]);
+        P_SI("[int_arr_02[0]]:%d\n", int_arr_02[0]);
+        P_SI("[int_arr_02[1]]:%d\n", int_arr_02[1]);
 
-        printf("[int_arr_03[0]]:%d\n", int_arr_03[0]);
-        printf("[int_arr_03[1]]:%d\n", int_arr_03[1]);
-        printf("[int_arr_03[2]]:%d\n", int_arr_03[2]);
-        printf("\n\n");
+        P_SI("[int_arr_03[0]]:%d\n", int_arr_03[0]);
+        P_SI("[int_arr_03[1]]:%d\n", int_arr_03[1]);
+        P_SI("[int_arr_03[2]]:%d\n", int_arr_03[2]);
+        constpool_Print_00("\n\n");
+        #undef P_SI ////////////////////////////////////////////
 
         #define H constpool_Halt ///////////////////////////////
         if( int_arr_01[0] != 1000 ){ H("[STOMP_01]");}
@@ -799,7 +804,7 @@ CONSTPOOL_UnitTest( void ){
         
         };;
 
-        printf("[BiggerThanSmallerTestPassed]\n");
+        constpool_Tell("[BiggerThanSmallerTestPassed]\n");
 
         #undef  VAL  ///////////////////////////////////////////
         #undef  BEG  ///////////////////////////////////////////
@@ -856,7 +861,7 @@ CONSTPOOL_UnitTest( void ){
 
         ////////////////////////////////////////////////////////
 
-        printf("[SmallThenBigTestPassed]\n");
+        constpool_Tell("[SmallThenBigTestPassed]\n");
 
         #undef  VAL  ///////////////////////////////////////////
         #undef  BEG  ///////////////////////////////////////////
@@ -873,9 +878,13 @@ CONSTPOOL_UnitTest( void ){
         //| the internal state of our CONSTPOOL allocator    |//
         //| and see if anything is amiss.                    |//
 
-        printf("[nex...]:%d\n"   ,(int)constpool_addr_nex   );
-        printf("[beg_T0]:%d\n"   ,(int)constpool_addr_beg_T0);
-        printf("[end_T1]:%d\n"   ,(int)constpool_addr_end_T1);
+
+        #define P_UC constpool_Print_UC
+        P_UC("[nex...]:%d\n"   ,(int)constpool_addr_nex   );
+        P_UC("[beg_T0]:%d\n"   ,(int)constpool_addr_beg_T0);
+        P_UC("[end_T1]:%d\n"   ,(int)constpool_addr_end_T1);
+        #undef P_UC
+
         #define H constpool_Halt ///////////////////////////////
         if( constpool_addr_nex    != 0     ){ H("CP_F36_NEX"); }
         if( constpool_addr_beg_T0 != 0     ){ H("CP_F36_BEG"); }
@@ -884,123 +893,130 @@ CONSTPOOL_UnitTest( void ){
 
         //====================================================//
 
-        //:F36_names:F36_wanted_validation_layers
-        //:F36_count:F36_wanted_validation_layers_count
-        static char** F36_names=NULL;
-        int           F36_count=0;
+        //:constpool_F36_names:F36_wanted_validation_layers
+        //:constpool_F36_count:F36_wanted_validation_layers_count
+        static char** constpool_F36_names=NULL;
+        int           constpool_F36_count=0;
 
         #define BEG CONSTPOOL_Beg       ////////////////////////
         #define END CONSTPOOL_End       ////////////////////////
         #define VAL CONSTPOOL_Add_ByVal ////////////////////////
 
-        F36_names=( BEG( sizeof( char* ) ) );;
+        constpool_F36_names=( BEG( sizeof( char* ) ) );;
             
             //:Do nothing. Project was not using validation
             //:layers at time of crash.
 
-        F36_count=(
-        END(&F36_names)  );
+        constpool_F36_count=(
+        END(&constpool_F36_names)  );
 
         #undef  VAL  ///////////////////////////////////////////
         #undef  BEG  ///////////////////////////////////////////
         #undef  END  ///////////////////////////////////////////
 
-        printf(
-            "[F36_count]:%d\n",
-              F36_count
+        #define P_SI constpool_Print_SI ////////////////////////
+        P_SI(
+            "[constpool_F36_count]:%d\n",
+              constpool_F36_count
         );;
 
         //:Nothing was added, so the next relative
         //:address/index should still be zero:
         if( constpool_addr_nex != 0 ){ 
-            printf("[constpool_addr_nex]:%d\n"
+            P_SI("[constpool_addr_nex]:%d\n"
                ,(int)constpool_addr_nex);
             constpool_Halt("AYEEEEE!");
         };;
+        #undef P_SI ////////////////////////////////////////////
 
-
+        //[PC_2019_01_01:Problem_Causer                      ]//
+        //|Originally replicating segfault in my vulkan code |//
+        //|removing this chunk would make segfault go away.  |//
+        //|Adding it back would make segfault appear.        |//
         //====================================================//
         //====================================================//
-        //====================================================// //[problem_causer]//
-                                                                 //[problem_causer]//
-        char* constpool_VK_KHR_surface=(                         //[problem_causer]//
-            "VK_KHR_surface"                                     //[problem_causer]//
-        );;                                                      //[problem_causer]//
-        char* constpool_VK_KHR_win32_surface=(                   //[problem_causer]//
-            "VK_KHR_win32_surface"                               //[problem_causer]//
-        );;                                                      //[problem_causer]//
-        if( constpool_VK_KHR_surface       ){ /** NOOP **/ };    //[problem_causer]//
-        if( constpool_VK_KHR_win32_surface ){ /** NOOP **/ };    //[problem_causer]//
-                                                                 //[problem_causer]//
-        //:F36_names:F37_wanted_instance_extensions              //[problem_causer]//
-        //:F36_count:F37_wanted_instance_extensions_count        //[problem_causer]//
-        static char** F37_names = NULL;                          //[problem_causer]//
-        static int    F37_count = (0-1);                         //[problem_causer]//
-                                                                 //[problem_causer]//
-        #define BEG CONSTPOOL_Beg       //////////////////////// //[problem_causer]//
-        #define END CONSTPOOL_End       //////////////////////// //[problem_causer]//
-        #define VAL CONSTPOOL_Add_ByVal //////////////////////// //[problem_causer]//
-        #define len F37_count ////////////////////////////////// //[problem_causer]//
-        #define arr F37_names ////////////////////////////////// //[problem_causer]//
-                arr=BEG( sizeof( char* ) );                      //[problem_causer]//
-                                                                 //[problem_causer]//
-                    VAL( &"VK_KHR_surface");                     //[problem_causer]//
-                    VAL( &"VK_KHR_win32_surface");               //[problem_causer]//
-                                                                 //[problem_causer]//
-                    // VAL( constpool_VK_KHR_surface       );    //[problem_causer]//
-                    // VAL( constpool_VK_KHR_win32_surface );    //[problem_causer]//
-                                                                 //[problem_causer]//
-                len=END( &arr );                                 //[problem_causer]//
-        #undef  len  /////////////////////////////////////////// //[problem_causer]//
-        #undef  VAL  /////////////////////////////////////////// //[problem_causer]//
-        #undef  BEG  /////////////////////////////////////////// //[problem_causer]//
-        #undef  END  /////////////////////////////////////////// //[problem_causer]//
-        #undef  arr  /////////////////////////////////////////// //[problem_causer]//
-                                                                 //[problem_causer]//
-        //:Check to make sure you can access like you think:     //[problem_causer]//
-        printf(                                                  //[problem_causer]//
-            "[F37_count]:%d\n",                                  //[problem_causer]//
-            F37_count                                            //[problem_causer]//
-        );;                                                      //[problem_causer]//
-        printf(                                                  //[problem_causer]//
-            "[F37_names[0]]:%s\n",                               //[problem_causer]//
-            F37_names[0]                                         //[problem_causer]//
-        );;                                                      //[problem_causer]//
-        printf(                                                  //[problem_causer]//
-            "[F37_names[1]]:%s\n",                               //[problem_causer]//
-            F37_names[1]                                         //[problem_causer]//
-        );;                                                      //[problem_causer]//
-                                                                 //[problem_causer]//
-                                                                 //[problem_causer]//
-        int pointer_size = sizeof( char* );                      //[problem_causer]//
-                                                                 //[problem_causer]//
-        //:Two strings were added (By passing the address)       //[problem_causer]//
-        //:(to the first character in them.)                     //[problem_causer]//
-        //:Slots 0 and 1 thus should be used up.                 //[problem_causer]//
-        //:Next available should be 2.                           //[problem_causer]//
-        //:WAIT... no... It should be 2*sizeof(char*)            //[problem_causer]//
-        if( constpool_addr_nex == 2 ){                           //[problem_causer]//
-            //:No. The stored pointers take up more than         //[problem_causer]//
-            //:1 byte each.                                      //[problem_causer]//
-                                                                 //[problem_causer]//
-            printf("[constpool_addr_nex]:%d\n"                   //[problem_causer]//
-               ,(int)constpool_addr_nex);                        //[problem_causer]//
-            constpool_Halt("FUCK_BRO_2");                        //[problem_causer]//
-                                                                 //[problem_causer]//
-        }else                                                    //[problem_causer]//
-        if( constpool_addr_nex != (pointer_size*2) ){            //[problem_causer]//
-                                                                 //[problem_causer]//
-            printf("[constpool_addr_nex]:%d\n"                   //[problem_causer]//
-               ,(int)constpool_addr_nex);                        //[problem_causer]//
-            constpool_Halt("FUCK_BRO_8");                        //[problem_causer]//
-                                                                 //[problem_causer]//
-        }else{                                                   //[problem_causer]//
-            printf("[ChecksumPass]");                            //[problem_causer]//
-        };;                                                      //[problem_causer]//
-                                                                 //[problem_causer]//
-        //====================================================// //[problem_causer]//
-        //====================================================// //[problem_causer]//
-        //====================================================// //[problem_causer]//
+        //====================================================// //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+        char* constpool_VK_KHR_surface=(                         //[PC_2019_01_01]//
+            "VK_KHR_surface"                                     //[PC_2019_01_01]//
+        );;                                                      //[PC_2019_01_01]//
+        char* constpool_VK_KHR_win32_surface=(                   //[PC_2019_01_01]//
+            "VK_KHR_win32_surface"                               //[PC_2019_01_01]//
+        );;                                                      //[PC_2019_01_01]//
+        if( constpool_VK_KHR_surface       ){ /** NOOP **/ };    //[PC_2019_01_01]//
+        if( constpool_VK_KHR_win32_surface ){ /** NOOP **/ };    //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+        //:constpool_F37_names:                                  //[PC_2019_01_01]//
+        //:         F37_wanted_instance_extensions               //[PC_2019_01_01]//
+        //:constpool_F37_count:                                  //[PC_2019_01_01]//
+        //:         F37_wanted_instance_extensions_count         //[PC_2019_01_01]//
+        static char** constpool_F37_names = NULL;                //[PC_2019_01_01]//
+        static int    constpool_F37_count = (0-1);               //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+        #define BEG CONSTPOOL_Beg       //////////////////////// //[PC_2019_01_01]//
+        #define END CONSTPOOL_End       //////////////////////// //[PC_2019_01_01]//
+        #define VAL CONSTPOOL_Add_ByVal //////////////////////// //[PC_2019_01_01]//
+        #define len constpool_F37_count //////////////////////// //[PC_2019_01_01]//
+        #define arr constpool_F37_names //////////////////////// //[PC_2019_01_01]//
+                arr=BEG( sizeof( char* ) );                      //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+                    VAL( &"VK_KHR_surface");                     //[PC_2019_01_01]//
+                    VAL( &"VK_KHR_win32_surface");               //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+                    // VAL( constpool_VK_KHR_surface       );    //[PC_2019_01_01]//
+                    // VAL( constpool_VK_KHR_win32_surface );    //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+                len=END( &arr );                                 //[PC_2019_01_01]//
+        #undef  len  /////////////////////////////////////////// //[PC_2019_01_01]//
+        #undef  VAL  /////////////////////////////////////////// //[PC_2019_01_01]//
+        #undef  BEG  /////////////////////////////////////////// //[PC_2019_01_01]//
+        #undef  END  /////////////////////////////////////////// //[PC_2019_01_01]//
+        #undef  arr  /////////////////////////////////////////// //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+        //:Check to make sure you can access like you think:     //[PC_2019_01_01]//
+        constpool_Print_SI(                                                  //[PC_2019_01_01]//
+            "[constpool_F37_count]:%d\n",                        //[PC_2019_01_01]//
+              constpool_F37_count                                //[PC_2019_01_01]//
+        );;                                                      //[PC_2019_01_01]//
+        constpool_Print_STR(                                                  //[PC_2019_01_01]//
+            "[constpool_F37_names[0]]:%s\n",                     //[PC_2019_01_01]//
+              constpool_F37_names[0]                             //[PC_2019_01_01]//
+        );;                                                      //[PC_2019_01_01]//
+        constpool_Print_STR(                                                  //[PC_2019_01_01]//
+            "[constpool_F37_names[1]]:%s\n",                     //[PC_2019_01_01]//
+              constpool_F37_names[1]                             //[PC_2019_01_01]//
+        );;                                                      //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+        int pointer_size = sizeof( char* );                      //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+        //:Two strings were added (By passing the address)       //[PC_2019_01_01]//
+        //:(to the first character in them.)                     //[PC_2019_01_01]//
+        //:Slots 0 and 1 thus should be used up.                 //[PC_2019_01_01]//
+        //:Next available should be 2.                           //[PC_2019_01_01]//
+        //:WAIT... no... It should be 2*sizeof(char*)            //[PC_2019_01_01]//
+        if( constpool_addr_nex == 2 ){                           //[PC_2019_01_01]//
+            //:No. The stored pointers take up more than         //[PC_2019_01_01]//
+            //:1 byte each.                                      //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+            constpool_Print_SI("[constpool_addr_nex]:%d\n"                   //[PC_2019_01_01]//
+               ,(int)constpool_addr_nex);                        //[PC_2019_01_01]//
+            constpool_Halt("FUCK_BRO_2");                        //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+        }else                                                    //[PC_2019_01_01]//
+        if( constpool_addr_nex != (pointer_size*2) ){            //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+            constpool_Print_SI("[constpool_addr_nex]:%d\n"                   //[PC_2019_01_01]//
+               ,(int)constpool_addr_nex);                        //[PC_2019_01_01]//
+            constpool_Halt("FUCK_BRO_8");                        //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+        }else{                                                   //[PC_2019_01_01]//
+            constpool_Tell("[ChecksumPass]");                            //[PC_2019_01_01]//
+        };;                                                      //[PC_2019_01_01]//
+                                                                 //[PC_2019_01_01]//
+        //====================================================// //[PC_2019_01_01]//
+        //====================================================// //[PC_2019_01_01]//
+        //====================================================// //[PC_2019_01_01]//
         
         ////////////////////////////////////////////////////////
         char** F61P5_names       = NULL;
@@ -1030,19 +1046,19 @@ CONSTPOOL_UnitTest( void ){
         // -------------------------------------------------- //
         if( constpool_addr_nex != (pointer_size*3) ){
     
-            printf("[constpool_addr_nex]:%d\n"
+            constpool_Print_SI("[constpool_addr_nex]:%d\n"
                ,(int)constpool_addr_nex);
             constpool_Halt("FUCK_BRO_24");
     
         }else{
-            printf("[ChecksumPass]\n");
+            constpool_Tell("[ChecksumPass]\n");
         };;
         // -------------------------------------------------- //
 
         //:Is the previous addition still in tact?
-        printf(
-            "[F37_names[1], AGAIN]:%s\n",
-            F37_names[1]
+        constpool_Print_STR(
+            "[constpool_F37_names[1], AGAIN]:%s\n",
+            constpool_F37_names[1]
         );;
     
     
@@ -1051,11 +1067,11 @@ CONSTPOOL_UnitTest( void ){
         };;
     
         //:Check to make sure you can access like you think:
-        printf(
+        constpool_Print_SI(
             "[F61P5_count]:%d\n",
               F61P5_count
         );;
-        printf(
+        constpool_Print_STR(
             "[F61P5_names[0]]:%s\n",
               F61P5_names[0]
         );;
