@@ -207,11 +207,14 @@ constpool_private_Add(  //| 2.Return address of allocation   |//
    ,int passed_by_value
  ){ 
 
+    //| The number of entries made in the current_scope.     |//
+    //| constpool_beg                                        |//
+    //|                                                      |//
+    //|  //:current_scope:THIS_SCOPE_HERE                    |//
+    //|                                                      |//
+    //| constpool_end                                        |//
     constpool_num_entries_made++;
 
-    //:THIS_FORMULA_IS_WRONG.
-    //:IF_YOU_HAVE_MIXED_DATA_OF_DIFFERENT_SIZES_THIS_FORMULA
-    //:WILL_FAIL!
     int element_offset =(constpool_num_entries_made-1);
     int byte_offset=( element_offset * constpool_entry_size );
 
@@ -240,6 +243,11 @@ constpool_private_Add(  //| 2.Return address of allocation   |//
     ////////////////////////////////////////////////////////////
 
     if( passed_by_value > 0 ){
+        //[ #BF01_COMMENT_TAG# ///////////////////////////// ]//
+        //:FIX: T0 was previously set to "byte_offset"
+        //:     which meant all memory kept getting written
+        //:     to the beginning of the allocation!
+        #define T0 (constpool_addr_beg_T0 + byte_offset)
         #define CP char* ///////////////////////////////////////
         //:Memcpy:
         //:Use (&entry_data) not (entry_data) because we want
@@ -248,7 +256,7 @@ constpool_private_Add(  //| 2.Return address of allocation   |//
         //:"pointer to whatever". (In this current context)
         ////////////////////////////////////////////////////////
         char* mem_src = (char*) (&entry_data) ;
-        char* mem_dst = (char*)&( constpool_pool[ byte_offset ] );
+        char* mem_dst = (char*)&( constpool_pool[ T0 ] );
         for( int i = 0; i < constpool_entry_size; i++ ){
                 mem_dst[ i ] = mem_src[ i ];
         };;
@@ -258,13 +266,14 @@ constpool_private_Add(  //| 2.Return address of allocation   |//
         //:Passed By Reference:
         ////////////////////////////////////////////////////////
         char* mem_src = (char*) (entry_data) ;
-        char* mem_dst = (char*)&( constpool_pool[ byte_offset ] );
+        char* mem_dst = (char*)&( constpool_pool[ T0 ] );
         for( int i = 0; i < constpool_entry_size; i++ ){
                 mem_dst[ i ] = mem_src[ i ];
         };;
         ////////////////////////////////////////////////////////
 
         #undef  CP /////////////////////////////////////////////
+        #undef  T0 /////////////////////////////////////////////
     };;
     
 
@@ -644,6 +653,10 @@ CONSTPOOL_UnitTest( void ){
 
     CONSTPOOL_Kill();
     CONSTPOOL_Init();
+    //[#BF01_COMMENT_TAG# ////////////////////////////////// ]//
+    //[ BF01:Bug_Fix_01. This found allocation bug. ---------]//
+    //[                  On DATE[2019_01_01] ----------------]//
+    //[ BF01||BF01||BF01||BF01||||||||BF01||BF01||BF01||BF01 ]//
         #define BEG CONSTPOOL_Beg       ////////////////////////
         #define END CONSTPOOL_End       ////////////////////////
         #define VAL CONSTPOOL_Add_ByVal ////////////////////////
@@ -663,11 +676,27 @@ CONSTPOOL_UnitTest( void ){
         int* int_arr_02 = NULL;
         int* int_arr_03 = NULL;
 
+        //:Since iam observing trampled memory, my guess is
+        //:constpool_beg_T0 and constpool_end_T1 variables
+        //:are not correct. Check those.
+        ////////////////////////////////////////////////////////
+        int arr_01_beg = 0; //:constpool_addr_beg_T0 (INDEX)
+        int arr_01_end = 0; //:constpool_addr_end_T1 (INDEX)
+                         
+        int arr_02_beg = 0; //:constpool_addr_beg_T0 (INDEX)
+        int arr_02_end = 0; //:constpool_addr_end_T1 (INDEX)
+                         
+        int arr_03_beg = 0; //:constpool_addr_beg_T0 (INDEX)
+        int arr_03_end = 0; //:constpool_addr_end_T1 (INDEX)
+        ////////////////////////////////////////////////////////
+
         arr7=BEG( sizeof( int ) );
 
             VAL( (void*)1000 );
 
         len7 = END( &arr7 );
+        arr_01_beg=(int)constpool_addr_beg_T0;
+        arr_01_end=(int)constpool_addr_end_T1;
         if( len7 != 1 ){ constpool_Halt("[len7!=2(a)]"); };
         int_arr_01=arr7;
         arr7=BEG( sizeof( int ) );
@@ -676,6 +705,8 @@ CONSTPOOL_UnitTest( void ){
             VAL( (void*)2222 );
 
         len7 = END( &arr7 );
+        arr_02_beg=(int)constpool_addr_beg_T0;
+        arr_02_end=(int)constpool_addr_end_T1;
         if( len7 != 2 ){ constpool_Halt("[len7!=2(b)]"); };
         int_arr_02=arr7;
         arr7=BEG( sizeof( int ) );
@@ -685,9 +716,39 @@ CONSTPOOL_UnitTest( void ){
             VAL( (void*)3030 );
 
         len7 = END( &arr7 );
+        arr_03_beg=(int)constpool_addr_beg_T0;
+        arr_03_end=(int)constpool_addr_end_T1;
         if( len7 != 3 ){ constpool_Halt("[len7!=3]"); };
         int_arr_03=arr7;
         void* after_adding_integers_address=arr7;
+
+
+        //:Show me what you've got:
+        //:This printout looks correct!
+        //:(The values describe an inclusive range of the)
+        //:(allocated bytes)
+        ////////////////////////////////////////////////////////
+        printf("\n\n");
+        printf("[arr_01_beg]:%d]\n", arr_01_beg);
+        printf("[arr_01_end]:%d]\n", arr_01_end);
+
+        printf("[arr_02_beg]:%d]\n", arr_02_beg);
+        printf("[arr_02_end]:%d]\n", arr_02_end);
+
+        printf("[arr_03_beg]:%d]\n", arr_03_beg);
+        printf("[arr_03_end]:%d]\n", arr_03_end);
+        printf("\n\n");
+
+        // |  4bytes|  |     8bytes          ||
+        // |--------|  |---------------------||
+        //[0][1][2][3][4][5][6][7][8][9][10][11]//
+
+        // ||------------------12 bytes----------------||
+        // ||-----------3 integers. Each 4 bytes ------||
+        // ||----------||  ||----------||  ||----------||
+        //[12][13][14][15][16][17][18][19][20][21][22][23]//
+
+        ////////////////////////////////////////////////////////
 
         //:Setting up memory to get trampled, but printouts
         //:shoulld work here:
@@ -711,7 +772,7 @@ CONSTPOOL_UnitTest( void ){
 
         if( int_arr_03[0] != 1010 ){ H("[STOMP_04]");}
         if( int_arr_03[1] != 2020 ){ H("[STOMP_05]");}
-        if( int_arr_03[3] != 3030 ){ H("[STOMP_06]");}
+        if( int_arr_03[2] != 3030 ){ H("[STOMP_06]");}
         #undef  H //////////////////////////////////////////////
         ////////////////////////////////////////////////////////
         
@@ -743,6 +804,8 @@ CONSTPOOL_UnitTest( void ){
         #undef  VAL  ///////////////////////////////////////////
         #undef  BEG  ///////////////////////////////////////////
         #undef  END  ///////////////////////////////////////////
+    //[ BF01||BF01||BF01||BF01||||||||BF01||BF01||BF01||BF01 ]//
+    //[ #BF01_COMMENT_TAG# ///////////////////////////////// ]//
     CONSTPOOL_Kill();
     CONSTPOOL_Init();
         #define BEG CONSTPOOL_Beg       ////////////////////////
