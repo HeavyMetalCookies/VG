@@ -2205,6 +2205,9 @@ F02_F01_MACRO(
 //:MAKES:  F02_vkGetDeviceQueue
 F02_F01_MACRO( vkGetDeviceQueue , vulkan-1 )
 
+//:MAKES:  F02_vkEnumerateDeviceExtensionProperties
+F02_F01_MACRO( vkEnumerateDeviceExtensionProperties , vulkan-1 )
+
 ////////////////////////////////////////////////////////////////
 
 
@@ -5010,15 +5013,6 @@ f36_PrivateInit(){
 
 //:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx://
 
-
-
-
-
-    ////////////////////////////////////////////////////////////
-
-
-
-
     static char**
     F37_wanted_instance_extensions = NULL;
 
@@ -5051,16 +5045,6 @@ f36_PrivateInit(){
         #undef  arr  ///////////////////////////////////////////
         
     }//[;]//
-
-
-
-
-
-
-#undef  F37_wanted_instance_extensions_count_MACRO /////////////
-
-
-
 
 //:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx://
 
@@ -6120,6 +6104,87 @@ f61_PrivateInit_CreateWindowSurface( void ){
 
 //#FILE_REGION[ F.61 ]END#####################################//
 
+//#FILE_REGION[ F.61.05 ]BEG##################################//  
+
+    //:DOTADIW:DEVICEEXTLIST
+    //: ( Create list of wanted device extensions. )
+
+    //:F61P5: Chapter 10. Swap Chain. BookPage[ 76 ]
+
+
+char** F61P5_physical_device_extensions_names       = NULL;
+int    F61P5_physical_device_extensions_names_count = 0   ;
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f61P5_Halt( const char* msg ){      /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f61P5_Halt]:%s\n", msg    /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+static void
+f61P5_PrivateInit( void ){
+
+    #define arr  F61P5_physical_device_extensions_names       //
+    #define len  F61P5_physical_device_extensions_names_count //
+    #define ADD_STRING  CONSTPOOL_Add_ByVal  ///////////////////
+    arr=CONSTPOOL_Beg( sizeof(char*) );
+
+            ADD_STRING( "VK_KHR_swapchain" );
+
+    len=CONSTPOOL_End(      &arr     );
+    #undef  ADD_STRING /////////////////////////////////////////
+    #undef  arr        /////////////////////////////////////////
+    #undef  len        /////////////////////////////////////////
+
+    if(NULL==F61P5_physical_device_extensions_names){
+        f61P5_Halt("[YourListIsNull]");
+    };;
+
+    //:Check to make sure you can access like you think:
+    printf(
+        "[F61P5_physical_device_extensions_names[0]]:%s\n",
+          F61P5_physical_device_extensions_names[0]
+    );;
+
+}//[;]//
+
+
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F61P5_Init(){                         //[IM--------IM]//
+        printf("[BEG:F61P5:Init]\n");         //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F61_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f61P5_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F61P5:Init]\n");         //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F61P5_Main(){                         //[IM--------IM]//
+        F61P5_Init();                         //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F61P5:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.61.05 ]END##################################//  
 //#FILE_REGION[ F.62 ]BEG#####################################//
 
 //:DOTADIW: PHYDEV_SELECT
@@ -6223,6 +6288,119 @@ f61_PrivateInit_CreateWindowSurface( void ){
 /** ---- **/                                        /** ---- **/
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
 
+
+static int
+f62_isPhysicalDeviceSuitable( void ){
+
+    if(NULL==F62_physical_device){
+        //:EPDTABS:ExpectedPhysicalDeviceToAlreadyBeSet
+        f62_Halt("[EPDTABS]");
+    };;
+
+    /** uint32_t extensionCount; **/
+    struct F20_VkExtensionProperties* extension_array=NULL;
+    unsigned int                      extension_count=0;
+    ((F03_04)F02_vkEnumerateDeviceExtensionProperties)(
+        F62_physical_device
+    ,   NULL
+    ,  &extension_count
+    ,   NULL
+    );;
+
+    #define NUM extension_count ////////////////////////////////
+    #define SIZ sizeof(struct F20_VkExtensionProperties ) //////
+
+            extension_array = calloc( NUM, SIZ );
+
+    #undef  NUM  ///////////////////////////////////////////////
+    #undef  SIZ  ///////////////////////////////////////////////
+
+    ((F03_04)F02_vkEnumerateDeviceExtensionProperties)(
+        F62_physical_device
+    ,   NULL
+    ,  &extension_count
+    ,   extension_array
+    );;
+
+    printf("[extension_count]:%d\n", extension_count);
+    if( 69 == extension_count){
+        printf("[***********NICE***********]\n");
+        fflush(stdout);
+    };;
+
+    int found = 0; //:Bool
+    int found_count = 0;
+    int missing_count = 0;
+    
+
+    #define W  F61P5_physical_device_extensions_names_count ////
+    #define H  extension_count                              ////
+    for( int w = 0; w < (int)W; w++ ){ //:WHAT_WE_WANT
+    for( int h = 0; h < (int)H; h++ ){ //:WHAT_WE_HAVE
+
+        //:Reset found on first "h" of loop.
+        ////////////////////////////////////////////////////////
+        if(0==h){
+            found=0;
+        };; 
+        ////////////////////////////////////////////////////////
+
+        //:Redundant here, but easier to read:
+        ////////////////////////////////////////////////////////
+        char* wanted_name =(
+            //:Could be more accurately named to:
+            //:"wanted_physical_device_extension_names"
+            //:But it is already verbose enough. And
+            //:program will terminate if we don't get what
+            //:we want. So effectually, wanted extensions
+            //:are extensions we have if program is running.
+            F61P5_physical_device_extensions_names[ w ]
+        );;
+
+        char*  have_name =(
+            extension_array[ h ].extensionName
+        );;
+        ////////////////////////////////////////////////////////
+
+        //:Core logic. Was match found?
+        ////////////////////////////////////////////////////////
+        if( 0==strcmp(wanted_name,have_name) ){
+            if(found!=0){
+                f62_Halt("[DuplicateExtensionsNames?]");
+            };;
+            found=1;
+            found_count++;
+        };;
+        ////////////////////////////////////////////////////////
+
+        //:Check for found after last "h" in loop:
+        ////////////////////////////////////////////////////////
+        if( (h+1) == (int)H /**HAVE_LEN**/ ){ //:Last "h"
+            if(1!=found){
+                //: f62_Halt("[DeviceExtensionNotFound]");
+                missing_count++;
+            };;
+        }else
+        if( (h+1)  > (int)H /**HAVE_LEN**/ ){
+            f62_Halt("[MyCalculationsAreOff]");
+        };;
+        ////////////////////////////////////////////////////////
+    };;};;
+
+    if( (found_count+missing_count) != W /**WANT_LEN**/ ){
+        f62_Halt("[Checksumfail]");
+    };;
+
+    #undef  W  /////////////////////////////////////////////////
+    #undef  H  /////////////////////////////////////////////////
+
+    if(missing_count != 0){
+        return( 0 );
+    };;
+
+    return( 1 ); //:TRUE, device suitable
+
+}//[;]//
 ////////////////////////////////////////////////////////////////
 
 static void
@@ -6257,6 +6435,8 @@ f62_PrivateInitChapterSeven_07( void ){
 
     };;
 
+    
+
     //:Create temporary device array:
     //:int one = sizeof( void* ); /** one: VkPhysicalDevice **/
     //:int num = device_count;    /** num/amt of elements.  **/
@@ -6271,6 +6451,19 @@ f62_PrivateInitChapterSeven_07( void ){
 
     //[[  [HACK]:Just take the first device ]]//
     F62_physical_device = arr[ 0 ];
+
+    //:If this ever crashes, may have to un-hardcoded 
+    //:our hack and loop over all physical devices.
+    ////////////////////////////////////////////////////////////
+    printf("[BEG:DONT_YOU_FUCKING_SEGFAULT]\n");fflush(stdout);
+    int suitable = f62_isPhysicalDeviceSuitable();
+    if(suitable != 1 ){
+        f62_Halt("[DeviceWasNotSuitable]");
+    }else{
+        printf("[DEVICE_WAS_SUITABLE]");    
+    };;
+    printf("[END:DONT_YOU_FUCKING_SEGFAULT]\n");fflush(stdout);
+    ////////////////////////////////////////////////////////////
 
     if( NULL == F62_physical_device ){
         f62_Halt("[OhFuck]");
@@ -6475,7 +6668,8 @@ f62_PrivateInitChapterSeven_07( void ){
             ////////////////////////////////////////////////////
 
             //: ".SUPER_CHAIN()"
-            int ret = F61_Init(); 
+         //:int ret = F61_Init(); 
+            int ret = F61P5_Init();
 
             //: LAST_ITEM_IN_CODE_CHAIN:
             f62_PrivateInitChapterSeven_07();
@@ -7072,10 +7266,12 @@ void f66_PrivateInitPage_70( void ){
 
 
 //#FILE_REGION[ F.66 ]END#####################################//
+//#FILE_REGION[ F.70 ]BEG#####################################//
 
-    //:F70: Chapter 10. Swap Chain. BookPage[ 76 ]
 
-   // **F70_NOTICE_ME_SENPAI**
+
+
+//#FILE_REGION[ F.70 ]END#####################################//
 //#FILE_REGION[ VG03.H ]BEG###################################//
 /////////////////////////////////. . . . . . 13
 /////////////////////////////////............|
@@ -7118,10 +7314,12 @@ VG03_Demo( void ){
     //:F40_Main();
     //:F50_Main();
     //:F60_Main();
-   //F61_Main();
+    //:F61_Main();
     //:F62_Main();
     //:F64_Main();
-    F66_Main();
+       F66_Main();
+
+    // F70_Main();
 
 
     printf("[END:VG03_DEMO]\n");

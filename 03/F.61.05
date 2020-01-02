@@ -1,0 +1,81 @@
+//#FILE_REGION[ F.61.05 ]BEG##################################//  
+
+    //:DOTADIW:DEVICEEXTLIST
+    //: ( Create list of wanted device extensions. )
+
+    //:F61P5: Chapter 10. Swap Chain. BookPage[ 76 ]
+
+
+char** F61P5_physical_device_extensions_names       = NULL;
+int    F61P5_physical_device_extensions_names_count = 0   ;
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f61P5_Halt( const char* msg ){      /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f61P5_Halt]:%s\n", msg    /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+static void
+f61P5_PrivateInit( void ){
+
+    #define arr  F61P5_physical_device_extensions_names       //
+    #define len  F61P5_physical_device_extensions_names_count //
+    #define ADD_STRING  CONSTPOOL_Add_ByVal  ///////////////////
+    arr=CONSTPOOL_Beg( sizeof(char*) );
+
+            ADD_STRING( "VK_KHR_swapchain" );
+
+    len=CONSTPOOL_End(      &arr     );
+    #undef  ADD_STRING /////////////////////////////////////////
+    #undef  arr        /////////////////////////////////////////
+    #undef  len        /////////////////////////////////////////
+
+    if(NULL==F61P5_physical_device_extensions_names){
+        f61P5_Halt("[YourListIsNull]");
+    };;
+
+    //:Check to make sure you can access like you think:
+    printf(
+        "[F61P5_physical_device_extensions_names[0]]:%s\n",
+          F61P5_physical_device_extensions_names[0]
+    );;
+
+}//[;]//
+
+
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F61P5_Init(){                         //[IM--------IM]//
+        printf("[BEG:F61P5:Init]\n");         //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F61_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f61P5_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F61P5:Init]\n");         //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F61P5_Main(){                         //[IM--------IM]//
+        F61P5_Init();                         //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F61P5:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.61.05 ]END##################################//  

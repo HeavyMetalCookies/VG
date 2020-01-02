@@ -80,6 +80,8 @@ f36_PrivateInit(){
 
             VAL("VK_LAYER_LUNARG_standard_validation");
 
+        }else{
+            printf("[Not_Using_Validation_Layers]");
         };;
     F36_wanted_validation_layers_count=(
     END(&F36_wanted_validation_layers)  );

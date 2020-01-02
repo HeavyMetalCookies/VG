@@ -101,6 +101,119 @@
 /** ---- **/                                        /** ---- **/
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
 
+
+static int
+f62_isPhysicalDeviceSuitable( void ){
+
+    if(NULL==F62_physical_device){
+        //:EPDTABS:ExpectedPhysicalDeviceToAlreadyBeSet
+        f62_Halt("[EPDTABS]");
+    };;
+
+    /** uint32_t extensionCount; **/
+    struct F20_VkExtensionProperties* extension_array=NULL;
+    unsigned int                      extension_count=0;
+    ((F03_04)F02_vkEnumerateDeviceExtensionProperties)(
+        F62_physical_device
+    ,   NULL
+    ,  &extension_count
+    ,   NULL
+    );;
+
+    #define NUM extension_count ////////////////////////////////
+    #define SIZ sizeof(struct F20_VkExtensionProperties ) //////
+
+            extension_array = calloc( NUM, SIZ );
+
+    #undef  NUM  ///////////////////////////////////////////////
+    #undef  SIZ  ///////////////////////////////////////////////
+
+    ((F03_04)F02_vkEnumerateDeviceExtensionProperties)(
+        F62_physical_device
+    ,   NULL
+    ,  &extension_count
+    ,   extension_array
+    );;
+
+    printf("[extension_count]:%d\n", extension_count);
+    if( 69 == extension_count){
+        printf("[***********NICE***********]\n");
+        fflush(stdout);
+    };;
+
+    int found = 0; //:Bool
+    int found_count = 0;
+    int missing_count = 0;
+    
+
+    #define W  F61P5_physical_device_extensions_names_count ////
+    #define H  extension_count                              ////
+    for( int w = 0; w < (int)W; w++ ){ //:WHAT_WE_WANT
+    for( int h = 0; h < (int)H; h++ ){ //:WHAT_WE_HAVE
+
+        //:Reset found on first "h" of loop.
+        ////////////////////////////////////////////////////////
+        if(0==h){
+            found=0;
+        };; 
+        ////////////////////////////////////////////////////////
+
+        //:Redundant here, but easier to read:
+        ////////////////////////////////////////////////////////
+        char* wanted_name =(
+            //:Could be more accurately named to:
+            //:"wanted_physical_device_extension_names"
+            //:But it is already verbose enough. And
+            //:program will terminate if we don't get what
+            //:we want. So effectually, wanted extensions
+            //:are extensions we have if program is running.
+            F61P5_physical_device_extensions_names[ w ]
+        );;
+
+        char*  have_name =(
+            extension_array[ h ].extensionName
+        );;
+        ////////////////////////////////////////////////////////
+
+        //:Core logic. Was match found?
+        ////////////////////////////////////////////////////////
+        if( 0==strcmp(wanted_name,have_name) ){
+            if(found!=0){
+                f62_Halt("[DuplicateExtensionsNames?]");
+            };;
+            found=1;
+            found_count++;
+        };;
+        ////////////////////////////////////////////////////////
+
+        //:Check for found after last "h" in loop:
+        ////////////////////////////////////////////////////////
+        if( (h+1) == (int)H /**HAVE_LEN**/ ){ //:Last "h"
+            if(1!=found){
+                //: f62_Halt("[DeviceExtensionNotFound]");
+                missing_count++;
+            };;
+        }else
+        if( (h+1)  > (int)H /**HAVE_LEN**/ ){
+            f62_Halt("[MyCalculationsAreOff]");
+        };;
+        ////////////////////////////////////////////////////////
+    };;};;
+
+    if( (found_count+missing_count) != W /**WANT_LEN**/ ){
+        f62_Halt("[Checksumfail]");
+    };;
+
+    #undef  W  /////////////////////////////////////////////////
+    #undef  H  /////////////////////////////////////////////////
+
+    if(missing_count != 0){
+        return( 0 );
+    };;
+
+    return( 1 ); //:TRUE, device suitable
+
+}//[;]//
 ////////////////////////////////////////////////////////////////
 
 static void
@@ -135,6 +248,8 @@ f62_PrivateInitChapterSeven_07( void ){
 
     };;
 
+    
+
     //:Create temporary device array:
     //:int one = sizeof( void* ); /** one: VkPhysicalDevice **/
     //:int num = device_count;    /** num/amt of elements.  **/
@@ -149,6 +264,19 @@ f62_PrivateInitChapterSeven_07( void ){
 
     //[[  [HACK]:Just take the first device ]]//
     F62_physical_device = arr[ 0 ];
+
+    //:If this ever crashes, may have to un-hardcoded 
+    //:our hack and loop over all physical devices.
+    ////////////////////////////////////////////////////////////
+    printf("[BEG:DONT_YOU_FUCKING_SEGFAULT]\n");fflush(stdout);
+    int suitable = f62_isPhysicalDeviceSuitable();
+    if(suitable != 1 ){
+        f62_Halt("[DeviceWasNotSuitable]");
+    }else{
+        printf("[DEVICE_WAS_SUITABLE]");    
+    };;
+    printf("[END:DONT_YOU_FUCKING_SEGFAULT]\n");fflush(stdout);
+    ////////////////////////////////////////////////////////////
 
     if( NULL == F62_physical_device ){
         f62_Halt("[OhFuck]");
@@ -353,7 +481,8 @@ f62_PrivateInitChapterSeven_07( void ){
             ////////////////////////////////////////////////////
 
             //: ".SUPER_CHAIN()"
-            int ret = F61_Init(); 
+         //:int ret = F61_Init(); 
+            int ret = F61P5_Init();
 
             //: LAST_ITEM_IN_CODE_CHAIN:
             f62_PrivateInitChapterSeven_07();

@@ -128,6 +128,8 @@ printf "\n"                             >> "VG03.ALL"
     nl_cat "./F.60"     "VG03.ALL"  ## VULKAN_INIT_CONTINUED
     nl_cat "./F.61"     "VG03.ALL"  ## WIN32_SURFACE
 
+    nl_cat "./F.61.05"  "VG03.ALL"  ## DEVICEEXTLIST
+
     ## The graphics + compute queue selections
     ## are in PHYDEV_SELECT. That is worthy
     ## of refactor by splitting "F.62" into two files.

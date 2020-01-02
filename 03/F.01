@@ -93,6 +93,9 @@ F02_F01_MACRO(
 //:MAKES:  F02_vkGetDeviceQueue
 F02_F01_MACRO( vkGetDeviceQueue , vulkan-1 )
 
+//:MAKES:  F02_vkEnumerateDeviceExtensionProperties
+F02_F01_MACRO( vkEnumerateDeviceExtensionProperties , vulkan-1 )
+
 ////////////////////////////////////////////////////////////////
 
 
