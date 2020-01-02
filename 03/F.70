@@ -1,6 +1,12 @@
 //#FILE_REGION[ F.70 ]BEG#####################################//
 
 
-
+    F70**NOTICE*ME*SENPAI**
+    
+    //:Insert this in correct spot: PAGE: 78, VKTUTPDF2018
+    //: Enabling the extension just requires a small change to the 
+    //: logical device creationstructure:1createInfo.enabledExtensionCount 
+    //: =static_cast<uint32_t>(deviceExtensions.size());
+    //: 2createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
 //#FILE_REGION[ F.70 ]END#####################################//

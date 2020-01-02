@@ -273,7 +273,7 @@ f62_PrivateInitChapterSeven_07( void ){
     if(suitable != 1 ){
         f62_Halt("[DeviceWasNotSuitable]");
     }else{
-        printf("[DEVICE_WAS_SUITABLE]");    
+        printf("[DEVICE_WAS_SUITABLE]\n");    
     };;
     printf("[END:DONT_YOU_FUCKING_SEGFAULT]\n");fflush(stdout);
     ////////////////////////////////////////////////////////////
