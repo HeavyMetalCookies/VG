@@ -6764,6 +6764,10 @@ f61P5_PrivateInit( void ){
     VAR_07  F62_qfi_graphics  ; //:qfi:queue_family_index
     VAR_08  F62_qfi_compute   ;
 
+    VAR_09  F62_surface_format;
+    VAR_10  F62_present_mode  ;
+    VAR_11  F62_surface_format;
+
 #undef  VAR_01  ////////////////////////////////////////////////
 #undef  VAR_02  ////////////////////////////////////////////////
 #undef  VAR_03  ////////////////////////////////////////////////
@@ -6949,8 +6953,117 @@ f62_isPhysicalDeviceSuitable_HasWantedExtensions( void ){
 
 }//[;]//
 
+//:
+//: SIDE EFFECT: SETS:
+//: capabilities  :vkGetPhysicalDeviceSurfaceCapabilitiesKHR 
+//: formats       :vkGetPhysicalDeviceSurfaceFormatsKHR      
+//: present modes :vkGetPhysicalDeviceSurfacePresentModesKHR 
 static int
 f62_isPhysicalDeviceSuitable_SwapChainAdequate( void ){
+
+
+    //:GD: Get Data (That we will parse later in function)
+    // GDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGD //
+
+
+
+
+
+
+
+
+
+    // GDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGD //
+
+    //:P: Parse Data
+    //:S: Set Values
+    // PSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPS //
+
+    //: Format Wanted:
+    //: format: VK_FORMAT_B8G8R8A8_UNORM 
+    //: colorspace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+    #define WANTED_FORMAT     44 /** B8G8R8A8_UNORM      **/
+    #define WANTED_COLOR_SPACE 0 /** SRGB_NONLINEAR_KHR  **/
+    
+    if( my_formats_count == 0 ){
+        f62_Halt("[Totally_Fucked]");
+    }else
+    if( my_formats_count == 1 
+    &&  my_formats[0].format == VK_FORMAT_UNDEFINED ){
+
+        //:If undefined, we can pick whatever we want:
+        struct F20_VkSurfaceFormatKHR F = { 0 };
+        F.format     = WANTED_FORMAT;
+        F.colorSpace = WANTED_COLOR_SPACE;
+        F62_surface_format = F;
+
+    }else{
+
+        int found=0;
+        for( int f = 0; f < my_formats_count; f++ ){
+
+            struct F20_VkSurfaceFormatKHR 
+            F=my_formats[ f ];
+
+            if( F.format     == WANTED_FORMAT &&
+                F.colorSpace == WANTED_COLOR_SPACE
+            }{
+                F62_surface_format = F;
+                found=1;
+                break;
+            };;
+        };;
+        if( 1 != found ){
+            f62_Halt("[UnableToFindSurfaceFormat]");
+        };;
+
+    };;
+
+
+    //:Only the VK_PRESENT_MODE_FIFO_KHR mode is guaranteed to 
+    //:be available,  VKTUTPDF2018 BOOK_PAGE[ 82 ]
+    ////////////////////////////////////////////////////////////
+
+    //:FIFO is always guaranteed to exist!
+    F62_present_mode = 2 /** VK_PRESENT_MODE_FIFO_KHR  **/
+
+    //: Unfortunately some drivers currently don’t properly 
+    //: support VK_PRESENT_MODE_FIFO_KHR, so we should prefer
+    //: VK_PRESENT_MODE_IMMEDIATE_KHR if 
+    //: VK_PRESENT_MODE_MAILBOX_KHR is not available:
+    //: SOURCE: VKTUTPDF2018 BOOK_PAGE[ 83 ]
+
+    ////////////////////////////////////////////////////////////
+
+    for( int p = 0; p < my_present_modes_count; p++ ){
+
+        unsigned int P = 0; /** VkPresentModeKHR **/
+        P = my_present_modes[ p ];
+
+        //:First  Choice: (VKTUTPDF2018 BOOK_PAGE[ 83 ])
+        if( P == 1 /** VK_PRESENT_MODE_MAILBOX_KHR **/ ){
+            F62_present_mode = P;
+            break;
+        };;
+
+        //:Second Choice: (VKTUTPDF2018 BOOK_PAGE[ 83 ])
+        if( P == 0 /** VK_PRESENT_MODE_IMMEDIATE_KHR **/ ){
+            F62_present_mode = P;
+            break;
+        };;
+
+    };;
+    ////////////////////////////////////////////////////////////
+
+    //: Figure out VkExtent2D stuff.
+    //: VKTUTPDF2018 BOOK_PAGE[ 83 ]
+    ////////////////////////////////////////////////////////////
+
+
+    ////////////////////////////////////////////////////////////
+
+    // PSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPS //
+    
 
     return( 1 ); //:TODO
 
