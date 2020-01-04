@@ -1,5 +1,7 @@
 //#FILE_REGION[ F.62 ]BEG#####################################//
 
+int f62_tell_me_everything = 1;
+
 //:DOTADIW: PHYDEV_SELECT
 //:        ( vulkan_chapter_seven:         )
 //:        (PHYSICAL Device (GPU) Selection)
@@ -8,7 +10,7 @@
 //:instead of 10. Confident in not making more insertion
 //:files between numbers.
 
-//:PUBLIC_VARS:
+//:PUBLIC_VARS: (Forward declarations?)
 //:PVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPV://
 #define VAR_01 void*
 #define VAR_02 struct F20_VkPhysicalDeviceFeatures   ///////////
@@ -18,6 +20,10 @@
 #define VAR_06 int                                   ///////////
 #define VAR_07 unsigned int                          ///////////
 #define VAR_08 unsigned int                          ///////////
+#define VAR_09 struct F20_VkSurfaceCapabilitiesKHR   ///////////
+#define VAR_10 struct F20_VkSurfaceFormatKHR         ///////////
+#define VAR_11 unsigned int /** VkPresentModeKHR **/ ///////////
+#define VAR_12 struct F20_VkExtent2D                 ///////////
 
     VAR_01  F62_physical_device;
     VAR_02  F62_physical_device_features;
@@ -30,9 +36,14 @@
     VAR_07  F62_qfi_graphics  ; //:qfi:queue_family_index
     VAR_08  F62_qfi_compute   ;
 
-    VAR_09  F62_surface_format;
-    VAR_10  F62_present_mode  ;
-    VAR_11  F62_surface_format;
+    //:C - F - M: Alphabetical order:
+    ////////////////////////////////////////////////////////////
+    VAR_09  F62_surface_capabilities; //: C : Capabilities
+    VAR_10  F62_surface_format;       //: F : Formats
+    VAR_11  F62_surface_present_mode; //: M : Modes 
+    // ------------------------------------------------------ //
+    VAR_12  F62_surface_actual_extent;
+    ////////////////////////////////////////////////////////////
 
 #undef  VAR_01  ////////////////////////////////////////////////
 #undef  VAR_02  ////////////////////////////////////////////////
@@ -42,6 +53,10 @@
 #undef  VAR_06  ////////////////////////////////////////////////
 #undef  VAR_07  ////////////////////////////////////////////////
 #undef  VAR_08  ////////////////////////////////////////////////
+#undef  VAR_09  ////////////////////////////////////////////////
+#undef  VAR_10  ////////////////////////////////////////////////
+#undef  VAR_11  ////////////////////////////////////////////////
+#undef  VAR_12  ////////////////////////////////////////////////
 //:PVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPVPV://
 
 
@@ -91,6 +106,33 @@
 
 ////////////////////////////////////////////////////////////////
 
+//:Surface: capabilities, format,  present_mode(s?):
+////////////////////////////////////////////////////////////////
+
+    //: C - F - M: Alphabetical Order
+    ////////////////////////////////////////////////////////////
+    //: C: Capabilities
+    //: F: Formats        (surface_formats)
+    //: M: Modes          (present_modes  )
+    ////////////////////////////////////////////////////////////
+    struct F20_VkSurfaceCapabilitiesKHR
+    F62_surface_capabilities = { 0 };
+
+    struct F20_VkSurfaceFormatKHR  
+    F62_surface_format = { 0 };
+
+    //: VkSurfacePresentMode <<<<<<<< Not a thing.
+    //: VkSurfacePresentModeKHR <<<<< Not a thing.
+    //: VkPresentModeKHR <<<<<<<<<<<< YES a thing. (unsigned int)
+    unsigned int 
+    F62_surface_present_mode =( 0xFFFFFFFF );
+    ////////////////////////////////////////////////////////////
+
+    struct F20_VkExtent2D 
+    F62_surface_actual_extent = { 0 };
+
+////////////////////////////////////////////////////////////////
+
             
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
 /** ---- **/                                        /** ---- **/
@@ -104,6 +146,25 @@
 /** ---- **/    }//[;]//                            /** ---- **/
 /** ---- **/                                        /** ---- **/
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+//[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //:Debug Printouts.                 /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f62_Print( const char* msg ){       /** ---- **/
+/** ---- **/        int t;                          /** ---- **/
+/** ---- **/        t=f62_tell_me_everything;       /** ---- **/
+/** ---- **/        if( t <= 0 ){                   /** ---- **/
+/** ---- **/            //:Do not print anything.   /** ---- **/
+/** ---- **/        }else{                          /** ---- **/
+/** ---- **/            printf(                     /** ---- **/
+/** ---- **/                "[f62_Print]:%s\n", msg /** ---- **/
+/** ---- **/            );;                         /** ---- **/
+/** ---- **/            fflush(stdout);             /** ---- **/
+/** ---- **/        };;                             /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP]//
 
 static int
 f62_isPhysicalDeviceSuitable_HasWantedExtensions( void ){
@@ -138,10 +199,12 @@ f62_isPhysicalDeviceSuitable_HasWantedExtensions( void ){
     ,   extension_array
     );;
 
-    printf("[extension_count]:%d\n", extension_count);
-    if( 69 == extension_count){
-        printf("[***********NICE***********]\n");
-        fflush(stdout);
+    if( f62_tell_me_everything > 0 ){
+        printf("[extension_count]:%d\n", extension_count);
+        if( 69 == extension_count){
+            printf("[***********NICE***********]\n");
+            fflush(stdout);
+        };;
     };;
 
     int found = 0; //:Bool
@@ -227,54 +290,167 @@ f62_isPhysicalDeviceSuitable_HasWantedExtensions( void ){
 static int
 f62_isPhysicalDeviceSuitable_SwapChainAdequate( void ){
 
+    //: if( 1 ){ return 1; } //:DEBUG
+
+    #define MACRO_CAP   struct F20_VkSurfaceCapabilitiesKHR ////
+    #define MACRO_FMT   struct F20_VkSurfaceFormatKHR       ////
+    #define MACRO_MOD          unsigned int                 ////
+    ////////////////////////////////////////////////////////////
+
+//- MACRO_CAP* cap_arr = NULL; //:cap: capabilities          -//
+//-       int  cap_len =  0  ; SEE: F62_surface_capabilities -//
+
+    MACRO_FMT* fmt_arr = NULL; //:fmt: formats
+          int  fmt_len =  0  ;
+
+    MACRO_MOD* mod_arr = NULL; //:mod: present_modes
+          int  mod_len =  0  ;
 
     //:GD: Get Data (That we will parse later in function)
     // GDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGD //
+        ////////////////////////////////////////////////////////
+        f62_Print("[A1A1A1A1A1A1A1A1A1A1A1A1A1A1A1A1A1A1A1A1]");
+        //: MACRO_CAP / cap_arr / cap_len:
+        ((F03_03)F02_vkGetPhysicalDeviceSurfaceCapabilitiesKHR)(
+            F62_physical_device
+        ,   F61_vulkan_surface
+        ,   &( F62_surface_capabilities )
+        );;
+        f62_Print("[A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2A2]");
+        ////////////////////////////////////////////////////////
+        f62_Print("[B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1]");
+        //: MACRO_FMT / fmt_arr / fmt_len:
+        ((F03_04)F02_vkGetPhysicalDeviceSurfaceFormatsKHR)(
+            F62_physical_device
+        ,   F61_vulkan_surface
+        ,   &( fmt_len )
+        ,   NULL
+        );;
 
+        fmt_arr = calloc( fmt_len, sizeof( MACRO_FMT ) );
 
+        //: MACRO_FMT / fmt_arr / fmt_len:
+        ((F03_04)F02_vkGetPhysicalDeviceSurfaceFormatsKHR)(
+            F62_physical_device
+        ,   F61_vulkan_surface
+        ,   &( fmt_len )
+        ,      fmt_arr
+        );;
+        f62_Print("[B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2B2]");
+        ////////////////////////////////////////////////////////
+        f62_Print("[C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1C1]");
+        //: MACRO_MOD / mod_arr / mod_len:
+        ((F03_04)F02_vkGetPhysicalDeviceSurfacePresentModesKHR)(
+            F62_physical_device
+        ,   F61_vulkan_surface
+        ,   &( mod_len )
+        ,   NULL
+        );;
 
+        mod_arr = calloc( mod_len, sizeof( MACRO_MOD ) );
 
-
- 
-
-
-
+        //: MACRO_MOD / mod_arr / mod_len:
+        ((F03_04)F02_vkGetPhysicalDeviceSurfacePresentModesKHR)(
+            F62_physical_device
+        ,   F61_vulkan_surface
+        ,   &( mod_len )
+        ,      mod_arr
+        );;
+        f62_Print("[C2C2C2C2C2C2C2C2C2C2C2C2C2C2C2C2C2C2C2C2]"); 
+        ////////////////////////////////////////////////////////
     // GDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGDGD //
 
     //:P: Parse Data
     //:S: Set Values
     // PSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPS //
 
+    //: Figure out VkExtent2D stuff.
+    //: VKTUTPDF2018 BOOK_PAGE[ 83 ]
+    ////////////////////////////////////////////////////////////
+    if( 0xFFFFFFFF != F62_surface_capabilities
+                     .currentExtent.width 
+        &&
+        0xFFFFFFFF != F62_surface_capabilities
+                     .currentExtent.height
+    ){
+
+        F62_surface_actual_extent = F62_surface_capabilities
+                     .currentExtent;
+
+    }else
+    if( 0xFFFFFFFF == F62_surface_capabilities
+                     .currentExtent.width 
+        &&
+        0xFFFFFFFF == F62_surface_capabilities
+                     .currentExtent.height
+    ){
+        //:Will have to look at window size, and clamp
+        //:the window size between the extent bounds:
+
+        f62_Halt("[WillHaveToClampBetweenMinAndMaxExtent]");
+
+    }else{
+
+        //:value(S): width & height:
+        //:One value is max value, the other is not.
+        //:which was not expected after reaing vulkan tutorial.
+
+        f62_Halt("[HALF_MAX_WH]");
+
+    };;
+        
+
+    ////////////////////////////////////////////////////////////
+
+
+    //: Select surface format:
+    ////////////////////////////////////////////////////////////
     //: Format Wanted:
     //: format: VK_FORMAT_B8G8R8A8_UNORM 
     //: colorspace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
     #define WANTED_FORMAT     44 /** B8G8R8A8_UNORM      **/
     #define WANTED_COLOR_SPACE 0 /** SRGB_NONLINEAR_KHR  **/
     
-    if( my_formats_count == 0 ){
+    if( fmt_len == 0 ){
+
+        //:No surface formats:
         f62_Halt("[Totally_Fucked]");
+
     }else
-    if( my_formats_count == 1 
-    &&  my_formats[0].format == VK_FORMAT_UNDEFINED ){
+    if( fmt_len == 1 
+    &&  fmt_arr[0].format == 0 /** VK_FORMAT_UNDEFINED **/ ){
+
+        //|  The Vulkan API Specification v1.1.111           |//
+        //|  changed the behaviour of                        |//
+        //|  GetPhysicalDeviceSurfaceFormats. Now it must    |//
+        //|  not contain VK_FORMAT_UNDEFINED                 |//
+        //|  SOURCE:                                         |//
+        //|  github.com/Overv/VulkanTutorial/issues/135      |//
+
+        f62_Halt("[VK_FORMAT_UNDEFINED]");
 
         //:If undefined, we can pick whatever we want:
-        struct F20_VkSurfaceFormatKHR F = { 0 };
-        F.format     = WANTED_FORMAT;
-        F.colorSpace = WANTED_COLOR_SPACE;
-        F62_surface_format = F;
+        //: struct F20_VkSurfaceFormatKHR F = { 0 };
+        //: F.format     = WANTED_FORMAT;
+        //: F.colorSpace = WANTED_COLOR_SPACE;
+
+        F62_surface_format.format     = WANTED_FORMAT;
+        F62_surface_format.colorSpace = WANTED_COLOR_SPACE;
+
+        //:F62_surface_format = F;
 
     }else{
 
         int found=0;
-        for( int f = 0; f < my_formats_count; f++ ){
+        for( int f = 0; f < fmt_len; f++ ){
 
-            struct F20_VkSurfaceFormatKHR 
-            F=my_formats[ f ];
+            //: struct F20_VkSurfaceFormatKHR 
+            //: F=fmt_arr[ f ];
 
-            if( F.format     == WANTED_FORMAT &&
-                F.colorSpace == WANTED_COLOR_SPACE
-            }{
-                F62_surface_format = F;
+            if( fmt_arr[ f ].format     == WANTED_FORMAT &&
+                fmt_arr[ f ].colorSpace == WANTED_COLOR_SPACE
+            ){
+                F62_surface_format = fmt_arr[ f ];
                 found=1;
                 break;
             };;
@@ -282,8 +458,8 @@ f62_isPhysicalDeviceSuitable_SwapChainAdequate( void ){
         if( 1 != found ){
             f62_Halt("[UnableToFindSurfaceFormat]");
         };;
-
     };;
+    ////////////////////////////////////////////////////////////
 
 
     //:Only the VK_PRESENT_MODE_FIFO_KHR mode is guaranteed to 
@@ -291,7 +467,10 @@ f62_isPhysicalDeviceSuitable_SwapChainAdequate( void ){
     ////////////////////////////////////////////////////////////
 
     //:FIFO is always guaranteed to exist!
-    F62_present_mode = 2 /** VK_PRESENT_MODE_FIFO_KHR  **/
+    //:Default if we cannot find anything else.
+    F62_surface_present_mode =(
+        2 /** VK_PRESENT_MODE_FIFO_KHR  **/
+    );;
 
     //: Unfortunately some drivers currently don’t properly 
     //: support VK_PRESENT_MODE_FIFO_KHR, so we should prefer
@@ -301,35 +480,106 @@ f62_isPhysicalDeviceSuitable_SwapChainAdequate( void ){
 
     ////////////////////////////////////////////////////////////
 
-    for( int p = 0; p < my_present_modes_count; p++ ){
+    //:Loop through all present modes, find best fit:
+    for( int p = 0; p < mod_len; p++ ){
 
         unsigned int P = 0; /** VkPresentModeKHR **/
-        P = my_present_modes[ p ];
+        P = mod_arr[ p ]; /** my_present_modes[ p ] **/
 
         //:First  Choice: (VKTUTPDF2018 BOOK_PAGE[ 83 ])
         if( P == 1 /** VK_PRESENT_MODE_MAILBOX_KHR **/ ){
-            F62_present_mode = P;
+            F62_surface_present_mode = P;
             break;
         };;
 
         //:Second Choice: (VKTUTPDF2018 BOOK_PAGE[ 83 ])
         if( P == 0 /** VK_PRESENT_MODE_IMMEDIATE_KHR **/ ){
-            F62_present_mode = P;
+            F62_surface_present_mode = P;
             break;
         };;
 
     };;
     ////////////////////////////////////////////////////////////
 
-    //: Figure out VkExtent2D stuff.
-    //: VKTUTPDF2018 BOOK_PAGE[ 83 ]
-    ////////////////////////////////////////////////////////////
 
-
-    ////////////////////////////////////////////////////////////
 
     // PSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPSPS //
     
+
+    free( fmt_arr ); fmt_arr=NULL;
+    free( mod_arr ); mod_arr=NULL;
+    
+    ////////////////////////////////////////////////////////////
+    #undef  MACRO_CAP  /////////////////////////////////////////
+    #undef  MACRO_FMT  /////////////////////////////////////////
+    #undef  MACRO_MOD  /////////////////////////////////////////
+
+    //:Print out the surface formats and things:
+    if( f62_tell_me_everything ){
+
+        printf("\n\n");
+
+        //:C: CAPABILITIES:
+        //:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC://
+        #define SC F62_surface_capabilities ////////////////////
+            printf("\n");
+            printf("\t[F62_surface_capabilities.]\n");
+            printf("\n");
+
+            printf("\t[minImageCount]:%d\n", SC.minImageCount );
+            printf("\t[maxImageCount]:%d\n", SC.maxImageCount );
+
+            printf("\t[currentExtent.width]:%d\n", 
+                  SC.currentExtent.width );;
+
+            printf("\t[currentExtent.height]:%d\n", 
+                  SC.currentExtent.height );;
+            
+            printf("\n");
+
+        #undef  SC /////////////////////////////////////////////
+        #define AE F62_surface_actual_extent ///////////////////
+
+            printf( "\t[F62_surface_actual_extent.width]:%d\n",
+                      F62_surface_actual_extent.width );
+
+            printf( "\t[F62_surface_actual_extent.height]:%d\n",
+                      F62_surface_actual_extent.height );
+
+        #undef  AE /////////////////////////////////////////////
+        //:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC://
+
+        //:M: MODE: (present mode)
+        //:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM://
+        printf("\n");
+        printf("\t[F62_surface_present_mode]:%d\n",
+                 F62_surface_present_mode
+        );;
+        printf("\t[VK_PRESENT_MODE_MAILBOX_KHR==1]\n");
+        //:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM://
+
+        //:F: FORMAT:
+        //:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF://
+        printf("\n");
+        #define SF  F62_surface_format /////////////////////////
+
+            printf("\t[F62_surface_format.format]:%d\n",
+                     F62_surface_format.format );;
+
+            printf("\t[F62_surface_format.colorSpace]:%d\n",
+                     F62_surface_format.colorSpace );;
+
+            printf("\t[VK_FORMAT_B8G8R8A8_UNORM=44]\n");
+            printf("\t[VK_COLOR_SPACE_SRGB_NONLINEAR_KHR=0]\n");
+
+        #undef  SF /////////////////////////////////////////////
+        //:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF://
+
+        printf("\n\n");
+
+    };; /** f62_tell_me_everything **/
+
+
 
     return( 1 ); //:TODO
 
@@ -398,9 +648,12 @@ f62_PrivateInitChapterSeven_07( void ){
     if( 0==device_count ){
         f62_Halt("[No_Physical_Devices]");
     }else{
-        printf("[WE_HAVE_THIS_MANY_DEVICES]:%d\n"
-            ,device_count
-        );;fflush(stdout);
+
+        if( f62_tell_me_everything ){
+            printf("[WE_HAVE_THIS_MANY_DEVICES]:%d\n"
+                ,device_count
+            );;fflush(stdout);
+        };;
     };;
 
     //:Skip this bullshit for now, we only have 1 device
@@ -436,21 +689,20 @@ f62_PrivateInitChapterSeven_07( void ){
     //:If this ever crashes, may have to un-hardcoded 
     //:our hack and loop over all physical devices.
     ////////////////////////////////////////////////////////////
-    printf("[BEG:DONT_YOU_FUCKING_SEGFAULT]\n");fflush(stdout);
+    f62_Print("[BEG:DONT_YOU_FUCKING_SEGFAULT]\n"); 
     int suitable = f62_isPhysicalDeviceSuitable();
     if(suitable != 1 ){
         f62_Halt("[DeviceWasNotSuitable]");
     }else{
-        printf("[DEVICE_WAS_SUITABLE]\n");    
+        f62_Print("[DEVICE_WAS_SUITABLE]\n");    
     };;
-    printf("[END:DONT_YOU_FUCKING_SEGFAULT]\n");fflush(stdout);
+    f62_Print("[END:DONT_YOU_FUCKING_SEGFAULT]\n"); 
     ////////////////////////////////////////////////////////////
 
     if( NULL == F62_physical_device ){
         f62_Halt("[OhFuck]");
     }else{
-        printf("[WeGotOurPhysicalDeviceBoys!]\n");
-        fflush(stdout);
+        f62_Print("[WeGotOurPhysicalDeviceBoys!]\n");
     };;
 
     //:Device Features:
@@ -466,8 +718,7 @@ f62_PrivateInitChapterSeven_07( void ){
     
     }else{
 
-        printf("[SUPPORTED:shaderInt64]\n");
-        fflush(stdout);
+        f62_Print("[SUPPORTED:shaderInt64]\n");
     
     };;
     ////////////////////////////////////////////////////////////
@@ -491,8 +742,7 @@ f62_PrivateInitChapterSeven_07( void ){
     
     }else{
 
-        printf("[I_HAVE_A_FUCKING_GPU]\n");
-        fflush(stdout);
+        f62_Print("[I_HAVE_A_FUCKING_GPU]\n");
     
     };;
 
@@ -502,13 +752,15 @@ f62_PrivateInitChapterSeven_07( void ){
         int lim =( F62_physical_device_properties.
                    limits.maxImageDimension2D );;
 
-        printf("[maxImageDimension2D]:%d\n", lim); //:16384
-        //: 16384 / 2 == 8192
-        //:  8192 / 2 == 4096
-        //:  4096 / 2 == 2048
-        //:  2048 / 2 == 1024
-        //:  1024 / 2 == 512
-        //:   512 / 2 == 256 ......
+        if( f62_tell_me_everything > 0 ){
+            printf("[maxImageDimension2D]:%d\n", lim); //:16384
+            //: 16384 / 2 == 8192
+            //:  8192 / 2 == 4096
+            //:  4096 / 2 == 2048
+            //:  2048 / 2 == 1024
+            //:  1024 / 2 == 512
+            //:   512 / 2 == 256 ......
+        };;
 
         ////////////////////////////////////////////////////////
 
@@ -542,7 +794,12 @@ f62_PrivateInitChapterSeven_07( void ){
         
         //:Allocate Space For qfp objects:
         //:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC://
-        printf("[qfp_num]:%d\n", qfp_num );fflush(stdout);
+
+            if( f62_tell_me_everything > 0 ){
+                printf("[qfp_num]:%d\n", qfp_num );
+                fflush(stdout);
+            };;
+
         int qfp_one = sizeof( 
             struct F20_VkQueueFamilyProperties
         );;
@@ -560,9 +817,11 @@ f62_PrivateInitChapterSeven_07( void ){
 
         if(NULL==qfp_arr){ f62_Halt("[FUCK_02]"); };
 
-        printf("[qfp_arr[0].queueFlags]:%d\n"
-        ,        qfp_arr[0].queueFlags
-        );;fflush(stdout);;
+        if( f62_tell_me_everything > 0 ){
+            printf("[qfp_arr[0].queueFlags]:%d\n"
+            ,        qfp_arr[0].queueFlags
+            );;fflush(stdout);;
+        };;
 
         //:LOOP:
         //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
@@ -581,12 +840,14 @@ f62_PrivateInitChapterSeven_07( void ){
             unsigned int f = cur.queueFlags;
             unsigned int c = cur.queueCount;
 
-            printf("\n");
-        
-                printf("[dex]:%d\n", dex );
-                printf("[f,c]:(%d)(%d)\n", f,c);
-        
-            printf("\n");
+            if( f62_tell_me_everything > 0 ){
+                printf("\n");
+            
+                    printf("[dex]:%d\n", dex );
+                    printf("[f,c]:(%d)(%d)\n", f,c);
+            
+                printf("\n");
+            };;
 
             if( 0==(f|c) ){
                 f62_Halt("[DataNotLoaded]");
@@ -626,8 +887,10 @@ f62_PrivateInitChapterSeven_07( void ){
         if(0==(found_graphics|found_compute)){
             f62_Halt("[DidNotFindBoth:QFP]");
         }else{
-            printf("[QFP(s):Found]");
-            fflush(stdout);
+            if( f62_tell_me_everything > 0 ){
+                printf("[QFP(s):Found]");
+                fflush(stdout);
+            };;
         };;
 
         //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
