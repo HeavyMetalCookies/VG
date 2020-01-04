@@ -544,8 +544,52 @@ F20_VkWin32SurfaceCreateInfoKHR{
 
 };//
 
+struct F20_VkExtent2D {
+    unsigned int /** uint32_t **/    width;
+    unsigned int /** uint32_t **/    height;
+};
 
+struct F20_VkSurfaceCapabilitiesKHR {
+    unsigned int /** uint32_t **/   minImageCount;
+    unsigned int /** uint32_t **/   maxImageCount;
 
+    struct F20_VkExtent2D           currentExtent;
+    struct F20_VkExtent2D           minImageExtent;
+    struct F20_VkExtent2D           maxImageExtent;
+
+    unsigned int /** uint32_t **/  
+    maxImageArrayLayers;
+
+    unsigned int /** VkSurfaceTransformFlagsKHR     **/     
+    supportedTransforms;
+
+    unsigned int /** VkSurfaceTransformFlagBitsKHR  **/
+    currentTransform;
+
+    unsigned int /** VkCompositeAlphaFlagsKHR       **/  
+    supportedCompositeAlpha;
+
+    unsigned int /** VkImageUsageFlags              **/               
+    supportedUsageFlags;
+
+};//[struct]//
+
+struct F20_VkSurfaceFormatKHR {
+    unsigned int /** VkFormat        **/    format    ;
+    unsigned int /** VkColorSpaceKHR **/    colorSpace;
+};//[struct]//
+
+//| enum, not a struct, so does not belong here, but has no place   |//
+//| to live.                                                        |//
+//| typedef enum VkPresentModeKHR {                                 |//
+//|     VK_PRESENT_MODE_IMMEDIATE_KHR = 0,                          |//
+//|     VK_PRESENT_MODE_MAILBOX_KHR = 1,                            |//
+//|     VK_PRESENT_MODE_FIFO_KHR = 2,                               |//
+//|     VK_PRESENT_MODE_FIFO_RELAXED_KHR = 3,                       |//
+//|     VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR     = 1000111000, |//
+//|     VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR = 1000111001, |//
+//|     VK_PRESENT_MODE_MAX_ENUM_KHR = 0x7FFFFFFF                   |//
+//| } VkPresentModeKHR;                                             |//
 
 ////////////////////////////////////////////////////////////////
 //    ABOVE: DATA                                             //
@@ -562,7 +606,7 @@ f20_Halt( const char* msg ){
 //:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
 
 //:BUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBU://
-//:BU:BlowUp
+//:BU:BlowUp //:SEE[ SC[ VK_SIZES_DEMO_C11_FOR_CHECKSUMS ]]
 static void
 f20_BlowUpIfStructSizesIncorrect( void ){
 
@@ -637,7 +681,22 @@ f20_BlowUpIfStructSizesIncorrect( void ){
         struct F20_VkWin32SurfaceCreateInfoKHR
     );;if( 40 != siz ){ f20_Halt("[!40:W32SCI]"); }
 
-        
+    //X//
+
+    siz = (int)sizeof(
+        struct F20_VkExtent2D
+    );;if(  8 != siz ){ f20_Halt("[!8:E2D]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkSurfaceCapabilitiesKHR
+    );;if( 52 != siz ){ f20_Halt("[!52:SC]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkSurfaceFormatKHR
+    );;if(  8 != siz ){ f20_Halt("[!8:SF]"); }
+
+
+    //X//
 
     
     printf("\n");

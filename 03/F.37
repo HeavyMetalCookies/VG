@@ -30,6 +30,10 @@
         #define arr F37_wanted_instance_extensions /////////////
                 arr=BEG( sizeof( char* ) );
 
+
+                    //:Because: Swapchain is DEVICE extension,
+                    //:-------: NOT an INSTANCE extension.
+    // NO >>>>>>>>>>>>  VAL("VK_KHR_swapchain") <<<<<<<<< NO! //
                         VAL("VK_KHR_surface");
                         VAL("VK_KHR_win32_surface");
 

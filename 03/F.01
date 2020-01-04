@@ -96,6 +96,28 @@ F02_F01_MACRO( vkGetDeviceQueue , vulkan-1 )
 //:MAKES:  F02_vkEnumerateDeviceExtensionProperties
 F02_F01_MACRO( vkEnumerateDeviceExtensionProperties , vulkan-1 )
 
+//:----------------------------------------------------------://
+//:3 more functions. Added[DATE[2019_01_04]]
+//:vkGetPhysicalDeviceSurfaceCapabilitiesKHR : Capabilities  ://
+//:vkGetPhysicalDeviceSurfaceFormatsKHR      : Formats       ://
+//:vkGetPhysicalDeviceSurfacePresentModesKHR : PresentModes  ://
+//:----------------------------------------------------------://
+
+
+//:MAKES:  F02_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+F02_F01_MACRO( vkGetPhysicalDeviceSurfaceCapabilitiesKHR , 
+               vulkan-1 )
+
+//:MAKES:  F02_vkGetPhysicalDeviceSurfaceFormatsKHR
+F02_F01_MACRO( vkGetPhysicalDeviceSurfaceFormatsKHR , 
+               vulkan-1 )
+
+//:MAKES:  F02_vkGetPhysicalDeviceSurfacePresentModesKHR
+F02_F01_MACRO( vkGetPhysicalDeviceSurfacePresentModesKHR , 
+               vulkan-1 )
+//:----------------------------------------------------------://
+
+
 ////////////////////////////////////////////////////////////////
 
 

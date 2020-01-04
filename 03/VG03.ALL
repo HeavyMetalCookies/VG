@@ -2661,6 +2661,28 @@ F02_F01_MACRO( vkGetDeviceQueue , vulkan-1 )
 //:MAKES:  F02_vkEnumerateDeviceExtensionProperties
 F02_F01_MACRO( vkEnumerateDeviceExtensionProperties , vulkan-1 )
 
+//:----------------------------------------------------------://
+//:3 more functions. Added[DATE[2019_01_04]]
+//:vkGetPhysicalDeviceSurfaceCapabilitiesKHR : Capabilities  ://
+//:vkGetPhysicalDeviceSurfaceFormatsKHR      : Formats       ://
+//:vkGetPhysicalDeviceSurfacePresentModesKHR : PresentModes  ://
+//:----------------------------------------------------------://
+
+
+//:MAKES:  F02_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+F02_F01_MACRO( vkGetPhysicalDeviceSurfaceCapabilitiesKHR , 
+               vulkan-1 )
+
+//:MAKES:  F02_vkGetPhysicalDeviceSurfaceFormatsKHR
+F02_F01_MACRO( vkGetPhysicalDeviceSurfaceFormatsKHR , 
+               vulkan-1 )
+
+//:MAKES:  F02_vkGetPhysicalDeviceSurfacePresentModesKHR
+F02_F01_MACRO( vkGetPhysicalDeviceSurfacePresentModesKHR , 
+               vulkan-1 )
+//:----------------------------------------------------------://
+
+
 ////////////////////////////////////////////////////////////////
 
 
@@ -5039,8 +5061,52 @@ F20_VkWin32SurfaceCreateInfoKHR{
 
 };//
 
+struct F20_VkExtent2D {
+    unsigned int /** uint32_t **/    width;
+    unsigned int /** uint32_t **/    height;
+};
 
+struct F20_VkSurfaceCapabilitiesKHR {
+    unsigned int /** uint32_t **/   minImageCount;
+    unsigned int /** uint32_t **/   maxImageCount;
 
+    struct F20_VkExtent2D           currentExtent;
+    struct F20_VkExtent2D           minImageExtent;
+    struct F20_VkExtent2D           maxImageExtent;
+
+    unsigned int /** uint32_t **/  
+    maxImageArrayLayers;
+
+    unsigned int /** VkSurfaceTransformFlagsKHR     **/     
+    supportedTransforms;
+
+    unsigned int /** VkSurfaceTransformFlagBitsKHR  **/
+    currentTransform;
+
+    unsigned int /** VkCompositeAlphaFlagsKHR       **/  
+    supportedCompositeAlpha;
+
+    unsigned int /** VkImageUsageFlags              **/               
+    supportedUsageFlags;
+
+};//[struct]//
+
+struct F20_VkSurfaceFormatKHR {
+    unsigned int /** VkFormat        **/    format    ;
+    unsigned int /** VkColorSpaceKHR **/    colorSpace;
+};//[struct]//
+
+//| enum, not a struct, so does not belong here, but has no place   |//
+//| to live.                                                        |//
+//| typedef enum VkPresentModeKHR {                                 |//
+//|     VK_PRESENT_MODE_IMMEDIATE_KHR = 0,                          |//
+//|     VK_PRESENT_MODE_MAILBOX_KHR = 1,                            |//
+//|     VK_PRESENT_MODE_FIFO_KHR = 2,                               |//
+//|     VK_PRESENT_MODE_FIFO_RELAXED_KHR = 3,                       |//
+//|     VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR     = 1000111000, |//
+//|     VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR = 1000111001, |//
+//|     VK_PRESENT_MODE_MAX_ENUM_KHR = 0x7FFFFFFF                   |//
+//| } VkPresentModeKHR;                                             |//
 
 ////////////////////////////////////////////////////////////////
 //    ABOVE: DATA                                             //
@@ -5057,7 +5123,7 @@ f20_Halt( const char* msg ){
 //:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
 
 //:BUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBU://
-//:BU:BlowUp
+//:BU:BlowUp //:SEE[ SC[ VK_SIZES_DEMO_C11_FOR_CHECKSUMS ]]
 static void
 f20_BlowUpIfStructSizesIncorrect( void ){
 
@@ -5132,7 +5198,22 @@ f20_BlowUpIfStructSizesIncorrect( void ){
         struct F20_VkWin32SurfaceCreateInfoKHR
     );;if( 40 != siz ){ f20_Halt("[!40:W32SCI]"); }
 
-        
+    //X//
+
+    siz = (int)sizeof(
+        struct F20_VkExtent2D
+    );;if(  8 != siz ){ f20_Halt("[!8:E2D]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkSurfaceCapabilitiesKHR
+    );;if( 52 != siz ){ f20_Halt("[!52:SC]"); }
+
+    siz = (int)sizeof(
+        struct F20_VkSurfaceFormatKHR
+    );;if(  8 != siz ){ f20_Halt("[!8:SF]"); }
+
+
+    //X//
 
     
     printf("\n");
@@ -5484,6 +5565,10 @@ f36_PrivateInit(){
         #define arr F37_wanted_instance_extensions /////////////
                 arr=BEG( sizeof( char* ) );
 
+
+                    //:Because: Swapchain is DEVICE extension,
+                    //:-------: NOT an INSTANCE extension.
+    // NO >>>>>>>>>>>>  VAL("VK_KHR_swapchain") <<<<<<<<< NO! //
                         VAL("VK_KHR_surface");
                         VAL("VK_KHR_win32_surface");
 
@@ -6566,6 +6651,13 @@ f61_PrivateInit_CreateWindowSurface( void ){
 
     //:F61P5: Chapter 10. Swap Chain. BookPage[ 76 ]
 
+    //:NOTE: When creating a device with a given extension,
+    //:      you have to do TWO things.
+    //:      1. Check if physical device supports THE_EXT.
+    //:      2. OPT-IN for THE_EXT when creating a 
+    //:         LOGICAL device.
+    //:         THE_EXT:"The Extension You Want To Use"
+
 
 char** F61P5_physical_device_extensions_names       = NULL;
 int    F61P5_physical_device_extensions_names_count = 0   ;
@@ -6643,8 +6735,8 @@ f61P5_PrivateInit( void ){
 //#FILE_REGION[ F.62 ]BEG#####################################//
 
 //:DOTADIW: PHYDEV_SELECT
-//:        ( vulkan_chapter_seven:   )
-//:        (Physical Device Selection)
+//:        ( vulkan_chapter_seven:         )
+//:        (PHYSICAL Device (GPU) Selection)
 
 //:When more confident, we increment file numbers by 2
 //:instead of 10. Confident in not making more insertion
@@ -6743,11 +6835,10 @@ f61P5_PrivateInit( void ){
 /** ---- **/                                        /** ---- **/
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
 
-
 static int
-f62_isPhysicalDeviceSuitable( void ){
+f62_isPhysicalDeviceSuitable_HasWantedExtensions( void ){
 
-    if(NULL==F62_physical_device){
+ if(NULL==F62_physical_device){
         //:EPDTABS:ExpectedPhysicalDeviceToAlreadyBeSet
         f62_Halt("[EPDTABS]");
     };;
@@ -6788,6 +6879,7 @@ f62_isPhysicalDeviceSuitable( void ){
     int missing_count = 0;
     
 
+    //:F61P5:Means "File #61.5" (Between: F61 & F62)
     #define W  F61P5_physical_device_extensions_names_count ////
     #define H  extension_count                              ////
     for( int w = 0; w < (int)W; w++ ){ //:WHAT_WE_WANT
@@ -6855,6 +6947,61 @@ f62_isPhysicalDeviceSuitable( void ){
 
     return( 1 ); //:TRUE, device suitable
 
+}//[;]//
+
+static int
+f62_isPhysicalDeviceSuitable_SwapChainAdequate( void ){
+
+    return( 1 ); //:TODO
+
+}//[;]//
+
+
+static int
+f62_isPhysicalDeviceSuitable( void ){
+
+    /** final_cumulative_decision_about_device_suitability **/
+    /** final_cumulative_decision **/
+    int ret=( /** ret: return final cumulative decision **/
+        0-777
+    );;
+
+    int A = 0;
+    int B = 0;
+
+    A = f62_isPhysicalDeviceSuitable_HasWantedExtensions();
+
+
+    //:If no swapchain extension ( "VK_KHR_swapchain" )
+    //:Then no point in checking further. Also, this check
+    //:might result in program termination if A!=1, because
+    //:we are querying swapchain details on a device that
+    //:does not have swapchain abilities.
+    //:------------------------------------------------------://
+    //:QUOTE:
+    //:SEARCH[ extensionsSupported ]IN[ VKTUTPDF2018]
+    //:QUOTE:It is important that we only try to query for swap 
+    //:      chain support after verifyingthat the extension 
+    //:      is available. BOOK_PAGE[ 80 ]
+    ////////////////////////////////////////////////////////////
+    if( 1==A ){
+        //:Page: 78,79,80. VKTUTPDF2018
+        //:SEARCH: "SwapChainSupportDetails"
+        B = f62_isPhysicalDeviceSuitable_SwapChainAdequate();
+    };;
+    ////////////////////////////////////////////////////////////
+
+    if(     1
+        &&  1 == A //:HasWantedExtensions
+        &&  1 == B //:SwapChainAdequate
+    ){
+        ret = 1; /** final_cumulative_decision: YES **/
+    }else{
+        ret = 0; /** final_cumulative_decision: NO! **/
+    };;
+        
+    assert( (0==ret)||(1==ret) ); 
+    return( ret ); /** final_cumulative_decision **/
 }//[;]//
 ////////////////////////////////////////////////////////////////
 
@@ -7515,6 +7662,23 @@ f64_PrivateInitChapterEight_08( void ){
         F64_enabled_logical_device_features
     );;
 
+        //:Adding swapchain selection.
+        //:BOOK_PAGE[ 78 ]FILE_SHORTCUT[ VKTUT2018PDF ]
+        ////////////////////////////////////////////////////////
+        #define arr F61P5_physical_device_extensions_names
+        #define len F61P5_physical_device_extensions_names_count
+        #define READ_ONLY_LIST const char**
+        ////////////////////////////////////////////////////////
+
+        ci_dev.  enabledExtensionCount=len;
+        ci_dev.ppEnabledExtensionNames=(READ_ONLY_LIST)arr;
+         
+        #undef arr /////////////////////////////////////////////
+        #undef len /////////////////////////////////////////////
+        #undef READ_ONLY_LIST //////////////////////////////////
+        /**ppEnabledExtensionNames === enabledExtensionNames **/
+        ////////////////////////////////////////////////////////
+
     int res =(
 
         (int)(unsigned long long)
@@ -7724,7 +7888,7 @@ void f66_PrivateInitPage_70( void ){
 //#FILE_REGION[ F.70 ]BEG#####################################//
 
 
-    F70**NOTICE*ME*SENPAI**
+  //  F70**NOTICE*ME*SENPAI**
     
     //:Insert this in correct spot: PAGE: 78, VKTUTPDF2018
     //: Enabling the extension just requires a small change to the 

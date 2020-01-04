@@ -184,6 +184,23 @@ f64_PrivateInitChapterEight_08( void ){
         F64_enabled_logical_device_features
     );;
 
+        //:Adding swapchain selection.
+        //:BOOK_PAGE[ 78 ]FILE_SHORTCUT[ VKTUT2018PDF ]
+        ////////////////////////////////////////////////////////
+        #define arr F61P5_physical_device_extensions_names
+        #define len F61P5_physical_device_extensions_names_count
+        #define READ_ONLY_LIST const char**
+        ////////////////////////////////////////////////////////
+
+        ci_dev.  enabledExtensionCount=len;
+        ci_dev.ppEnabledExtensionNames=(READ_ONLY_LIST)arr;
+         
+        #undef arr /////////////////////////////////////////////
+        #undef len /////////////////////////////////////////////
+        #undef READ_ONLY_LIST //////////////////////////////////
+        /**ppEnabledExtensionNames === enabledExtensionNames **/
+        ////////////////////////////////////////////////////////
+
     int res =(
 
         (int)(unsigned long long)

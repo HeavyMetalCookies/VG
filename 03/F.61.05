@@ -5,6 +5,13 @@
 
     //:F61P5: Chapter 10. Swap Chain. BookPage[ 76 ]
 
+    //:NOTE: When creating a device with a given extension,
+    //:      you have to do TWO things.
+    //:      1. Check if physical device supports THE_EXT.
+    //:      2. OPT-IN for THE_EXT when creating a 
+    //:         LOGICAL device.
+    //:         THE_EXT:"The Extension You Want To Use"
+
 
 char** F61P5_physical_device_extensions_names       = NULL;
 int    F61P5_physical_device_extensions_names_count = 0   ;
