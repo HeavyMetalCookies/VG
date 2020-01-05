@@ -2682,6 +2682,8 @@ F02_F01_MACRO( vkGetPhysicalDeviceSurfacePresentModesKHR ,
                vulkan-1 )
 //:----------------------------------------------------------://
 
+//:MAKES:  F02_vkCreateSwapchainKHR
+F02_F01_MACRO( vkCreateSwapchainKHR , vulkan-1 )
 
 ////////////////////////////////////////////////////////////////
 
@@ -4521,11 +4523,13 @@ int F10_Main(){
 //: (ALSO SEE: F.35: Structs that take function pointers)
 //: (Declarations, no instantiation!)
 
-
-//:void* types (via DECLARE_HANDLE( whatever ) )
-//[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
-//[ F20_VkDeviceSize ================ UI64   ]//
-//[ F20_VkSurfaceKHR ================ void*  ]//
+//:何:Whatever
+//:void* types (via DECLARE_HANDLE( 何 ) ) <<Right Name?
+//:UI64  types:(via VK_DEFINE_NON_DISPATCHABLE_HANDLE( 何 ))
+//[ F20_VkDebugUtilsMessengerEXT ====== void*  ]//
+//[ F20_VkDeviceSize ================== UI64   ]// [✓]
+//[ F20_VkSurfaceKHR ================== void*  ]//
+//[ F20_VkSwapchainKHR ================ UI64   ]//
 
 struct F20_VkApplicationInfo {
     unsigned int       sType; //:VkStructureType
@@ -5108,6 +5112,39 @@ struct F20_VkSurfaceFormatKHR {
 //|     VK_PRESENT_MODE_MAX_ENUM_KHR = 0x7FFFFFFF                   |//
 //| } VkPresentModeKHR;                                             |//
 
+
+#define UI32 unsigned int          /////////////////////////////
+#define EX2D struct F20_VkExtent2D /////////////////////////////
+struct F20_VkSwapchainCreateInfoKHR {
+        UI32    sType  ;   /** VkStructureType **/
+  const void*   pNext  ;
+        UI32    flags  ;   /** VkSwapchainCreateFlagsKHR **/
+        
+        void*   surface;         /** VkSurfaceKHR    **/
+
+        UI32    minImageCount;   /** uint32_t        **/
+        UI32    imageFormat;     /** VkFormat        **/
+        UI32    imageColorSpace; /** VkColorSpaceKHR **/
+        
+        EX2D    imageExtent;
+
+        UI32    imageArrayLayers;
+        UI32    imageUsage;       /** VkImageUsageFlags **/
+        UI32    imageSharingMode; /** VkSharingMode  **/
+        UI32    queueFamilyIndexCount;
+  const UI32*   pQueueFamilyIndices  ;
+
+        UI32    preTransform  ;
+        UI32    compositeAlpha;
+        UI32    presentMode   ;
+        UI32    clipped       ;
+
+        //:VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkSwapchainKHR)
+        void*   oldSwapchain  ;
+};//[struct]//
+#undef UI32 ////////////////////////////////////////////////////
+#undef EX2D ////////////////////////////////////////////////////
+
 ////////////////////////////////////////////////////////////////
 //    ABOVE: DATA                                             //
 //    BELOW: FUNC                                             //
@@ -5214,6 +5251,13 @@ f20_BlowUpIfStructSizesIncorrect( void ){
 
 
     //X//
+
+    siz = (int)sizeof(
+        struct F20_VkSwapchainCreateInfoKHR
+    );;if(  104 != siz ){ f20_Halt("[!104:SCI]"); }
+
+
+
 
     
     printf("\n");
@@ -6767,8 +6811,9 @@ int f62_tell_me_everything = 1;
     VAR_05  F62_qfp_compute   ;
     VAR_06  F62_qfp_graphics_and_compute_are_same_object;
 
-    VAR_07  F62_qfi_graphics  ; //:qfi:queue_family_index
-    VAR_08  F62_qfi_compute   ;
+    //: qfi:queue_family_index
+    VAR_07  F62_qfi_graphics  ; //: graphicsFamily  
+    VAR_08  F62_qfi_compute   ; //: presentFamily   
 
     //:C - F - M: Alphabetical order:
     ////////////////////////////////////////////////////////////
@@ -7686,6 +7731,56 @@ f62_PrivateInitChapterSeven_07( void ){
 
     //: #ITIV# : Init_To_Invalid_Value
 
+
+
+    //|////////////////////////////////////////////|////////////
+    //|     -///-                        -///-     |////////////
+    //|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////////////
+    //|_  __      __  __  __  __  __  __      __  _|////////////
+    //| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////////////
+    //|      \  /                        \  /      |////////////
+    //|       \/                          \/       |////////////
+    //+ BEG: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////////////
+    //|           /\                  /\           |////////////
+    //|          /  \                /  \          |////////////
+    //|_--__--__/    \__/\__/\__/\__/    \__--__--_|////////////
+    //|                                            |////////////
+    //|       ______________________________       |////////////
+    //|______/                              \______|////////////
+    #if(BOTTOM_OF_FILE_COMMENTS_SECTION) ///////////////////////
+    /** ****************************************** |||
+                                                    
+    
+        FOR EASY FINDING WITH GREP:
+        --------------------------------------
+        F62_qfi_graphics  ; //: graphicsFamily  ( index )
+        F62_qfi_compute   ; //: presentFamily   ( index ) 
+                                                
+        F62_qfi_graphics  ; //: graphics_family ( index )
+        F62_qfi_compute   ; //: present_family  ( index )
+
+        //:The present mode we will use for our swap chain:
+        F62_surface_present_mode //: presentMode
+    
+                                                    
+    ||| ****************************************** **/ 
+    #endif /////////////////////////////////////////////////////
+    //|______                                ______|////////////
+    //|||||||\______________________________/|||||||////////////
+    //|                                            |////////////
+    //|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////////////
+    //|_  __      __  __  __  __  __  __      __  _|////////////
+    //| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////////////
+    //|      \  /                        \  /      |////////////
+    //|       \/                          \/       |////////////
+    //+ END: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////////////
+    //|           /\                  /\           |////////////
+    //|          /  \                /  \          |////////////
+    //|_--__--__/    \__/\__/\__/\__/    \__--__--_|////////////
+    //|                                            |////////////
+    //|____________________________________________|////////////
+
+
 //#FILE_REGION[ F.62 ]END#####################################//
 
 //#FILE_REGION[ F.63 ]BEG#####################################//
@@ -7702,8 +7797,8 @@ f62_PrivateInitChapterSeven_07( void ){
 
         //:For presenting images to screen:
         //:(graphics and compute are in: "F.62" / F62_*
-        QFP    F63_qfp_present ;
-        QFI    F63_qfi_present ;
+        QFP    F63_qfp_present ; //: presentFamily
+        QFI    F63_qfi_present ; //: presentFamily
 
 
 #undef  QFP ////////////////////////////////////////////////////
@@ -7849,6 +7944,51 @@ f63_PrivateInit( void ){
     }//[;]//
 
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+
+    //|////////////////////////////////////////////|////////////
+    //|     -///-                        -///-     |////////////
+    //|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////////////
+    //|_  __      __  __  __  __  __  __      __  _|////////////
+    //| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////////////
+    //|      \  /                        \  /      |////////////
+    //|       \/                          \/       |////////////
+    //+ BEG: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////////////
+    //|           /\                  /\           |////////////
+    //|          /  \                /  \          |////////////
+    //|_--__--__/    \__/\__/\__/\__/    \__--__--_|////////////
+    //|                                            |////////////
+    //|       ______________________________       |////////////
+    //|______/                              \______|////////////
+    #if(BOTTOM_OF_FILE_COMMENTS_SECTION) ///////////////////////
+    /** ****************************************** |||
+                                                    
+    
+        FOR EASY FINDING WITH GREP:
+        --------------------------------------------------------
+        F63_qfp_present ; //: presentFamily ( OBJECT/PROPS )
+        F63_qfi_present ; //: presentFamily ( FAMILY INDEX )
+
+        F63_qfp_present ; //: present_family ( OBJECT/PROPS )
+        F63_qfi_present ; //: present_family ( FAMILY INDEX )
+        --------------------------------------------------------
+                                                    
+    ||| ****************************************** **/ 
+    #endif /////////////////////////////////////////////////////
+    //|______                                ______|////////////
+    //|||||||\______________________________/|||||||////////////
+    //|                                            |////////////
+    //|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////////////
+    //|_  __      __  __  __  __  __  __      __  _|////////////
+    //| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////////////
+    //|      \  /                        \  /      |////////////
+    //|       \/                          \/       |////////////
+    //+ END: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////////////
+    //|           /\                  /\           |////////////
+    //|          /  \                /  \          |////////////
+    //|_--__--__/    \__/\__/\__/\__/    \__--__--_|////////////
+    //|                                            |////////////
+    //|____________________________________________|////////////
 
 
 //#FILE_REGION[ F.63 ]BEG#####################################//
@@ -8264,10 +8404,229 @@ void f66_PrivateInitPage_70( void ){
 //#FILE_REGION[ F.70 ]BEG#####################################//
 
 
-    F70**NOTICE*ME*SENPAI**
+    //:DOTADIW: Create swapchain
+ 
+    //: BOOK_PAGE[ 84 ]: Creating the swap chain
+    //:   FILE_SC[ VKTUTPDF2018 ]
+
+
+    //:Must be converted to signed integer
+    //:when passed to VkSwapchainCreateInfoKHR
+    int F70_swapchain_image_count = (0-1);
+
+    //: swap_chain / swapChain
+    //: If "swapchain" is indeed one word, then
+    //: the proper way to write variable in both
+    //: camel-case and snake-case is "swapchain".
+    /** VK_DEFINE_NON_DISPATCHABLE_HANDLE( VkSwapchainKHR ) **/
+    unsigned long long int F70_swapchain = { 0 };
+
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f70_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f70_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+static void f70_PrivateInit( void ){
+
+    //: SC:: F20_VkSurfaceCapabilitiesKHR //////////////////////
+    //: SIC: integer                      //////////////////////
+    #define SC   F62_surface_capabilities //////////////////////
+    #define SIC  F70_swapchain_image_count /////////////////////
+    #define MAX  SC.maxImageCount          /////////////////////
+    #define MIN  SC.minImageCount          /////////////////////
+
+        int max=(0-333);
+        int min=(0-222);
+        max = (int)( F62_surface_capabilities.maxImageCount );
+        min = (int)( F62_surface_capabilities.minImageCount );
     
-    BOOK_PAGE[ 84 ]: Creating the swap chain
-      FILE_SC[ VKTUTPDF2018 ]
+        SIC = ( min + 1 );
+        
+        //:If Swap chain image count is greater than the max,
+        //:(Provided max is not unlimited (MAX<=0) ),
+        //:Then cap the swap chain image count to MAX value
+        //:of capabilities.
+        if( max > 0 && SIC > max ){ SIC = max; };
+
+
+    #undef SC   ////////////////////////////////////////////////
+    #undef SIC  ////////////////////////////////////////////////
+    #undef MAX  ////////////////////////////////////////////////
+    #undef MIN  ////////////////////////////////////////////////
+
+    struct F20_VkSwapchainCreateInfoKHR  I  = { 0 }; //:I: Info
+    
+    I.surface          = F61_vulkan_surface ;;;;;;;;;;;
+    I.minImageCount    = F70_swapchain_image_count    ;
+    I.imageFormat      = F62_surface_format.format    ;
+    I.imageColorSpace  = F62_surface_format.colorSpace;
+    I.imageExtent      = F62_surface_actual_extent    ;
+
+    //+------------------------------------------------------+//
+    //| The imageArrayLayers specifies the amount of layers  |//
+    //| each image consists of.This is always 1 unless you   |//
+    //| are developing a stereoscopic 3D application.        |//
+    //| SOURCE[ VKTUTPDF2018 ]BOOK_PAGE[ 85 ] ---------------|//
+    I.imageArrayLayers = 1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    //+------------------------------------------------------+//
+    //| The imageUsage bit field specifies what kind of      |//
+    //| operations we’ll use the images in the swap chain   |//
+    //| for. In this tutorial we’re going to render         |//
+    //| directly to them, which means that they’re used     |//
+    //| as color attachment. It is also possible that        |//
+    //| you’ll render images to a separate image first to   |//
+    //| perform operations like post-processing. In that     |//
+    //| case you may use a value                             |//
+    //| like VK_IMAGE_USAGE_TRANSFER_DST_BIT insteadand use  |//
+    //| a memory operation to transfer the rendered image    |//
+    //| to a swap chainimage                                 |//
+    /** 0x00000010 : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT  **/
+    I.imageUsage       = 0x00000010 ;
+
+    /**    VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR **/
+    I.sType = 1000001000 /** SWAPCHAIN_CREATE_INFO     **/ ;
+
+    //:Hackish way to make sure these values are
+    //:all numerical indicies and not objects.
+    if( F63_qfi_present  + 
+        F62_qfi_graphics +
+        F62_qfi_compute  +
+    0){ /** NOOP **/ };
+
+    //:Will have to modify this logic if we want to get
+    //:a compute shader. But right now let's finish the
+    //:tutorial first, then refactor the code into a new
+    //:project. #GREP_HELP#QueueFamilyIndices#
+    unsigned int queue_family_indicies[2] ={
+        (unsigned int) F63_qfi_present
+    ,   (unsigned int) F62_qfi_graphics
+    };;
+
+    if( F62_qfi_graphics != F63_qfi_present ){
+
+        /** *********** VK_SHARING_MODE_CONCURRENT **/
+        I.imageSharingMode      = 1 /** CONCURRENT **/;
+        I.queueFamilyIndexCount = 2          ;
+        I.pQueueFamilyIndices   = queue_family_indicies;
+        //:pQueueFamilyIndices NOT pQueueFamilyIndicies 
+
+        //| VK_SHARING_MODE_CONCURRENT: Images can be used   |//
+        //| across multiple queue families without explicit  |//
+        //| ownership transfers.                             |//
+
+        //:JMIM_COMMENT:
+        //:I am guessing "CONCURRENT" sharing is easier, and
+        //:that is why it is preferred if the capability
+        //:is there?
+
+        //: YES: QUOTE: BOOKPAGE[ 86 ]VKTUTPDF2018
+        //: if the queue families differ,then we’ll be using
+        //: the concurrent mode in thistutorial to avoid
+        //: having to do the ownership chapters.
+
+    }else{
+
+        //:SC[ VKTUTPDF2018 ]BOOK_PAGE[ 86 ]
+        //:Why the "0/null optional(s) ?"
+        //:What makes these optional in EXCLUSIVE
+        //:sharing mode?
+
+        //| VK_SHARING_MODE_EXCLUSIVE: An image is owned by  |//
+        //| one queue family at a time and ownership must    |//
+        //| be explicitly transfered before using it         |//
+        //| in another queue family. This option             |//
+        //| offers the best performance.                     |//       
+
+        /** *********** VK_SHARING_MODE_EXCLUSIVE **/
+        I.imageSharingMode      = 0 /** EXCLUSIVE **/;
+        I.queueFamilyIndexCount = 0   ;  //:Optional
+        I.pQueueFamilyIndices   = NULL;  //:Optional
+
+    };;
+
+    //:To specify that you do not want any transformation, 
+    //:simply specify the current transformation.
+    I.preTransform = F62_surface_capabilities.currentTransform;
+
+    //:Dont blend with other windows in the window system:
+    /** 0x00000001 VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR **/
+    I.compositeAlpha = 0x00000001 /** OPAQUE **/ ;
+    
+    I.presentMode = F62_surface_present_mode ;
+
+    /** Means we DONT CARE about the color of clipped pixels.**/
+    /** We will definitely care once we start doing the      **/
+    /** fractal rendering algorithm. **/
+    I.clipped     = 1 /**VK_TRUE**/   ;
+
+    I.oldSwapchain = 0 /**VK_NULL_HANDLE**/ ;
+
+    int ret = 
+    (int)(unsigned long long int)
+    ((F03_04)F02_vkCreateSwapchainKHR)(
+        F64_logical_device          /** VkDevice device **/
+    , &( I )    /** VkswapchainCreateInfoKHR pCreateInfo**/
+    ,   NULL    /** VkAllocationCallbacks*   pAllocator **/
+    , &(F70_swapchain) /** VkSwapchainKHR*   pSwapchain **/
+    );;
+    
+    if( 0 != ret /** 0: VK_SUCCESS **/ ){
+        f70_Halt("[SWAPCHAIN_CREATE_FAIL:SEE_NOTES_HERE]");
+
+        //| Now run the application to ensure that the swap  |//
+        //| chain is created successfully! If at this point  |//
+        //| you get an access  violation error in            |//
+        //| vkCreateSwapchainKHR, then see the FAQ           |//
+        //| entry about the Steam overlay layer.             |//
+    }else
+    if( 0 == ret  /** 0: VK_SUCCESS **/ ){
+        printf("[Swapchain_Created!]");
+    }else{
+        f70_Halt("[EDCL]"); //:ExpectedDeadCodeLine
+    };;
+
+
+
+
+
+}//[;]//
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F70_Init(){                           //[IM--------IM]//
+        printf("[BEG:F70:Init]\n");           //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F66_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f70_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F70:Init]\n");           //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F70_Main(){                           //[IM--------IM]//
+        F70_Init();                           //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F70:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
 //#FILE_REGION[ F.70 ]END#####################################//
 //#FILE_REGION[ VG03.H ]BEG###################################//
@@ -8315,9 +8674,8 @@ VG03_Demo( void ){
     //:F61_Main();
     //:F62_Main();
     //:F64_Main();
-       F66_Main();
-
-    // F70_Main();
+    //:F66_Main();
+       F70_Main();
 
 
     printf("[END:VG03_DEMO]\n");

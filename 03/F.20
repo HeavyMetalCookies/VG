@@ -4,11 +4,13 @@
 //: (ALSO SEE: F.35: Structs that take function pointers)
 //: (Declarations, no instantiation!)
 
-
-//:void* types (via DECLARE_HANDLE( whatever ) )
-//[ F20_VkDebugUtilsMessengerEXT ==== void*  ]//
-//[ F20_VkDeviceSize ================ UI64   ]//
-//[ F20_VkSurfaceKHR ================ void*  ]//
+//:何:Whatever
+//:void* types (via DECLARE_HANDLE( 何 ) ) <<Right Name?
+//:UI64  types:(via VK_DEFINE_NON_DISPATCHABLE_HANDLE( 何 ))
+//[ F20_VkDebugUtilsMessengerEXT ====== void*  ]//
+//[ F20_VkDeviceSize ================== UI64   ]// [✓]
+//[ F20_VkSurfaceKHR ================== void*  ]//
+//[ F20_VkSwapchainKHR ================ UI64   ]//
 
 struct F20_VkApplicationInfo {
     unsigned int       sType; //:VkStructureType
@@ -591,6 +593,39 @@ struct F20_VkSurfaceFormatKHR {
 //|     VK_PRESENT_MODE_MAX_ENUM_KHR = 0x7FFFFFFF                   |//
 //| } VkPresentModeKHR;                                             |//
 
+
+#define UI32 unsigned int          /////////////////////////////
+#define EX2D struct F20_VkExtent2D /////////////////////////////
+struct F20_VkSwapchainCreateInfoKHR {
+        UI32    sType  ;   /** VkStructureType **/
+  const void*   pNext  ;
+        UI32    flags  ;   /** VkSwapchainCreateFlagsKHR **/
+        
+        void*   surface;         /** VkSurfaceKHR    **/
+
+        UI32    minImageCount;   /** uint32_t        **/
+        UI32    imageFormat;     /** VkFormat        **/
+        UI32    imageColorSpace; /** VkColorSpaceKHR **/
+        
+        EX2D    imageExtent;
+
+        UI32    imageArrayLayers;
+        UI32    imageUsage;       /** VkImageUsageFlags **/
+        UI32    imageSharingMode; /** VkSharingMode  **/
+        UI32    queueFamilyIndexCount;
+  const UI32*   pQueueFamilyIndices  ;
+
+        UI32    preTransform  ;
+        UI32    compositeAlpha;
+        UI32    presentMode   ;
+        UI32    clipped       ;
+
+        //:VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkSwapchainKHR)
+        void*   oldSwapchain  ;
+};//[struct]//
+#undef UI32 ////////////////////////////////////////////////////
+#undef EX2D ////////////////////////////////////////////////////
+
 ////////////////////////////////////////////////////////////////
 //    ABOVE: DATA                                             //
 //    BELOW: FUNC                                             //
@@ -697,6 +732,13 @@ f20_BlowUpIfStructSizesIncorrect( void ){
 
 
     //X//
+
+    siz = (int)sizeof(
+        struct F20_VkSwapchainCreateInfoKHR
+    );;if(  104 != siz ){ f20_Halt("[!104:SCI]"); }
+
+
+
 
     
     printf("\n");

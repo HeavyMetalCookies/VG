@@ -117,6 +117,8 @@ F02_F01_MACRO( vkGetPhysicalDeviceSurfacePresentModesKHR ,
                vulkan-1 )
 //:----------------------------------------------------------://
 
+//:MAKES:  F02_vkCreateSwapchainKHR
+F02_F01_MACRO( vkCreateSwapchainKHR , vulkan-1 )
 
 ////////////////////////////////////////////////////////////////
 

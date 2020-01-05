@@ -1,9 +1,228 @@
 //#FILE_REGION[ F.70 ]BEG#####################################//
 
 
-    F70**NOTICE*ME*SENPAI**
+    //:DOTADIW: Create swapchain
+ 
+    //: BOOK_PAGE[ 84 ]: Creating the swap chain
+    //:   FILE_SC[ VKTUTPDF2018 ]
+
+
+    //:Must be converted to signed integer
+    //:when passed to VkSwapchainCreateInfoKHR
+    int F70_swapchain_image_count = (0-1);
+
+    //: swap_chain / swapChain
+    //: If "swapchain" is indeed one word, then
+    //: the proper way to write variable in both
+    //: camel-case and snake-case is "swapchain".
+    /** VK_DEFINE_NON_DISPATCHABLE_HANDLE( VkSwapchainKHR ) **/
+    unsigned long long int F70_swapchain = { 0 };
+
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f70_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f70_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+static void f70_PrivateInit( void ){
+
+    //: SC:: F20_VkSurfaceCapabilitiesKHR //////////////////////
+    //: SIC: integer                      //////////////////////
+    #define SC   F62_surface_capabilities //////////////////////
+    #define SIC  F70_swapchain_image_count /////////////////////
+    #define MAX  SC.maxImageCount          /////////////////////
+    #define MIN  SC.minImageCount          /////////////////////
+
+        int max=(0-333);
+        int min=(0-222);
+        max = (int)( F62_surface_capabilities.maxImageCount );
+        min = (int)( F62_surface_capabilities.minImageCount );
     
-    BOOK_PAGE[ 84 ]: Creating the swap chain
-      FILE_SC[ VKTUTPDF2018 ]
+        SIC = ( min + 1 );
+        
+        //:If Swap chain image count is greater than the max,
+        //:(Provided max is not unlimited (MAX<=0) ),
+        //:Then cap the swap chain image count to MAX value
+        //:of capabilities.
+        if( max > 0 && SIC > max ){ SIC = max; };
+
+
+    #undef SC   ////////////////////////////////////////////////
+    #undef SIC  ////////////////////////////////////////////////
+    #undef MAX  ////////////////////////////////////////////////
+    #undef MIN  ////////////////////////////////////////////////
+
+    struct F20_VkSwapchainCreateInfoKHR  I  = { 0 }; //:I: Info
+    
+    I.surface          = F61_vulkan_surface ;;;;;;;;;;;
+    I.minImageCount    = F70_swapchain_image_count    ;
+    I.imageFormat      = F62_surface_format.format    ;
+    I.imageColorSpace  = F62_surface_format.colorSpace;
+    I.imageExtent      = F62_surface_actual_extent    ;
+
+    //+------------------------------------------------------+//
+    //| The imageArrayLayers specifies the amount of layers  |//
+    //| each image consists of.This is always 1 unless you   |//
+    //| are developing a stereoscopic 3D application.        |//
+    //| SOURCE[ VKTUTPDF2018 ]BOOK_PAGE[ 85 ] ---------------|//
+    I.imageArrayLayers = 1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    //+------------------------------------------------------+//
+    //| The imageUsage bit field specifies what kind of      |//
+    //| operations we’ll use the images in the swap chain   |//
+    //| for. In this tutorial we’re going to render         |//
+    //| directly to them, which means that they’re used     |//
+    //| as color attachment. It is also possible that        |//
+    //| you’ll render images to a separate image first to   |//
+    //| perform operations like post-processing. In that     |//
+    //| case you may use a value                             |//
+    //| like VK_IMAGE_USAGE_TRANSFER_DST_BIT insteadand use  |//
+    //| a memory operation to transfer the rendered image    |//
+    //| to a swap chainimage                                 |//
+    /** 0x00000010 : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT  **/
+    I.imageUsage       = 0x00000010 ;
+
+    /**    VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR **/
+    I.sType = 1000001000 /** SWAPCHAIN_CREATE_INFO     **/ ;
+
+    //:Hackish way to make sure these values are
+    //:all numerical indicies and not objects.
+    if( F63_qfi_present  + 
+        F62_qfi_graphics +
+        F62_qfi_compute  +
+    0){ /** NOOP **/ };
+
+    //:Will have to modify this logic if we want to get
+    //:a compute shader. But right now let's finish the
+    //:tutorial first, then refactor the code into a new
+    //:project. #GREP_HELP#QueueFamilyIndices#
+    unsigned int queue_family_indicies[2] ={
+        (unsigned int) F63_qfi_present
+    ,   (unsigned int) F62_qfi_graphics
+    };;
+
+    if( F62_qfi_graphics != F63_qfi_present ){
+
+        /** *********** VK_SHARING_MODE_CONCURRENT **/
+        I.imageSharingMode      = 1 /** CONCURRENT **/;
+        I.queueFamilyIndexCount = 2          ;
+        I.pQueueFamilyIndices   = queue_family_indicies;
+        //:pQueueFamilyIndices NOT pQueueFamilyIndicies 
+
+        //| VK_SHARING_MODE_CONCURRENT: Images can be used   |//
+        //| across multiple queue families without explicit  |//
+        //| ownership transfers.                             |//
+
+        //:JMIM_COMMENT:
+        //:I am guessing "CONCURRENT" sharing is easier, and
+        //:that is why it is preferred if the capability
+        //:is there?
+
+        //: YES: QUOTE: BOOKPAGE[ 86 ]VKTUTPDF2018
+        //: if the queue families differ,then we’ll be using
+        //: the concurrent mode in thistutorial to avoid
+        //: having to do the ownership chapters.
+
+    }else{
+
+        //:SC[ VKTUTPDF2018 ]BOOK_PAGE[ 86 ]
+        //:Why the "0/null optional(s) ?"
+        //:What makes these optional in EXCLUSIVE
+        //:sharing mode?
+
+        //| VK_SHARING_MODE_EXCLUSIVE: An image is owned by  |//
+        //| one queue family at a time and ownership must    |//
+        //| be explicitly transfered before using it         |//
+        //| in another queue family. This option             |//
+        //| offers the best performance.                     |//       
+
+        /** *********** VK_SHARING_MODE_EXCLUSIVE **/
+        I.imageSharingMode      = 0 /** EXCLUSIVE **/;
+        I.queueFamilyIndexCount = 0   ;  //:Optional
+        I.pQueueFamilyIndices   = NULL;  //:Optional
+
+    };;
+
+    //:To specify that you do not want any transformation, 
+    //:simply specify the current transformation.
+    I.preTransform = F62_surface_capabilities.currentTransform;
+
+    //:Dont blend with other windows in the window system:
+    /** 0x00000001 VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR **/
+    I.compositeAlpha = 0x00000001 /** OPAQUE **/ ;
+    
+    I.presentMode = F62_surface_present_mode ;
+
+    /** Means we DONT CARE about the color of clipped pixels.**/
+    /** We will definitely care once we start doing the      **/
+    /** fractal rendering algorithm. **/
+    I.clipped     = 1 /**VK_TRUE**/   ;
+
+    I.oldSwapchain = 0 /**VK_NULL_HANDLE**/ ;
+
+    int ret = 
+    (int)(unsigned long long int)
+    ((F03_04)F02_vkCreateSwapchainKHR)(
+        F64_logical_device          /** VkDevice device **/
+    , &( I )    /** VkswapchainCreateInfoKHR pCreateInfo**/
+    ,   NULL    /** VkAllocationCallbacks*   pAllocator **/
+    , &(F70_swapchain) /** VkSwapchainKHR*   pSwapchain **/
+    );;
+    
+    if( 0 != ret /** 0: VK_SUCCESS **/ ){
+        f70_Halt("[SWAPCHAIN_CREATE_FAIL:SEE_NOTES_HERE]");
+
+        //| Now run the application to ensure that the swap  |//
+        //| chain is created successfully! If at this point  |//
+        //| you get an access  violation error in            |//
+        //| vkCreateSwapchainKHR, then see the FAQ           |//
+        //| entry about the Steam overlay layer.             |//
+    }else
+    if( 0 == ret  /** 0: VK_SUCCESS **/ ){
+        printf("[Swapchain_Created!]");
+    }else{
+        f70_Halt("[EDCL]"); //:ExpectedDeadCodeLine
+    };;
+
+
+
+
+
+}//[;]//
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F70_Init(){                           //[IM--------IM]//
+        printf("[BEG:F70:Init]\n");           //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F66_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f70_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F70:Init]\n");           //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F70_Main(){                           //[IM--------IM]//
+        F70_Init();                           //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F70:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
 //#FILE_REGION[ F.70 ]END#####################################//

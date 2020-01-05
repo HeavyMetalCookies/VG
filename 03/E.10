@@ -1,0 +1,56 @@
+
+
+
+    
+static void E10_Print( const char* msg ){
+
+    printf( "[E10_Print]:%s\n", msg );
+    fflush( stdout );
+
+}//[;]//
+
+
+static void e10_PrivateInit( void ){
+
+    #if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__) ) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+            
+        //: According to vulkan_core.h, NON_DISPATCHABLE handles
+        //: are pointers to opaque types implementation wise.
+        //: #define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
+
+        E10_Print( "NON_DISPATCHABLE == void*" );
+
+    #else
+        //: According to vulkan_core.h, NON_DISPATCHABLE handles
+        //: are implemented as typedef(ed) 64bit uints.
+        //: #define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef uint64_t object;
+
+        E10_Print( "NON_DISPATCHABLE == uint64_t" );
+#endif
+
+}//[;]//
+
+
+//:IM:Init_And_Main:
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int E10_Init(){
+        printf("[BEG:E10:Init]\n");
+
+            //:Call previous initialiers on chain:
+            int ret = E01_Init(); //: ".SUPER_CHAIN()"
+
+            e10_PrivateInit();
+
+        printf("[END:E10:Init]\n");
+        return( ret );
+    }//[;]//
+    int E10_Main(){
+        E10_Init();
+
+            printf("[E10:TO_EXIT:CTRL+C]\n");
+            while( 1 ){ }; //:LOOP_FOREVER
+
+        return( 0 );
+    }//[;]//
+
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
