@@ -1,0 +1,10 @@
+
+#include <stdio.h>  //:printf(...)
+#include <stdlib.h> //: exit()
+#include "HP._"
+
+int main( void ){
+
+    printf("[TODO:main]");
+
+}//[;]//

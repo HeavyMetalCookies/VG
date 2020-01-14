@@ -11,6 +11,7 @@
 //[ F20_VkDeviceSize ================== UI64   ]// [✓]
 //[ F20_VkSurfaceKHR ================== void*  ]//
 //[ F20_VkSwapchainKHR ================ UI64   ]//
+//[ F20_VkImage        ================
 
 struct F20_VkApplicationInfo {
     unsigned int       sType; //:VkStructureType
@@ -625,6 +626,8 @@ struct F20_VkSwapchainCreateInfoKHR {
 };//[struct]//
 #undef UI32 ////////////////////////////////////////////////////
 #undef EX2D ////////////////////////////////////////////////////
+
+
 
 ////////////////////////////////////////////////////////////////
 //    ABOVE: DATA                                             //

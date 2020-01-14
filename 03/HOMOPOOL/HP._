@@ -1,0 +1,369 @@
+
+//:HP: HOMOPOOL: Homeostasis_Pool
+//:SEE[ #HOMOPOOL_ABOUT# ]InCommentsSection
+
+//[ TYPE : Typedefs ---------------------------------------- ]//
+
+    //:Generic_Function_Pointer
+    typedef void (*HOMOPOOL_VOF)(void);
+
+    //:Signatures for function pointers:
+    ////////////////////////////////////////////////////////////
+
+    typedef
+        void* (*homopool_PFN_GetProcessHeap)( void );
+    
+    //:I think we only use __declspec(allocator) if using
+    //:microsoft visual studio. Hence the
+    //:"#if _MSC_VER < 1900" in code I've been reading.
+    typedef
+    //  __declspec(allocator) /**DECLSPEC_ALLOCATOR**/
+        void*                 /** LPVOID **/ 
+        (*homopool_PFN_HeapAlloc)(
+          void*              /** HANDLE **/  hHeap   
+        , unsigned long      /** DWORD  **/  dwFlags 
+        , unsigned long long /** size_t **/  dwBytes
+        );
+
+    typedef
+        void*
+        (*homopool_PFN_HeapReAlloc)(
+            void*                 hHeap  //: HANDLE
+        ,   unsigned long       dwFlags  //: DWORD
+        ,   void*                 lpMem  //: LPVOID
+        ,   unsigned long long  dwBytes  //: SIZE_T
+        );
+
+    typedef
+        int /** BOOL **/
+        (*homopool_PFN_HeapFree)(
+            void*            hHeap  /** HANDLE **/
+        ,   unsigned long  dwFlags  /** DWORD  **/
+        ,   void*            lpMem  /** LPVOID **/
+        );
+
+
+    ////////////////////////////////////////////////////////////
+
+//[ DATA : Data always before functions. ------------------- ]//
+      signed char  homopool_tested = 0; //:UnitTestsRan?
+      signed char  homopool_testin = 0; //:UnitTestsRunning?
+      signed char  homopool_sealed = 0;
+      signed char  homopool_inited = 0;
+      signed char  homopool_makarr = 0; //:Making Array?
+      signed char  homopool_function_pointers_loaded = 0;
+
+      signed  int  homopool_ibytes = 1024; //:InitThisMuchMemory
+      signed  int  homopool_elmsiz = (0-777);//:ArrayElementSize
+      
+
+      //!! USAGE: homopool_memo[ homopool_T0 ]  ------------!!//
+      //!! USAGE: homopool_memo[ homopool_T1 ]  ------------!!//
+      //!! USAGE: homopool_memo[ homopool_CI ]  ------------!!//
+      signed  int homopool_T0 = 0; //:First   Index
+      signed  int homopool_T1 = 0; //:Last    Index
+      signed  int homopool_CI = 0; //:Current Index
+
+    unsigned char* homopool_memo   = NULL; //:MemoryFromHeap
+             void* homopool_heap   = NULL; //:Win32 Heap.
+
+//[ FUNP : Function Pointers. ------------------------------ ]//
+    
+    //! Do Win32_Func(s) have linux equivalent? -------------!//
+    #define WIN32_F_U_N_C HOMOPOOL_VOF /////////////////////////
+    #define PFN_01 homopool_PFN_GetProcessHeap /////////////////
+    #define PFN_02 homopool_PFN_HeapAlloc //////////////////////
+    #define PFN_03 homopool_PFN_HeapReAlloc ////////////////////
+    #define PFN_04 homopool_PFN_HeapFree ///////////////////////
+
+            PFN_01 homopool_GetProcessHeap  = NULL;  
+            PFN_02 homopool_HeapAlloc       = NULL;  
+            PFN_03 homopool_HeapReAlloc     = NULL;  
+            PFN_04 homopool_HeapFree        = NULL;  
+
+    #undef  PFN_01 /////////////////////////////////////////////
+    #undef  PFN_02 /////////////////////////////////////////////
+    #undef  PFN_03 /////////////////////////////////////////////
+    #undef  PFN_04 /////////////////////////////////////////////
+    #undef  WIN32_F_U_N_C //////////////////////////////////////
+
+//[ FDEC : Forward Declarations. --------------------------- ]//
+//| SEE: #FDEC_WHY# In Comments Section ---------------------|//
+
+    void homopool_LazyUnitTest(         void );
+    void homopool_LoadFunctionPointers( void );
+    void homopool_ResetFlags(           void );
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    homopool_Halt( const char* msg ){   /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[homopool_Halt]:%s\n", msg /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+void
+HOMOPOOL_Init( ){
+    if( homopool_tested <= 0 && homopool_testin <= 0 ){
+        homopool_LazyUnitTest();
+    };;
+    if( homopool_inited != 0 ){ homopool_Halt("[AINI]"); };
+
+        homopool_ResetFlags( /**RF**/ );
+        //|( /**RF**/ )=> homopool_memo=NULL; ---------------|//
+        //|( /**RF**/ )=> homopool_heap=NULL; ---------------|//
+        //|( /**RF**/ )=> homopool_T0 : //:First   Index  ---|//
+        //|( /**RF**/ )=> homopool_T1 : //:Last    Index  ---|//
+        //|( /**RF**/ )=> homopool_CI : //:Current Index  ---|//
+   
+    //! Get pointers to win32 functions I need: -------------!//
+    ////////////////////////////////////////////////////////////
+
+        homopool_LoadFunctionPointers();
+
+        homopool_heap=homopool_GetProcessHeap();
+        homopool_memo=homopool_HeapAlloc(
+                            homopool_heap
+        ,   (unsigned long) homopool_ibytes
+        ,   0x00000008 /** HEAP_ZERO_MEMORY **/
+        );;
+
+    ////////////////////////////////////////////////////////////
+
+    homopool_inited  = 1 ;
+}//[;]//
+
+//: Unlike the CONSTPOOL, you are not required to make
+//: allocations of uniform size within beg/end blocks.
+void*                   
+HOMOPOOL_BegArray( signed char elm_sizin_bytes ){ 
+    if( elm_sizin_bytes <= 0 ){ homopool_Halt("[B_ZELM]"); };
+    if( homopool_makarr != 0 ){ homopool_Halt("[B_AMAR]"); };
+    if( homopool_sealed != 0 ){ homopool_Halt("[B_SEAL]"); };
+        homopool_makarr  = 1 ; //:Flag as "Making_Array"
+    ////////////////////////////////////////////////////////////
+
+
+
+    //:When adding an element using "Next()", this is
+    //:the assumed size of the element in bytes.
+    homopool_elmsiz = elm_sizin_bytes;
+
+
+
+
+
+    ////////////////////////////////////////////////////////////
+    void* address_of_first_array_element=(
+        &( homopool_memo[ homopool_T0 ] )
+    );;
+    return( address_of_first_array_element );
+}//[;]//////////////////////////////////////////////////////////
+int                     //| 1. Ends allocation           --- |//
+HOMOPOOL_EndArray(      //| 2. Returns allocation size   --- |//
+    void*  ptr_beg      /** ptr_beg: Pointer to address      **/
+){                      /** returned by HOMOPOOL_Beg         **/
+    ////////////////////////////////////////////////////////////
+    if( homopool_makarr <= 0 ){ homopool_Halt("[B_AMAR]"); };
+    if( homopool_sealed != 0 ){ homopool_Halt("[B_SEAL]"); };
+    ////////////////////////////////////////////////////////////
+    //:ptr_beg is really a void** not void*.
+    //:But signature is void* for ease of parameter passing.
+    void** PTR_BEG = (void**)ptr_beg;
+    if(0==PTR_BEG){ homopool_Halt("[Invalid:PTR_BEG]"); };
+    void* beg = (*PTR_BEG);
+    ////////////////////////////////////////////////////////////
+
+    if( beg ){ /** NOOP **/ };
+
+    //:TODO: Logic
+
+
+    ////////////////////////////////////////////////////////////
+
+    homopool_elmsiz=(0-777); //:Trap_Value
+    homopool_makarr  = 0   ; //:Flag as NOT "Making_Array"
+    
+}//[;]//////////////////////////////////////////////////////////
+
+//:Gets next pointer to use for array data. We do not populate
+//:the data, we just get a poiner to it.
+void*
+HOMOPOOL_Next( void ){
+    if( homopool_sealed != 0 ){ homopool_Halt("[N_SEAL]"); };
+    if( homopool_makarr <= 0 ){ homopool_Halt("[N_MARR]"); };
+    
+    //:TODO: Return pointer to where the memory starts
+
+}//[;]//
+
+//:Allocate a miscellanious amount of memory.
+//:Must be done OUTSIDE HOMOPOOL_BegArray
+//:HOMOPOOL_EndArray block.
+void*
+HOMOPOOL_MiscAlloc( int reserve_n_bytes ){
+    if( homopool_sealed != 0 ){ homopool_Halt("[M_SEAL]"); };
+    if( reserve_n_bytes <= 0 ){ homopool_Halt("[M_ZALO]"); };
+    if( homopool_makarr != 0 ){ homopool_Halt("[M_MARR]"); };
+    
+    //:TODO: Return pointer to where the memory starts
+
+}//[;]//
+
+
+
+//: After the pool is sealed, you can no longer make
+//: additions to it. Uses HeapRealloc to free up the
+//: non-allocated memory. We always want the HOMOPOOL
+//: to start off with more memory than what is needed,
+//: and then when the homeostatis point has been reached,
+//: we seal the pool.
+void 
+HOMOPOOL_Seal( ){
+
+}//[;]//
+
+
+void
+homopool_ResetFlags( ){
+
+    homopool_memo=NULL;
+    homopool_heap=NULL;
+
+    homopool_T0 = 0;
+    homopool_T1 = 0;
+    homopool_CI = 0;    
+
+}//[;]//
+void
+HOMOPOOL_Kill( ){
+
+        homopool_HeapFree(
+            homopool_heap
+        ,   0
+        ,   homopool_memo
+        );;
+
+        homopool_ResetFlags( );
+
+}//[;]//
+
+
+//[FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP]//
+static HOMOPOOL_VOF homopool_GetFunctionPointer( 
+/**/    const char* func_name //:EX:"ShowWindow"
+/**/,   const char* dlib_name //:EX:"user32.dll" | "user32"
+){
+    DLLL_DLIB  dlib_addr; //:DLL Module   Address
+    DLLL_FUNC  func_addr; //:DLL Function Address
+    ////////////////////////////////////////////////////////////
+
+        dlib_addr = DLLL_LoadLibraryA(   dlib_name );
+        func_addr = DLLL_GetProcAddress( dlib_addr, func_name );
+
+    ////////////////////////////////////////////////////////////
+    return( (HOMOPOOL_VOF)func_addr );
+}//[;]//////////////////////////////////////////////////////////
+void
+homopool_LoadFunctionPointers( void ){
+
+    if( homopool_function_pointers_loaded <= 0 ){
+        homopool_function_pointers_loaded  = 1 ;
+
+        #define G homopool_GetFunctionPointer //////////////////
+        #define K32 "kernel32.dll" /////////////////////////////
+
+            homopool_GetProcessHeap= G( "GetProcessHeap", K32 );
+            homopool_HeapAlloc     = G( "HeapAlloc"     , K32 );
+            homopool_HeapReAlloc   = G( "HeapReAlloc"   , K32 );
+            homopool_HeapFree      = G( "HeapFree"      , K32 );
+
+        #undef  K32 ////////////////////////////////////////////
+        #undef  G //////////////////////////////////////////////
+    };;
+
+    #define H homopool_Halt ////////////////////////////////////
+
+        if( NULL == homopool_GetProcessHeap ){ H("[LFP:1]"); };
+        if( NULL == homopool_HeapAlloc      ){ H("[LFP:2]"); };
+        if( NULL == homopool_HeapReAlloc    ){ H("[LFP:3]"); };
+
+    #undef  H //////////////////////////////////////////////////
+}//[;]//////////////////////////////////////////////////////////
+//[FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP]//
+
+void
+homopool_LazyUnitTest( void ){
+    //:Avoid infinite recursion. Invoke test only once:
+    if( homopool_tested | homopool_testin ){ return; };
+    homopool_testin = 1;
+    homopool_tested = 0;
+    ////////////////////////////////////////////////////////////
+
+
+
+    //:TODO: LazyUnitTestLogic
+    homopool_Halt("[TODO:UnitTest]");
+
+
+
+    ////////////////////////////////////////////////////////////
+    homopool_testin = 0;
+    homopool_tested = 1;
+}//[;]//
+
+
+
+
+//|////////////////////////////////////////////|////[ ------ ]//
+//|     -///-                        -///-     |////[ ------ ]//
+//|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////[ ------ ]//
+//|_  __      __  __  __  __  __  __      __  _|////[ ------ ]//
+//| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////[ ------ ]//
+//|      \  /                        \  /      |////[ ------ ]//
+//|       \/                          \/       |////[ ------ ]//
+//+ BEG: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////[ ------ ]//
+//|           /\                  /\           |////[ ------ ]//
+//|          /  \                /  \          |////[ ------ ]//
+//|_--__--__/    \__/\__/\__/\__/    \__--__--_|////[ ------ ]//
+//|                                            |////[ ------ ]//
+//|       ______________________________       |////[ ------ ]//
+//|______/                              \______|////[ ------ ]//
+#if(BOTTOM_OF_FILE_COMMENTS_SECTION) ///////////////[ ------ ]//
+/** ****************************************** |||//[ ------ ]//
+   
+#HOMOPOOL_ABOUT#
+    Like the CONSTPOOL, but we can shrink the pool size
+    after we are certain we are no longer going to add to it.                      
+                          
+#FDEC_WHY#
+    Use forward declarations sparingly. Use them to push        
+    code you don't want to see right away to the bottom.        
+    specifically, the multiple pages of unit test code          
+    for this class. Unit test details are usually irellevant    
+    for understanding. -------------------------------------  
+                                   
+                
+||| ****************************************** **///[ ------ ]//
+#endif /////////////////////////////////////////////[ ------ ]//
+//|______                                ______|////[ ------ ]//
+//|||||||\______________________________/|||||||////[ ------ ]//
+//|                                            |////[ ------ ]//
+//|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////[ ------ ]//
+//|_  __      __  __  __  __  __  __      __  _|////[ ------ ]//
+//| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////[ ------ ]//
+//|      \  /                        \  /      |////[ ------ ]//
+//|       \/                          \/       |////[ ------ ]//
+//+ END: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////[ ------ ]//
+//|           /\                  /\           |////[ ------ ]//
+//|          /  \                /  \          |////[ ------ ]//
+//|_--__--__/    \__/\__/\__/\__/    \__--__--_|////[ ------ ]//
+//|                                            |////[ ------ ]//
+//|____________________________________________|////[ ------ ]//
+
+  

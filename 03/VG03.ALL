@@ -2685,6 +2685,12 @@ F02_F01_MACRO( vkGetPhysicalDeviceSurfacePresentModesKHR ,
 //:MAKES:  F02_vkCreateSwapchainKHR
 F02_F01_MACRO( vkCreateSwapchainKHR , vulkan-1 )
 
+//:REALIZATION: If the function ends in "KHR"
+//:             it is an extension function and
+//:             belongs in the file that is loading
+//:             extension functions.
+//:             EXAMPLE: F50_vkGetSwapchainImagesKHR
+
 ////////////////////////////////////////////////////////////////
 
 
@@ -4530,6 +4536,7 @@ int F10_Main(){
 //[ F20_VkDeviceSize ================== UI64   ]// [✓]
 //[ F20_VkSurfaceKHR ================== void*  ]//
 //[ F20_VkSwapchainKHR ================ UI64   ]//
+//[ F20_VkImage        ================
 
 struct F20_VkApplicationInfo {
     unsigned int       sType; //:VkStructureType
@@ -5144,6 +5151,8 @@ struct F20_VkSwapchainCreateInfoKHR {
 };//[struct]//
 #undef UI32 ////////////////////////////////////////////////////
 #undef EX2D ////////////////////////////////////////////////////
+
+
 
 ////////////////////////////////////////////////////////////////
 //    ABOVE: DATA                                             //
@@ -6002,8 +6011,8 @@ f40_EngineInit( void ){  //:CALLED:"initVulkan()" in tutorial.
     F02_VOF
     F50_vkGetPhysicalDeviceSurfaceSupportKHR =NULL;
 
-
-
+    F02_VOF
+    F50_vkGetSwapchainImagesKHR = NULL;
 
 
 
@@ -6110,6 +6119,11 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
         F50_vkGetPhysicalDeviceSurfaceSupportKHR=f50_GIPA(
             f40_instance
         ,  "vkGetPhysicalDeviceSurfaceSupportKHR"
+        );;
+
+        F50_vkGetSwapchainImagesKHR=f50_GIPA(
+            f40_instance
+        ,  "vkGetSwapchainImagesKHR"
         );;
 
         ////////////////////////////////////////////////////////
@@ -8512,6 +8526,10 @@ static void f70_PrivateInit( void ){
     ,   (unsigned int) F62_qfi_graphics
     };;
 
+    //:JMIM_COMMENT: It seems backwards to me that
+    //:VK_SHARING_MODE_CONCURRENT( no ownership transfers )
+    //:is when the qfi are DIFFERENT. And
+    //:VK_SHARING_MODE_EXCLUSIVE is when the qfi are SAME.
     if( F62_qfi_graphics != F63_qfi_present ){
 
         /** *********** VK_SHARING_MODE_CONCURRENT **/
@@ -8629,6 +8647,90 @@ static void f70_PrivateInit( void ){
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
 //#FILE_REGION[ F.70 ]END#####################################//
+
+//:DOTADIW: Get swapchain images
+
+
+//:VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkImage)
+unsigned int F80_swap_chain_image_count = 0;
+void**       F80_swap_chain_image_array = 0; /** F20_VkImage **/
+
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f80_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f80_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+
+static void f80_PrivateInit( void ){
+
+    #define H f80_Halt /////////////////////////////////////////
+    if(NULL==F50_vkGetSwapchainImagesKHR){ H("[NULL_FUNC]"); };
+    if(NULL==F64_logical_device         ){ H("[NULL_LDEV]"); };
+    if( 0  ==F70_swapchain              ){ H("[NULL_SWAP]"); };
+    #undef  H //////////////////////////////////////////////////
+
+    ((F03_04)(F50_vkGetSwapchainImagesKHR))(
+    /**/F64_logical_device
+
+    ,   (void*)F70_swapchain
+
+    ,   &( F80_swap_chain_image_count )
+    ,   NULL
+    );;
+
+    #define ARR  F80_swap_chain_image_array  ///////////////////
+    #define LEN  F80_swap_chain_image_count  ///////////////////
+    ARR=CONSTPOOL_Beg( sizeof( void* ) );    ///////////////////
+
+        //This part might require functionality
+        //to reserve n number of zero initialized
+        //elements. Data reserved in the constpool
+        //is meant to stay there until the program
+        //has finished executing.
+        // CONSTPOOL_Add_ByValue
+
+    LEN=CONSTPOOL_End( ARR ); //////////////////////////////////
+    #undef  LEN  ///////////////////////////////////////////////
+    #undef  ARR  ///////////////////////////////////////////////
+
+}//[;]//
+
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F80_Init(){                           //[IM--------IM]//
+        printf("[BEG:F80:Init]\n");           //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F70_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f80_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F80:Init]\n");           //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F80_Main(){                           //[IM--------IM]//
+        F80_Init();                           //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F80:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 //#FILE_REGION[ VG03.H ]BEG###################################//
 /////////////////////////////////. . . . . . 13
 /////////////////////////////////............|

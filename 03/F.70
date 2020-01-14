@@ -109,6 +109,10 @@ static void f70_PrivateInit( void ){
     ,   (unsigned int) F62_qfi_graphics
     };;
 
+    //:JMIM_COMMENT: It seems backwards to me that
+    //:VK_SHARING_MODE_CONCURRENT( no ownership transfers )
+    //:is when the qfi are DIFFERENT. And
+    //:VK_SHARING_MODE_EXCLUSIVE is when the qfi are SAME.
     if( F62_qfi_graphics != F63_qfi_present ){
 
         /** *********** VK_SHARING_MODE_CONCURRENT **/

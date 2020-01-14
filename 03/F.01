@@ -120,6 +120,12 @@ F02_F01_MACRO( vkGetPhysicalDeviceSurfacePresentModesKHR ,
 //:MAKES:  F02_vkCreateSwapchainKHR
 F02_F01_MACRO( vkCreateSwapchainKHR , vulkan-1 )
 
+//:REALIZATION: If the function ends in "KHR"
+//:             it is an extension function and
+//:             belongs in the file that is loading
+//:             extension functions.
+//:             EXAMPLE: F50_vkGetSwapchainImagesKHR
+
 ////////////////////////////////////////////////////////////////
 
 

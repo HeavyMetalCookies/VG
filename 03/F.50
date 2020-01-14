@@ -32,8 +32,8 @@
     F02_VOF
     F50_vkGetPhysicalDeviceSurfaceSupportKHR =NULL;
 
-
-
+    F02_VOF
+    F50_vkGetSwapchainImagesKHR = NULL;
 
 
 
@@ -140,6 +140,11 @@ f50_fetchAndLoad_VulkanInstanceFunctions(){
         F50_vkGetPhysicalDeviceSurfaceSupportKHR=f50_GIPA(
             f40_instance
         ,  "vkGetPhysicalDeviceSurfaceSupportKHR"
+        );;
+
+        F50_vkGetSwapchainImagesKHR=f50_GIPA(
+            f40_instance
+        ,  "vkGetSwapchainImagesKHR"
         );;
 
         ////////////////////////////////////////////////////////

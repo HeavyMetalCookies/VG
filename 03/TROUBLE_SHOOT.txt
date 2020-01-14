@@ -1,0 +1,5 @@
+
+If you end up with mysterious crashes, one potential
+fix is that some KHR functions are being defined
+in F01 and fetched in F02, when they should be 
+defined and fetched in F50.
