@@ -2524,6 +2524,1042 @@ DLLL_GetProcAddress(
 
 #endif // JOHN_MARKS_INCLUDE_GAURD_2020_01_14_0645PM ///////////
 //#FILE_REGION[ W32/DLLL/DLLL.H ]END##########################//
+
+//:HP: HOMOPOOL: Homeostasis_Pool
+//:SEE[ #HOMOPOOL_ABOUT# ]InCommentsSection
+
+//[ CONFIGURATION : ---------------------------------------- ]//
+
+    int HOMOPOOL_show_unit_test_debug_messages = 0;
+
+//[ TYPE : Typedefs ---------------------------------------- ]//
+
+    //:Generic_Function_Pointer
+    typedef void (*HOMOPOOL_VOF)(void);
+
+    //:Signatures for function pointers:
+    ////////////////////////////////////////////////////////////
+
+    typedef
+        void* (*homopool_PFN_GetProcessHeap)( void );
+    
+    //:I think we only use __declspec(allocator) if using
+    //:microsoft visual studio. Hence the
+    //:"#if _MSC_VER < 1900" in code I've been reading.
+    typedef
+    //  __declspec(allocator) /**DECLSPEC_ALLOCATOR**/
+        void*                 /** LPVOID **/ 
+        (*homopool_PFN_HeapAlloc)(
+          void*              /** HANDLE **/  hHeap   
+        , unsigned long      /** DWORD  **/  dwFlags 
+        , unsigned long long /** size_t **/  dwBytes
+        );
+
+    typedef
+        void*
+        (*homopool_PFN_HeapReAlloc)(
+            void*                 hHeap  //: HANDLE
+        ,   unsigned long       dwFlags  //: DWORD
+        ,   void*                 lpMem  //: LPVOID
+        ,   unsigned long long  dwBytes  //: SIZE_T
+        );
+
+    typedef
+        int /** BOOL **/
+        (*homopool_PFN_HeapFree)(
+            void*            hHeap  /** HANDLE **/
+        ,   unsigned long  dwFlags  /** DWORD  **/
+        ,   void*            lpMem  /** LPVOID **/
+        );
+
+
+    ////////////////////////////////////////////////////////////
+
+//[ DATA : Data always before functions. ------------------- ]//
+      signed char  homopool_tested = 0; //:UnitTestsRan?
+      signed char  homopool_testin = 0; //:UnitTestsRunning?
+      signed char  homopool_sealed = 0;
+      signed char  homopool_inited = 0;
+      signed char  homopool_makarr = 0; //:Making Array?
+      signed char  homopool_function_pointers_loaded = 0;
+
+      signed  int  homopool_ibytes = 0; //:InitThisMuchMemory
+      signed  int  homopool_elmsiz = (0-777);//:ArrayElementSize
+      
+      //:Number of array entries made:
+      signed  int  homopool_num_entries_made = 0;
+
+      //!! USAGE: homopool_memo[ homopool_T0 ]  ------------!!//
+      //!! USAGE: homopool_memo[ homopool_T1 ]  ------------!!//
+      //!! USAGE: homopool_memo[ homopool_CI ]  ------------!!//
+      signed  int homopool_NEXT_T0 = 0; //:Next T0 value to use.
+      signed  int      homopool_T0 = 0; //:First   Index
+      signed  int      homopool_T1 = 0; //:Last    Index
+      signed  int      homopool_CI = 0; //:Current Index
+      
+               int homopool_last   =(0-33); //:LastReservedIndex
+    unsigned char* homopool_memo   = NULL ; //:MemoryFromHeap
+             void* homopool_heap   = NULL ; //:Win32 Heap.
+
+//[ DATA_DEBUG: Debug Variables: --------------------------- ]//
+
+    //:NEVER RESET!
+    signed int homopool_init_calls_counter = 0;
+
+//[ FUNP : Function Pointers. ------------------------------ ]//
+    
+    //! Do Win32_Func(s) have linux equivalent? -------------!//
+    #define WIN32_F_U_N_C HOMOPOOL_VOF /////////////////////////
+    #define PFN_01 homopool_PFN_GetProcessHeap /////////////////
+    #define PFN_02 homopool_PFN_HeapAlloc //////////////////////
+    #define PFN_03 homopool_PFN_HeapReAlloc ////////////////////
+    #define PFN_04 homopool_PFN_HeapFree ///////////////////////
+
+            PFN_01 homopool_GetProcessHeap  = NULL;  
+            PFN_02 homopool_HeapAlloc       = NULL;  
+            PFN_03 homopool_HeapReAlloc     = NULL;  
+            PFN_04 homopool_HeapFree        = NULL;  
+
+    #undef  PFN_01 /////////////////////////////////////////////
+    #undef  PFN_02 /////////////////////////////////////////////
+    #undef  PFN_03 /////////////////////////////////////////////
+    #undef  PFN_04 /////////////////////////////////////////////
+    #undef  WIN32_F_U_N_C //////////////////////////////////////
+
+//[ FDEC : Forward Declarations. --------------------------- ]//
+//| SEE: #FDEC_WHY# In Comments Section ---------------------|//
+
+    void homopool_LazyUnitTest(                void );
+    void homopool_LoadFunctionPointers(        void );
+    void homopool_ResetFlags(                  void );
+    void homopool_NukeFlags_ForInitialization( void );
+    void homopool_NukeFlags_ForKilling(        void );
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    homopool_Halt( const char* msg ){   /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[homopool_Halt]:%s\n", msg /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+int
+HOMOPOOL_GetNumberOfUsedBytes( void ){
+
+    //|  Last reversed byte index plus 1 will get us ------- |//
+    //|  the number of used bytes in the pool        ------- |//
+    return( homopool_last + 1 );
+
+}//[;GetNumberOfUsedBytes;]/////////////////////////////////////
+void
+HOMOPOOL_Init( int input_homopool_ibytes ){
+    homopool_init_calls_counter++; //:DEBUG
+
+    if( homopool_tested <= 0 && homopool_testin <= 0 ){
+        homopool_LazyUnitTest();
+    };;
+    
+    #define H homopool_Halt ////////////////////////////////////
+
+    if( homopool_inited       != 0  ){ 
+
+            printf("[homopool_inited]:%d\n"
+                    ,homopool_inited     );;
+
+            printf("[homopool_init_calls_counter]:%d\n"
+                    ,homopool_init_calls_counter     );;
+
+            H("[1046PM_AINI]"); 
+
+    };;
+    if( input_homopool_ibytes <= 0  ){ H("[ZBYT]"); };
+
+    //NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN//
+
+        homopool_NukeFlags_ForInitialization();
+
+    //NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN//
+    #undef  H  /////////////////////////////////////////////////
+
+        //+ homopool_NukeFlags_ForInitialization will  ----- +//
+        //+ indirectly do this for us. Commented out.  ----- +//
+        //[ homopool_ResetFlags( /**RF**/ );                 ]//
+        //|( /**RF**/ )=> homopool_memo=NULL; ---------------|//
+        //|( /**RF**/ )=> homopool_heap=NULL; ---------------|//
+        //|( /**RF**/ )=> homopool_T0 : //:First   Index  ---|//
+        //|( /**RF**/ )=> homopool_T1 : //:Last    Index  ---|//
+        //|( /**RF**/ )=> homopool_CI : //:Current Index  ---|//
+   
+    //[ AFTER_NUKE: Allocations: ----------------------------]//
+    //! Get pointers to win32 functions I need: -------------!//
+    ////////////////////////////////////////////////////////////
+
+        homopool_LoadFunctionPointers();
+
+        homopool_heap=homopool_GetProcessHeap();
+        homopool_memo=homopool_HeapAlloc(
+                                  homopool_heap
+        ,   (unsigned long) input_homopool_ibytes
+        ,   0x00000008 /** HEAP_ZERO_MEMORY **/
+        );;
+
+    ////////////////////////////////////////////////////////////
+
+    //[ AFTER_NUKE: Set Flags: ------------------------------]//
+    //:The last used index of allocated memory from the pool.
+    homopool_ibytes = input_homopool_ibytes;
+    homopool_inited  = 1 ;
+}//[;init;]/////////////////////////////////////////////////////
+
+//: Unlike the CONSTPOOL, you are not required to make
+//: allocations of uniform size within beg/end blocks.
+void*                   
+HOMOPOOL_BegArray( signed char elm_sizin_bytes ){ 
+    if( elm_sizin_bytes <= 0 ){ homopool_Halt("[B_ZELM]"); };
+    if( homopool_makarr != 0 ){ homopool_Halt("[B_AMAR]"); };
+    if( homopool_sealed != 0 ){ homopool_Halt("[B_SEAL]"); };
+        homopool_makarr  = 1 ; //:Flag as "Making_Array"
+    ////////////////////////////////////////////////////////////
+
+    //! Set the current index as backed up 1 from the      --!//
+    //! first memory address to allocate. This way         --!//
+    //! iteration entry using "next()" command is simpler. --!//
+    homopool_T0 = homopool_NEXT_T0                  ;
+    homopool_CI =      homopool_T0 - elm_sizin_bytes;
+
+    //| elm_sizin_bytes === 3              ------------------|//
+    //|                  T0                ------------------|//
+    //|                  ||                ------------------|//
+    //| [-4][-3][-2][-1][+0][+1][+2][+3]   ------------------|//
+    //|      ||                            ------------------|//
+    //|      CI                            ------------------|//
+    //|   (minus 3)                        ------------------|//
+
+    //:When adding an element using "Next()", this is
+    //:the assumed size of the element in bytes.
+    homopool_elmsiz = elm_sizin_bytes;
+
+    ////////////////////////////////////////////////////////////
+
+        if(NULL==homopool_memo){ homopool_Halt("[NULLMEMO]");};
+        if( homopool_T0 < 0 || homopool_T0 >= homopool_ibytes ){
+            homopool_Halt("[T0:OOB]");
+        };;
+
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    void* address_of_first_array_element=(
+        &( homopool_memo[ homopool_T0 ] )
+    );;
+    return( address_of_first_array_element );
+}//[;BegArray;]/////////////////////////////////////////////////
+int                     //| 1. Ends allocation           --- |//
+HOMOPOOL_EndArray(      //| 2. Returns allocation LENGTH --- |//
+                        //|    measured in number of     --- |//
+                        //|    elements. ------------------- |//
+    void*  ptr_beg      /** ptr_beg: Pointer to address      **/
+){                      /** returned by HOMOPOOL_Beg         **/
+    ////////////////////////////////////////////////////////////
+    if( homopool_makarr <= 0 ){ homopool_Halt("[B_AMAR]"); };
+    if( homopool_sealed != 0 ){ homopool_Halt("[B_SEAL]"); };
+    ////////////////////////////////////////////////////////////
+    //! ptr_beg is really a void** not void*.                !//
+    //! But signature is void* for ease of parameter passing.!//
+    //[ _PRIN: Pointer reference is null         ------------]//
+    //[ PRNAC: Pointer reference null after cast ------------]//
+    //[ RPTNP: Reference Pointed To Null Pointer ------------]//
+    #define H homopool_Halt ////////////////////////////////////
+                            if(NULL==ptr_beg){ H("[_PRIN]"); }
+    void** PTR_BEG = (void**)ptr_beg;
+                            if(0==   PTR_BEG){ H("[PRNAC]"); };
+    void*      beg =       (*PTR_BEG);
+                            if(NULL==    beg){ H("[RPTNP]"); }
+    #undef  H //////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    //! Regardless of if we made any entries or not, the     !//
+    //! pointer to memory should be the first byte of the    !//
+    //! allocation. AKA: "T0"                                !//
+    ////////////////////////////////////////////////////////////
+    if( 
+        beg 
+        != 
+       &( homopool_memo[ homopool_T0 ] )
+    ){ 
+        //[ LNTOR_RBBA: Likely_Not_The_Original_Reference  --]//
+        //[             Returned_By_Begin_Array (BegArray) --]//
+        homopool_Halt( "[LNTOR_RBBA]" );
+    };;
+    ////////////////////////////////////////////////////////////
+
+    //! If no entries made, the original pointer returned    !//
+    //! is invalid, make it null.                            !//
+    if( homopool_num_entries_made == 0 ){
+        (*PTR_BEG) = NULL;
+        homopool_NEXT_T0 = homopool_T0;
+    }else{
+        homopool_NEXT_T0 = homopool_T1+1;
+    };;
+
+    //! Make sure last used index agrees with next index:    !//
+    ////////////////////////////////////////////////////////////
+    int new_last =( homopool_NEXT_T0 - 1 );
+    if( new_last < homopool_last ){ homopool_Halt("[0832PM]");};
+    homopool_last = new_last;
+    ////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////
+    if(homopool_num_entries_made > 0 ){
+        if( 
+            //! Formula worked until I had a homopool_elmsiz !//
+            //! that was greater than 1. You must divide to  !//
+            //! convert total bytes of memory used into the  !//
+            //! total number of elements.                    !//
+            ((homopool_T1 - homopool_T0 + 1) / homopool_elmsiz)
+            !=
+            homopool_num_entries_made
+        ){
+            //:NEMCF:Num_Entries_Made_Checksum_Fail
+            #define P printf ///////////////////////////////////
+
+                P( "[homopool_T0]:%d\n", homopool_T0 );
+                P( "[homopool_T1]:%d\n", homopool_T1 );
+                P( "[homopool_num_entries_made]:%d\n"
+                   , homopool_num_entries_made 
+                );;
+                homopool_Halt("[NEMCF]");
+
+            #undef  P //////////////////////////////////////////
+        };;
+    }else{
+
+        //| There are mathematically pure ways to set  ----- |//
+        //| homopool_T1 & homopool_T0 when no entries  ----- |//
+        //| have been made. Not certain if I want to   ----- |//
+        //| do such trickery for mathematical purity,  ----- |//
+        //| so this check is a bit less strict than    ----- |//
+        //| it could be.                               ----- |//
+        if( (homopool_T1 - homopool_T0) > 0 ){
+             homopool_Halt("[T1_MINUS_T0]");
+        };;
+
+    };;
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+
+    //! homopool_elmsiz=(0-777); //:Trap_Value         ------!//
+    //! homopool_makarr  = 0   ; //:NOT "Making_Array" ------!//
+    int ret = homopool_num_entries_made;
+    homopool_ResetFlags( );
+    return( ret ); //:homopool_num_entries_made
+    
+}//[;EndArray;]/////////////////////////////////////////////////
+
+//:Gets next pointer to use for array data. We do not populate
+//:the data, we just get a poiner to it.
+void*
+HOMOPOOL_Next( void ){
+    if( homopool_sealed != 0 ){ homopool_Halt("[N_SEAL]"); };
+    if( homopool_makarr <= 0 ){ homopool_Halt("[N_MARR]"); };
+    
+    //:Index needs to be moved forward NOT by 1, but
+    //:the element size in bytes:
+    homopool_CI  +=( homopool_elmsiz                   );
+    homopool_T1   =( homopool_CI + homopool_elmsiz - 1 );
+    //: homopool_last : Do not set until allocation
+    //: --------------: segment between Beg & End is over.
+
+    if( homopool_T1 > ( homopool_ibytes - 1) ){
+        printf("[___:homopool_T1]:%d\n", homopool_T1    );
+        printf("[homopool_ibytes]:%d\n", homopool_ibytes);
+        homopool_Halt("[OOM]"); //:OOM:OutOfMemory
+    };;
+
+    if( homopool_CI < homopool_T0 ){
+        homopool_Halt("[CI:OOB_NEG]");
+    };;
+
+    //! Use index accessor to calculate the memory ----------!//
+    //! address to return:                         ----------!//
+    int mem_dex = homopool_CI;
+    void* memory_address =(
+        &( homopool_memo[ mem_dex ] )
+    );;
+
+    homopool_num_entries_made++;
+    return( memory_address );
+
+}//[;Next;]/////////////////////////////////////////////////////
+//! Allocate a miscellanious amount of memory.  ------------ !//
+//! Must be done OUTSIDE HOMOPOOL_BegArray      ------------ !//
+//! HOMOPOOL_EndArray block.                    ------------ !//
+void*
+HOMOPOOL_MiscAlloc( int reserve_n_bytes ){
+    if( homopool_sealed != 0 ){ homopool_Halt("[M_SEAL]"); };
+    if( reserve_n_bytes <= 0 ){ homopool_Halt("[M_ZALO]"); };
+    if( homopool_makarr != 0 ){ homopool_Halt("[M_MARR]"); };
+    
+    //:TODO: Return pointer to where the memory starts
+    void* memory_address=(
+        &( homopool_memo[ homopool_NEXT_T0 ] )
+    );;
+
+    //:Mark memory as allocated:
+    homopool_NEXT_T0 += reserve_n_bytes       ;
+    homopool_last     =( homopool_NEXT_T0 -1 );
+
+    return( memory_address );
+
+}//[;MiscAlloc;]////////////////////////////////////////////////
+//! After the pool is sealed, you can no longer make      -- !//
+//! additions to it. Uses HeapRealloc to free up the      -- !//
+//! non-allocated memory. We always want the HOMOPOOL     -- !//
+//! to start off with more memory than what is needed,    -- !//
+//! and then when the homeostatis point has been reached, -- !//
+//! we seal the pool. -------------------------------------- !//
+void 
+HOMOPOOL_Seal( ){
+
+}//[;Seal;]/////////////////////////////////////////////////////
+void
+homopool_ResetFlags( ){
+
+    homopool_elmsiz=(0-777); //:Trap_Value        
+    homopool_makarr  = 0   ; //:NOT "Making_Array"
+    
+    homopool_num_entries_made = 0;
+
+}//[;ResetFlags;]///////////////////////////////////////////////
+void ///////////////////////////////////////////////////////////
+homopool_NukeFlags_General(){
+
+    homopool_ResetFlags( );
+
+    //! CONSTPOOL uses these indicies as:               -----!//
+    //! RELATIVE: To allocated block of memory in pool. -----!//
+    //!           ( 0 is first byte of memory pool.  )  -----!//
+    //!           ( homopool_memo[ 0 ]               )  -----!//
+    //! ABSOLUTE: T0,T1,CI are not reset to zero by     -----!//
+    //!           the ResetFlags command.               -----!//
+    //! HOMOPOOL: Will use them in the same manner.     -----!//
+    //|------------------------------------------------------|//
+         homopool_T0 = 0;
+         homopool_T1 = 0;
+         homopool_CI = 0;  
+    //|------------------------------------------------------|//
+
+    homopool_NEXT_T0 = 0   ; //:Next Byte Index To Allocate
+    homopool_last    =(0-1); //:Highest/Last allocated byte
+
+    homopool_memo=NULL; //:The pools memory bank.
+    homopool_heap=NULL; //:The heap pool allocated from.
+
+    homopool_ibytes  = 0   ;
+
+}//[;NukeFlags_General;]////////////////////////////////////////
+void ///////////////////////////////////////////////////////////
+homopool_NukeFlags_ForInitialization( ){
+
+    homopool_NukeFlags_General();
+
+}//[;NukeFlags_ForInitialization;]//////////////////////////////
+void ///////////////////////////////////////////////////////////
+homopool_NukeFlags_ForKilling( ){
+
+    homopool_NukeFlags_General();
+
+    //:Allow initialization to be somewhat idempotent
+    //:(kill must be called before re-initialization)
+    homopool_inited = 0; //:Not initialized
+
+}//[;NukeFlags_ForKilling;]/////////////////////////////////////
+void ///////////////////////////////////////////////////////////
+HOMOPOOL_Kill( ){
+
+        //! Cant Free if our HeapFree PFN is null: --------- !//
+        if(NULL==homopool_HeapFree){ homopool_Halt("[HFFN]"); };
+
+        homopool_HeapFree(
+            homopool_heap
+        ,   0
+        ,   homopool_memo
+        );;
+
+        homopool_NukeFlags_ForKilling();
+
+}//[;Kill;]/////////////////////////////////////////////////////
+//[FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP]//
+static HOMOPOOL_VOF homopool_GetFunctionPointer( 
+/**/    const char* func_name //:EX:"ShowWindow"
+/**/,   const char* dlib_name //:EX:"user32.dll" | "user32"
+){
+    DLLL_DLIB  dlib_addr; //:DLL Module   Address
+    DLLL_FUNC  func_addr; //:DLL Function Address
+    ////////////////////////////////////////////////////////////
+
+        dlib_addr = DLLL_LoadLibraryA(   dlib_name );
+        func_addr = DLLL_GetProcAddress( dlib_addr, func_name );
+
+    ////////////////////////////////////////////////////////////
+    return( (HOMOPOOL_VOF)func_addr );
+}//[;]//////////////////////////////////////////////////////////
+void
+homopool_LoadFunctionPointers( void ){
+
+    if( homopool_function_pointers_loaded <= 0 ){
+        homopool_function_pointers_loaded  = 1 ;
+
+        #define G homopool_GetFunctionPointer //////////////////
+        #define K32 "kernel32.dll" /////////////////////////////
+            
+            #define V1     homopool_GetProcessHeap  
+            #define P1 homopool_PFN_GetProcessHeap
+            #define N1             "GetProcessHeap"
+
+            #define V2     homopool_HeapAlloc
+            #define P2 homopool_PFN_HeapAlloc
+            #define N2             "HeapAlloc"
+
+            #define V3     homopool_HeapReAlloc
+            #define P3 homopool_PFN_HeapReAlloc
+            #define N3             "HeapReAlloc"
+
+            #define V4     homopool_HeapFree
+            #define P4 homopool_PFN_HeapFree
+            #define N4             "HeapFree"
+
+            //|CORE_LOGIC: ----------------------------------|//
+            //[CLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCL]//
+            V1= (P1)G( N1, K32 );
+            V2= (P2)G( N2, K32 );
+            V3= (P3)G( N3, K32 );
+            V4= (P4)G( N4, K32 );
+            //[CLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCL]//
+            //[ Expanded example: ---------------------------]//
+            //| homopool_GetProcessHeap=(                    |//
+            //|     (homopool_PFN_GetProcessHeap)            |//
+            //|     homopool_GetFunctionPointer(             |//
+            //|         "GetProcessHeap", "kernel32.dll"     |//
+            //|     )                                        |//
+            //| );;                                          |//
+            //[ ---------------------------------------------]//
+            //[CLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCLCL]//
+
+            #undef V1  //[ UNDEFINE: VARIABLE NAMES ]////[---]//
+            #undef V2  //[ UNDEFINE: VARIABLE NAMES ]////[---]//
+            #undef V3  //[ UNDEFINE: VARIABLE NAMES ]////[---]//
+            #undef V4  //[ UNDEFINE: VARIABLE NAMES ]////[---]//
+                                                       //[---]//
+            #undef P1  //[ UNDEFINE: PFN TYPEDEFS   ]////[---]//
+            #undef P2  //[ UNDEFINE: PFN TYPEDEFS   ]////[---]//
+            #undef P3  //[ UNDEFINE: PFN TYPEDEFS   ]////[---]//
+            #undef P4  //[ UNDEFINE: PFN TYPEDEFS   ]////[---]//
+                                                       //[---]//
+            #undef N1  //[ UNDEFINE: NAME STRINGS   ]////[---]//
+            #undef N2  //[ UNDEFINE: NAME STRINGS   ]////[---]//
+            #undef N3  //[ UNDEFINE: NAME STRINGS   ]////[---]//
+            #undef N4  //[ UNDEFINE: NAME STRINGS   ]////[---]//
+
+        #undef  K32 ////////////////////////////////////////////
+        #undef  G //////////////////////////////////////////////
+    };;
+
+    #define H homopool_Halt ////////////////////////////////////
+
+        if( NULL == homopool_GetProcessHeap ){ H("[LFP:1]"); };
+        if( NULL == homopool_HeapAlloc      ){ H("[LFP:2]"); };
+        if( NULL == homopool_HeapReAlloc    ){ H("[LFP:3]"); };
+
+    #undef  H //////////////////////////////////////////////////
+}//[;LoadFunctionPointers;]/////////////////////////////////////
+//[FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP]//
+void homopool_UnitTestPrint( const char* msg ){
+
+    if( HOMOPOOL_show_unit_test_debug_messages > 0 ){
+
+        printf("[homopool_UnitTestPrint:MSG]:%s\n", msg);
+        fflush(stdout);
+
+    };;
+
+}//[;UnitTestPrint;]////////////////////////////////////////////
+void homopool_LazyUnitTest_ArrayAllocations(  void );
+void homopool_LazyUnitTest_MiscAlloc(         void );
+void homopool_LazyUnitTest_MixedAllocMethods( void );
+void homopool_LazyUnitTest_StorageTest(       void );
+void homopool_LazyUnitTest(                   void ){
+    //:Avoid infinite recursion. Invoke test only once:
+    if( homopool_tested | homopool_testin ){ return; };
+    homopool_testin = 1;
+    homopool_tested = 0;
+    ////////////////////////////////////////////////////////////
+
+
+    homopool_LazyUnitTest_ArrayAllocations();
+
+    homopool_LazyUnitTest_MiscAlloc();
+
+    homopool_LazyUnitTest_MixedAllocMethods();
+
+    homopool_LazyUnitTest_StorageTest();
+  
+
+    ////////////////////////////////////////////////////////////
+    homopool_testin = 0;
+    homopool_tested = 1;
+}//[;LazyUnitTest;]/////////////////////////////////////////////
+void homopool_LazyUnitTest_StorageTest( void ){
+    homopool_UnitTestPrint("[BEG:StorageTest]");
+
+    ////////////////////////////////////////////////////////////
+
+    unsigned          char* ptr_01 = NULL; //:1 byte
+    unsigned         short* ptr_02 = NULL; //:2 byte
+    unsigned           int* ptr_03 = NULL; //:4 byte
+    unsigned long long int* ptr_04 = NULL; //:8 byte
+
+    int   len;
+    int   u_b;
+
+    ////////////////////////////////////////////////////////////
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[STORE_0]");
+    // ------------------------------------------------------ //
+
+        ptr_01=HOMOPOOL_MiscAlloc( 1 );
+        ptr_02=HOMOPOOL_MiscAlloc( 2 );
+        ptr_03=HOMOPOOL_MiscAlloc( 4 );
+        ptr_04=HOMOPOOL_MiscAlloc( 8 );
+
+        //! Memory should initially be zeroed out: ----------!//
+        #define H homopool_Halt ////////////////////////////////
+
+        if( *ptr_01 != 0 ){ H("[PTR_01!0]"); };
+        if( *ptr_02 != 0 ){ H("[PTR_02!0]"); };
+        if( *ptr_03 != 0 ){ H("[PTR_03!0]"); };
+        if( *ptr_04 != 0 ){ H("[PTR_04!0]"); };
+
+        #undef  H //////////////////////////////////////////////
+        #define H homopool_Halt ////////////////////////////////
+
+            *ptr_01      = 0xFF      ;       ;
+            *ptr_02      = 0xFFFF    ;       ;
+            *ptr_03      = 0xFFFFFFFF;       ;
+            *ptr_04      = 0xFFFFFFFFFFFFFFFF;
+
+            if( *ptr_01 != 0xFF                ){ H("[P_1]"); };
+            if( *ptr_02 != 0xFFFF              ){ H("[P_2]"); };
+            if( *ptr_03 != 0xFFFFFFFF          ){ H("[P_3]"); };
+            if( *ptr_04 != 0xFFFFFFFFFFFFFFFF  ){ H("[P_4]"); };
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+            if( u_b != 15 ){ H("[NOT_15]"); };
+        #undef  H //////////////////////////////////////////////
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );  
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[STORE_1]");
+    // ------------------------------------------------------ //
+
+        ptr_01=HOMOPOOL_BegArray( 1 );
+
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+
+        len=HOMOPOOL_EndArray( &ptr_01 );
+
+        //! Memory should initially be zeroed out: ----------!//
+        #define H homopool_Halt ////////////////////////////////
+            if(len!=15){ H("[LEN_NOT_15]"); };
+
+            for(int i = 0; i < 15; i++ ){
+                if( ptr_01[i] != 0 ){ H("[X_X:00_15]"); };
+                    ptr_01[i]  = i;
+            };;
+
+        #undef  H //////////////////////////////////////////////
+        #define H homopool_Halt ////////////////////////////////
+
+            for(int i = 0; i < 15; i++ ){
+                if( ptr_01[i] != i ){ H("[0_0:00_15]"); };
+            };;
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+            if( u_b != 15 ){ H("[NOT_15:#2]"); };
+        #undef  H //////////////////////////////////////////////
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[STORE_2]");
+    // ------------------------------------------------------ //
+
+        ptr_02=HOMOPOOL_BegArray( 2 );
+
+            HOMOPOOL_Next( ); //:2 bytes
+            HOMOPOOL_Next( ); //:4 bytes
+            HOMOPOOL_Next( ); //:6 bytes
+            HOMOPOOL_Next( ); //:8 bytes
+
+        len=HOMOPOOL_EndArray( &ptr_02 );
+
+        //! Memory should initially be zeroed out: ----------!//
+        #define H homopool_Halt ////////////////////////////////
+            if(len!=4){ H("[LEN_NOT_04]"); };
+
+            for(int i = 0; i < len; i++ ){
+                if( ptr_02[i] != 0 ){ H("[X_X:00_15]"); };
+                    ptr_02[i]  = i;
+            };;
+
+        #undef  H //////////////////////////////////////////////
+        #define H homopool_Halt ////////////////////////////////
+
+            for(int i = 0; i < len; i++ ){
+                if( ptr_02[i] != i ){ H("[P2:0_0:00_15]"); };
+            };;
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+            if( u_b != 8 ){ H("[NOT_08:#2]"); };
+        #undef  H //////////////////////////////////////////////
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+
+    homopool_UnitTestPrint("[END:StorageTest]");
+}//[;LazyUnitTest_StorageTest;]/////////////////////////////////
+void homopool_LazyUnitTest_MixedAllocMethods( void ){
+
+    homopool_UnitTestPrint("[BEG:MixedAllocMethods]");
+
+    void* ptr;
+    int   u_b;
+
+    //:Make sure that when doing different methods
+    //:of allocation, the pool reports back the
+    //:correct number of used bytes:
+    HOMOPOOL_Init( 100 );
+    ////////////////////////////////////////////////////////////
+
+        ptr=HOMOPOOL_BegArray( 3 );
+
+            HOMOPOOL_Next();
+            HOMOPOOL_Next();
+            HOMOPOOL_Next();
+
+        HOMOPOOL_EndArray( &ptr );
+
+        ptr = HOMOPOOL_MiscAlloc( 1 );
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+        if( u_b != 10 ){ homopool_Halt("[MAM_01]"); };
+
+    // ------------------------------------------------------ //
+        
+        HOMOPOOL_MiscAlloc( 3 );
+        HOMOPOOL_MiscAlloc( 3 );
+        HOMOPOOL_MiscAlloc( 3 );
+        ptr=HOMOPOOL_BegArray( 1 );
+
+            HOMOPOOL_Next();
+
+        HOMOPOOL_EndArray( &ptr );
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+        if( u_b != 20 ){ homopool_Halt("[MAM_02]"); };
+
+    // ------------------------------------------------------ //
+
+        HOMOPOOL_MiscAlloc( 5 );
+        ptr=HOMOPOOL_BegArray( 5 );
+
+            HOMOPOOL_Next();
+
+        HOMOPOOL_EndArray( &ptr );
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+        if( u_b != 30 ){ homopool_Halt("[MAM_03]"); };
+
+    // ------------------------------------------------------ //
+
+        HOMOPOOL_MiscAlloc( 5 );
+        HOMOPOOL_MiscAlloc( 5 );
+        ptr=HOMOPOOL_BegArray( 5 );
+
+            HOMOPOOL_Next();
+            HOMOPOOL_Next();
+
+        HOMOPOOL_EndArray( &ptr );
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+        if( u_b != 50 ){ homopool_Halt("[MAM_04]"); };
+
+    // ------------------------------------------------------ //
+
+    ////////////////////////////////////////////////////////////
+    HOMOPOOL_Kill();
+    
+    homopool_UnitTestPrint("[END:MixedAllocMethods]");
+}//[;LazyUnitTest_MixedAllocMethods;]///////////////////////////
+void homopool_LazyUnitTest_MiscAlloc( void ){
+
+    ////////////////////////////////////////////////////////////
+
+    void* ptr = NULL;
+    int   u_b =  0  ; //:Used Bytes
+
+    ////////////////////////////////////////////////////////////
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 1 ); homopool_UnitTestPrint("[MISC_0]");
+    // ------------------------------------------------------ //
+
+        ptr=HOMOPOOL_MiscAlloc( 1 );
+        u_b=HOMOPOOL_GetNumberOfUsedBytes( );
+
+    if( 1   !=u_b ){ homopool_Halt("[UT_MISC_01]"); };
+    if( NULL==ptr ){ homopool_Halt("[UT_MISC_02]"); };
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );  
+    HOMOPOOL_Init( 3 ); homopool_UnitTestPrint("[MISC_1]");
+    // ------------------------------------------------------ //
+
+        {
+            void* ptr_01=HOMOPOOL_MiscAlloc( 1 );
+            void* ptr_02=HOMOPOOL_MiscAlloc( 1 );
+            void* ptr_03=HOMOPOOL_MiscAlloc( 1 );
+            u_b=HOMOPOOL_GetNumberOfUsedBytes( );
+
+            if( 3   !=u_b ){ homopool_Halt("[UT_MISC_03]"); };
+
+            if( NULL==ptr_01 ){ homopool_Halt("[UT_MISC_04]"); };
+            if( NULL==ptr_02 ){ homopool_Halt("[UT_MISC_05]"); };
+            if( NULL==ptr_03 ){ homopool_Halt("[UT_MISC_06]"); };
+
+            if( 0
+            ||  ( ptr_01==ptr_02 )
+            ||  ( ptr_02==ptr_03 )
+            ||  ( ptr_03==ptr_01 )
+            ){
+                homopool_Halt("[UT_MISC_07]");
+            };;
+        }
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );    
+    HOMOPOOL_Init( 6 ); homopool_UnitTestPrint("[MISC_2]");
+    // ------------------------------------------------------ //
+
+        {
+            void* ptr_01=HOMOPOOL_MiscAlloc( 2 );
+            void* ptr_02=HOMOPOOL_MiscAlloc( 2 );
+            void* ptr_03=HOMOPOOL_MiscAlloc( 2 );
+            u_b=HOMOPOOL_GetNumberOfUsedBytes( );
+
+            if( 6   !=u_b ){ homopool_Halt("[UT_MISC_08]"); };
+
+            if( NULL==ptr_01 ){ homopool_Halt("[UT_MISC_09]"); };
+            if( NULL==ptr_02 ){ homopool_Halt("[UT_MISC_10]"); };
+            if( NULL==ptr_03 ){ homopool_Halt("[UT_MISC_11]"); };
+
+            if( 0
+            ||  ( ptr_01==ptr_02 )
+            ||  ( ptr_02==ptr_03 )
+            ||  ( ptr_03==ptr_01 )
+            ){
+                homopool_Halt("[UT_MISC_12]");
+            };;
+        }
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );    
+    HOMOPOOL_Init( 6 ); homopool_UnitTestPrint("[MISC_3]");
+    // ------------------------------------------------------ //
+
+
+        u_b=HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 0   !=u_b ){ homopool_Halt("[UT_MISC_13]"); };
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );    
+    
+
+}//[;LazyUnitTest_MiscAlloc;]///////////////////////////////////
+void homopool_LazyUnitTest_ArrayAllocations(  void ){
+
+    ////////////////////////////////////////////////////////////
+    
+    void* arr = NULL;
+    int   len =  0  ;
+
+    ////////////////////////////////////////////////////////////
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 1 ); homopool_UnitTestPrint("[i0]");
+    // ------------------------------------------------------ //
+    arr = HOMOPOOL_BegArray( 1 );
+
+        if( arr == NULL ){ homopool_Halt("[UT_NULL_ARR]"); };
+        HOMOPOOL_Next();
+    
+    len = HOMOPOOL_EndArray( &arr );
+    //:ECECECECECECECECECECECECECECECECECECECECECECECECECECEC://
+    //:Extra code here added ONLY because bug was found while
+    //:writing this section of test:
+    //:ECECECECECECECECECECECECECECECECECECECECECECECECECECEC://
+
+        if( 1 != len ){
+            printf("[len]:%d\n", len      );  //:AllocSize
+            printf(
+                "[arr]:%d\n"
+            ,    (int)(unsigned long long)arr //:Address
+            );;
+            fflush(stdout);
+        };;
+
+    //:ECECECECECECECECECECECECECECECECECECECECECECECECECECEC://
+    if( 1   !=len ){ homopool_Halt("[UT_01]"); };
+    if( NULL==arr ){ homopool_Halt("[UT_02]"); };
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );
+    HOMOPOOL_Init( 1 ); homopool_UnitTestPrint("[i1]");
+    // ------------------------------------------------------ //
+    arr = HOMOPOOL_BegArray( 1 );
+
+        HOMOPOOL_Next();
+    
+    len = HOMOPOOL_EndArray( &arr );
+
+    if( 1   !=len ){ homopool_Halt("[UT_03]"); };
+    if( NULL==arr ){ homopool_Halt("[UT_04]"); };
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );
+    HOMOPOOL_Init( 1 ); homopool_UnitTestPrint("[i2]");
+    // ------------------------------------------------------ //
+    arr = HOMOPOOL_BegArray( 1 );
+        
+        //| Do nothing. Make zero allocations.               |//
+        //| This should cause an error witht he T1 value,    |//
+        //| as it is updated in the Next() function.         |//
+        //| will need to add logic to make sure error is     |//
+        //| not tripped.                                     |//
+    
+    len = HOMOPOOL_EndArray( &arr );
+
+    if( 0   !=len ){ homopool_Halt("[UT_05]"); };
+    if( NULL!=arr ){ homopool_Halt("[UT_06]"); };
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );
+    HOMOPOOL_Init(3); homopool_UnitTestPrint("[i3]");
+    // ------------------------------------------------------ //
+    arr = HOMOPOOL_BegArray( 1 );
+        
+        HOMOPOOL_Next();
+        HOMOPOOL_Next();
+        HOMOPOOL_Next();
+    
+    len = HOMOPOOL_EndArray( &arr );
+
+    if( 3   !=len ){ homopool_Halt("[UT_07]"); };
+    if( NULL==arr ){ homopool_Halt("[UT_08]"); };
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );
+    HOMOPOOL_Init(2); homopool_UnitTestPrint("[i4]");
+    // ------------------------------------------------------ //
+    arr = HOMOPOOL_BegArray( 2 );
+        
+        HOMOPOOL_Next();
+    
+    len = HOMOPOOL_EndArray( &arr );
+
+    if( 1   !=len ){ homopool_Halt("[UT_09]"); };
+    if( NULL==arr ){ homopool_Halt("[UT_10]"); };
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );
+    HOMOPOOL_Init(6); homopool_UnitTestPrint("[i5]");
+    // ------------------------------------------------------ //
+    arr = HOMOPOOL_BegArray( 2 );
+        
+        HOMOPOOL_Next(); 
+        HOMOPOOL_Next();
+        HOMOPOOL_Next();
+    
+    len = HOMOPOOL_EndArray( &arr );
+
+    if( 3   !=len ){ homopool_Halt("[UT_11]"); };
+    if( NULL==arr ){ homopool_Halt("[UT_12]"); };
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );
+
+}//[;LazyUnitTest_ArrayAllocations;]////////////////////////////
+
+//|////////////////////////////////////////////|////[ ------ ]//
+//|     -///-                        -///-     |////[ ------ ]//
+//|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////[ ------ ]//
+//|_  __      __  __  __  __  __  __      __  _|////[ ------ ]//
+//| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////[ ------ ]//
+//|      \  /                        \  /      |////[ ------ ]//
+//|       \/                          \/       |////[ ------ ]//
+//+ BEG: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////[ ------ ]//
+//|           /\                  /\           |////[ ------ ]//
+//|          /  \                /  \          |////[ ------ ]//
+//|_--__--__/    \__/\__/\__/\__/    \__--__--_|////[ ------ ]//
+//|                                            |////[ ------ ]//
+//|       ______________________________       |////[ ------ ]//
+//|______/                              \______|////[ ------ ]//
+#if(BOTTOM_OF_FILE_COMMENTS_SECTION) ///////////////[ ------ ]//
+/** ****************************************** |||//[ ------ ]//
+   
+#HOMOPOOL_ABOUT#
+    Like the CONSTPOOL, but we can shrink the pool size
+    after we are certain we are no longer going to add to it. 
+
+    DIFFERENCE FROM CONSTPOOL:
+    HOMOPOOL is not allowed to set data.
+    HOMOPOOL is only allowed to make allocations.
+    SEE[ SC[ HOMOPOOL_VS_CONSTPOOL ] ]
+                          
+#FDEC_WHY#
+    Use forward declarations sparingly. Use them to push        
+    code you don't want to see right away to the bottom.        
+    specifically, the multiple pages of unit test code          
+    for this class. Unit test details are usually irellevant    
+    for understanding. -------------------------------------  
+                                   
+                
+||| ****************************************** **///[ ------ ]//
+#endif /////////////////////////////////////////////[ ------ ]//
+//|______                                ______|////[ ------ ]//
+//|||||||\______________________________/|||||||////[ ------ ]//
+//|                                            |////[ ------ ]//
+//|....(( 0 ))|| ||_ _--  --_ _|| ||(( 0 ))....|////[ ------ ]//
+//|_  __      __  __  __  __  __  __      __  _|////[ ------ ]//
+//| \/  \    /  \/  \/  \/  \/  \/  \    /  \/ |////[ ------ ]//
+//|      \  /                        \  /      |////[ ------ ]//
+//|       \/                          \/       |////[ ------ ]//
+//+ END: #BOTTOM_OF_FILE_COMMENTS_SECTION#     +////[ ------ ]//
+//|           /\                  /\           |////[ ------ ]//
+//|          /  \                /  \          |////[ ------ ]//
+//|_--__--__/    \__/\__/\__/\__/    \__--__--_|////[ ------ ]//
+//|                                            |////[ ------ ]//
+//|____________________________________________|////[ ------ ]//
+
+  
 //#FILE_REGION[ E.01 ]BEG#####################################//
 
 //: DOTADIW: Initialize any libraries that need initializing

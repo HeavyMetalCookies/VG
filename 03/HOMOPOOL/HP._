@@ -378,7 +378,6 @@ HOMOPOOL_MiscAlloc( int reserve_n_bytes ){
     if( reserve_n_bytes <= 0 ){ homopool_Halt("[M_ZALO]"); };
     if( homopool_makarr != 0 ){ homopool_Halt("[M_MARR]"); };
     
-    //:TODO: Return pointer to where the memory starts
     void* memory_address=(
         &( homopool_memo[ homopool_NEXT_T0 ] )
     );;
@@ -398,6 +397,31 @@ HOMOPOOL_MiscAlloc( int reserve_n_bytes ){
 //! we seal the pool. -------------------------------------- !//
 void 
 HOMOPOOL_Seal( ){
+
+    //:HP_AS:HomoPool_AlreadySealed
+    if( 0 != homopool_sealed ){ homopool_Halt("[HP_AS]"); };
+
+    if(NULL==homopool_HeapReAlloc){
+        homopool_Halt("[HRA:NULL]");
+    };;
+
+    int b_u =( HOMOPOOL_GetNumberOfUsedBytes( ) );
+    void* ptr = NULL;
+
+    ptr=homopool_HeapReAlloc(
+            homopool_heap  //: HANDLE / void*
+        ,   0x00000010 /** U32:HEAP_REALLOC_IN_PLACE_ONLY **/ 
+        ,   homopool_memo  //: LPVOID / void*
+        ,   
+            (unsigned long long /**U64**/)
+            b_u /** NumberOfUsedBytes **/
+
+        );;
+
+    //:MAC: Memory_Address_Changed:
+    if( ptr != homopool_memo ){ homopool_Halt("[MAC]"); };
+
+    homopool_sealed = 1;
 
 }//[;Seal;]/////////////////////////////////////////////////////
 void
@@ -432,6 +456,7 @@ homopool_NukeFlags_General(){
 
     homopool_memo=NULL; //:The pools memory bank.
     homopool_heap=NULL; //:The heap pool allocated from.
+    homopool_sealed=0 ; //:Memory Is No Longer Sealed.
 
     homopool_ibytes  = 0   ;
 
@@ -566,6 +591,7 @@ void homopool_LazyUnitTest_ArrayAllocations(  void );
 void homopool_LazyUnitTest_MiscAlloc(         void );
 void homopool_LazyUnitTest_MixedAllocMethods( void );
 void homopool_LazyUnitTest_StorageTest(       void );
+void homopool_LazyUnitTest_SealTest(          void );
 void homopool_LazyUnitTest(                   void ){
     //:Avoid infinite recursion. Invoke test only once:
     if( homopool_tested | homopool_testin ){ return; };
@@ -581,12 +607,38 @@ void homopool_LazyUnitTest(                   void ){
     homopool_LazyUnitTest_MixedAllocMethods();
 
     homopool_LazyUnitTest_StorageTest();
+
+    homopool_LazyUnitTest_SealTest();
   
 
     ////////////////////////////////////////////////////////////
     homopool_testin = 0;
     homopool_tested = 1;
 }//[;LazyUnitTest;]/////////////////////////////////////////////
+void homopool_LazyUnitTest_SealTest( void ){
+    homopool_UnitTestPrint("[BEG:SealTest]");
+
+    //:int   len;
+    int   u_b;
+
+    ////////////////////////////////////////////////////////////
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[ST_0]");
+    // ------------------------------------------------------ //
+
+        //! First test, dont make any allocations.       ----!//
+        //! This would cause the memory to be reduced to ----!//
+        //! ZERO, which I anticipate being a problem.    ----!//
+
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 0 != u_b ){ homopool_Halt("[UB!0]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+
+    homopool_UnitTestPrint("[END:SealTest]");
+}//[;LazyUnitTest_SealTest;]////////////////////////////////////
 void homopool_LazyUnitTest_StorageTest( void ){
     homopool_UnitTestPrint("[BEG:StorageTest]");
 
