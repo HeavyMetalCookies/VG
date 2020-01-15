@@ -2,6 +2,10 @@
 //:HP: HOMOPOOL: Homeostasis_Pool
 //:SEE[ #HOMOPOOL_ABOUT# ]InCommentsSection
 
+//[ CONFIGURATION : ---------------------------------------- ]//
+
+    int HOMOPOOL_show_unit_test_debug_messages = 0;
+
 //[ TYPE : Typedefs ---------------------------------------- ]//
 
     //:Generic_Function_Pointer
@@ -118,6 +122,14 @@
 /** ---- **/                                        /** ---- **/
 //[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
 
+int
+HOMOPOOL_GetNumberOfUsedBytes( void ){
+
+    //|  Last reversed byte index plus 1 will get us ------- |//
+    //|  the number of used bytes in the pool        ------- |//
+    return( homopool_last + 1 );
+
+}//[;GetNumberOfUsedBytes;]/////////////////////////////////////
 void
 HOMOPOOL_Init( int input_homopool_ibytes ){
     homopool_init_calls_counter++; //:DEBUG
@@ -540,21 +552,200 @@ homopool_LoadFunctionPointers( void ){
     #undef  H //////////////////////////////////////////////////
 }//[;LoadFunctionPointers;]/////////////////////////////////////
 //[FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP]//
-void
-homopool_UnitTestPrint( const char* msg ){
-    printf("[homopool_UnitTestPrint:MSG]:%s\n", msg);
-    fflush(stdout);
+void homopool_UnitTestPrint( const char* msg ){
+
+    if( HOMOPOOL_show_unit_test_debug_messages > 0 ){
+
+        printf("[homopool_UnitTestPrint:MSG]:%s\n", msg);
+        fflush(stdout);
+
+    };;
+
 }//[;UnitTestPrint;]////////////////////////////////////////////
-void
-homopool_LazyUnitTest( void ){
+void homopool_LazyUnitTest_ArrayAllocations(  void );
+void homopool_LazyUnitTest_MiscAlloc(         void );
+void homopool_LazyUnitTest_MixedAllocMethods( void );
+void homopool_LazyUnitTest(                   void ){
     //:Avoid infinite recursion. Invoke test only once:
     if( homopool_tested | homopool_testin ){ return; };
     homopool_testin = 1;
     homopool_tested = 0;
     ////////////////////////////////////////////////////////////
+
+
+    homopool_LazyUnitTest_ArrayAllocations();
+
+    homopool_LazyUnitTest_MiscAlloc();
+
+    homopool_LazyUnitTest_MixedAllocMethods();
+  
+
+    ////////////////////////////////////////////////////////////
+    homopool_testin = 0;
+    homopool_tested = 1;
+}//[;LazyUnitTest;]/////////////////////////////////////////////
+void homopool_LazyUnitTest_MixedAllocMethods( void ){
+
+    homopool_UnitTestPrint("[BEG:MixedAllocMethods]");
+
+    void* ptr;
+    int   u_b;
+
+    //:Make sure that when doing different methods
+    //:of allocation, the pool reports back the
+    //:correct number of used bytes:
+    HOMOPOOL_Init( 100 );
+    ////////////////////////////////////////////////////////////
+
+        ptr=HOMOPOOL_BegArray( 3 );
+
+            HOMOPOOL_Next();
+            HOMOPOOL_Next();
+            HOMOPOOL_Next();
+
+        HOMOPOOL_EndArray( &ptr );
+
+        ptr = HOMOPOOL_MiscAlloc( 1 );
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+        if( u_b != 10 ){ homopool_Halt("[MAM_01]"); };
+
+    // ------------------------------------------------------ //
+        
+        HOMOPOOL_MiscAlloc( 3 );
+        HOMOPOOL_MiscAlloc( 3 );
+        HOMOPOOL_MiscAlloc( 3 );
+        ptr=HOMOPOOL_BegArray( 1 );
+
+            HOMOPOOL_Next();
+
+        HOMOPOOL_EndArray( &ptr );
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+        if( u_b != 20 ){ homopool_Halt("[MAM_02]"); };
+
+    // ------------------------------------------------------ //
+
+        HOMOPOOL_MiscAlloc( 5 );
+        ptr=HOMOPOOL_BegArray( 5 );
+
+            HOMOPOOL_Next();
+
+        HOMOPOOL_EndArray( &ptr );
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+        if( u_b != 30 ){ homopool_Halt("[MAM_03]"); };
+
+    // ------------------------------------------------------ //
+
+        HOMOPOOL_MiscAlloc( 5 );
+        HOMOPOOL_MiscAlloc( 5 );
+        ptr=HOMOPOOL_BegArray( 5 );
+
+            HOMOPOOL_Next();
+            HOMOPOOL_Next();
+
+        HOMOPOOL_EndArray( &ptr );
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+        if( u_b != 50 ){ homopool_Halt("[MAM_04]"); };
+
+    // ------------------------------------------------------ //
+
+    ////////////////////////////////////////////////////////////
+    HOMOPOOL_Kill();
+    
+    homopool_UnitTestPrint("[END:MixedAllocMethods]");
+}//[;LazyUnitTest_MixedAllocMethods;]///////////////////////////
+void homopool_LazyUnitTest_MiscAlloc( void ){
+
+    ////////////////////////////////////////////////////////////
+
+    void* ptr = NULL;
+    int   u_b =  0  ; //:Used Bytes
+
+    ////////////////////////////////////////////////////////////
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 1 ); homopool_UnitTestPrint("[MISC_0]");
+    // ------------------------------------------------------ //
+
+        ptr=HOMOPOOL_MiscAlloc( 1 );
+        u_b=HOMOPOOL_GetNumberOfUsedBytes( );
+
+    if( 1   !=u_b ){ homopool_Halt("[UT_MISC_01]"); };
+    if( NULL==ptr ){ homopool_Halt("[UT_MISC_02]"); };
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );  
+    HOMOPOOL_Init( 3 ); homopool_UnitTestPrint("[MISC_1]");
+    // ------------------------------------------------------ //
+
+        {
+            void* ptr_01=HOMOPOOL_MiscAlloc( 1 );
+            void* ptr_02=HOMOPOOL_MiscAlloc( 1 );
+            void* ptr_03=HOMOPOOL_MiscAlloc( 1 );
+            u_b=HOMOPOOL_GetNumberOfUsedBytes( );
+
+            if( 3   !=u_b ){ homopool_Halt("[UT_MISC_03]"); };
+
+            if( NULL==ptr_01 ){ homopool_Halt("[UT_MISC_04]"); };
+            if( NULL==ptr_02 ){ homopool_Halt("[UT_MISC_05]"); };
+            if( NULL==ptr_03 ){ homopool_Halt("[UT_MISC_06]"); };
+
+            if( 0
+            ||  ( ptr_01==ptr_02 )
+            ||  ( ptr_02==ptr_03 )
+            ||  ( ptr_03==ptr_01 )
+            ){
+                homopool_Halt("[UT_MISC_07]");
+            };;
+        }
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );    
+    HOMOPOOL_Init( 6 ); homopool_UnitTestPrint("[MISC_2]");
+    // ------------------------------------------------------ //
+
+        {
+            void* ptr_01=HOMOPOOL_MiscAlloc( 2 );
+            void* ptr_02=HOMOPOOL_MiscAlloc( 2 );
+            void* ptr_03=HOMOPOOL_MiscAlloc( 2 );
+            u_b=HOMOPOOL_GetNumberOfUsedBytes( );
+
+            if( 6   !=u_b ){ homopool_Halt("[UT_MISC_08]"); };
+
+            if( NULL==ptr_01 ){ homopool_Halt("[UT_MISC_09]"); };
+            if( NULL==ptr_02 ){ homopool_Halt("[UT_MISC_10]"); };
+            if( NULL==ptr_03 ){ homopool_Halt("[UT_MISC_11]"); };
+
+            if( 0
+            ||  ( ptr_01==ptr_02 )
+            ||  ( ptr_02==ptr_03 )
+            ||  ( ptr_03==ptr_01 )
+            ){
+                homopool_Halt("[UT_MISC_12]");
+            };;
+        }
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );    
+    HOMOPOOL_Init( 6 ); homopool_UnitTestPrint("[MISC_3]");
+    // ------------------------------------------------------ //
+
+
+        u_b=HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 0   !=u_b ){ homopool_Halt("[UT_MISC_13]"); };
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );    
+    
+
+}//[;LazyUnitTest_MiscAlloc;]///////////////////////////////////
+void homopool_LazyUnitTest_ArrayAllocations(  void ){
+
+    ////////////////////////////////////////////////////////////
     
     void* arr = NULL;
-    int   len = NULL;
+    int   len =  0  ;
 
     ////////////////////////////////////////////////////////////
     // ------------------------------------------------------ //
@@ -654,18 +845,7 @@ homopool_LazyUnitTest( void ){
     // ------------------------------------------------------ //
     HOMOPOOL_Kill( );
 
-    //:TODO: LazyUnitTestLogic
-    homopool_Halt("[TODO:UnitTest]");
-
-
-
-    ////////////////////////////////////////////////////////////
-    homopool_testin = 0;
-    homopool_tested = 1;
-}//[;LazyUnitTest;]/////////////////////////////////////////////
-
-
-
+}//[;LazyUnitTest_ArrayAllocations;]////////////////////////////
 
 //|////////////////////////////////////////////|////[ ------ ]//
 //|     -///-                        -///-     |////[ ------ ]//

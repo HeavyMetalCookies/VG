@@ -16,6 +16,7 @@ int main( void ){
 
     printf("[BEF:homopool_LazyUnitTest]\n");
 
+    HOMOPOOL_show_unit_test_debug_messages = 1;
     homopool_LazyUnitTest( );
 
     printf("[AFT:homopool_LazyUnitTest]\n");
