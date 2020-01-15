@@ -565,6 +565,7 @@ void homopool_UnitTestPrint( const char* msg ){
 void homopool_LazyUnitTest_ArrayAllocations(  void );
 void homopool_LazyUnitTest_MiscAlloc(         void );
 void homopool_LazyUnitTest_MixedAllocMethods( void );
+void homopool_LazyUnitTest_StorageTest(       void );
 void homopool_LazyUnitTest(                   void ){
     //:Avoid infinite recursion. Invoke test only once:
     if( homopool_tested | homopool_testin ){ return; };
@@ -578,12 +579,146 @@ void homopool_LazyUnitTest(                   void ){
     homopool_LazyUnitTest_MiscAlloc();
 
     homopool_LazyUnitTest_MixedAllocMethods();
+
+    homopool_LazyUnitTest_StorageTest();
   
 
     ////////////////////////////////////////////////////////////
     homopool_testin = 0;
     homopool_tested = 1;
 }//[;LazyUnitTest;]/////////////////////////////////////////////
+void homopool_LazyUnitTest_StorageTest( void ){
+    homopool_UnitTestPrint("[BEG:StorageTest]");
+
+    ////////////////////////////////////////////////////////////
+
+    unsigned          char* ptr_01 = NULL; //:1 byte
+    unsigned         short* ptr_02 = NULL; //:2 byte
+    unsigned           int* ptr_03 = NULL; //:4 byte
+    unsigned long long int* ptr_04 = NULL; //:8 byte
+
+    int   len;
+    int   u_b;
+
+    ////////////////////////////////////////////////////////////
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[STORE_0]");
+    // ------------------------------------------------------ //
+
+        ptr_01=HOMOPOOL_MiscAlloc( 1 );
+        ptr_02=HOMOPOOL_MiscAlloc( 2 );
+        ptr_03=HOMOPOOL_MiscAlloc( 4 );
+        ptr_04=HOMOPOOL_MiscAlloc( 8 );
+
+        //! Memory should initially be zeroed out: ----------!//
+        #define H homopool_Halt ////////////////////////////////
+
+        if( *ptr_01 != 0 ){ H("[PTR_01!0]"); };
+        if( *ptr_02 != 0 ){ H("[PTR_02!0]"); };
+        if( *ptr_03 != 0 ){ H("[PTR_03!0]"); };
+        if( *ptr_04 != 0 ){ H("[PTR_04!0]"); };
+
+        #undef  H //////////////////////////////////////////////
+        #define H homopool_Halt ////////////////////////////////
+
+            *ptr_01      = 0xFF      ;       ;
+            *ptr_02      = 0xFFFF    ;       ;
+            *ptr_03      = 0xFFFFFFFF;       ;
+            *ptr_04      = 0xFFFFFFFFFFFFFFFF;
+
+            if( *ptr_01 != 0xFF                ){ H("[P_1]"); };
+            if( *ptr_02 != 0xFFFF              ){ H("[P_2]"); };
+            if( *ptr_03 != 0xFFFFFFFF          ){ H("[P_3]"); };
+            if( *ptr_04 != 0xFFFFFFFFFFFFFFFF  ){ H("[P_4]"); };
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+            if( u_b != 15 ){ H("[NOT_15]"); };
+        #undef  H //////////////////////////////////////////////
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( );  
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[STORE_1]");
+    // ------------------------------------------------------ //
+
+        ptr_01=HOMOPOOL_BegArray( 1 );
+
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+            HOMOPOOL_Next( );
+
+        len=HOMOPOOL_EndArray( &ptr_01 );
+
+        //! Memory should initially be zeroed out: ----------!//
+        #define H homopool_Halt ////////////////////////////////
+            if(len!=15){ H("[LEN_NOT_15]"); };
+
+            for(int i = 0; i < 15; i++ ){
+                if( ptr_01[i] != 0 ){ H("[X_X:00_15]"); };
+                    ptr_01[i]  = i;
+            };;
+
+        #undef  H //////////////////////////////////////////////
+        #define H homopool_Halt ////////////////////////////////
+
+            for(int i = 0; i < 15; i++ ){
+                if( ptr_01[i] != i ){ H("[0_0:00_15]"); };
+            };;
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+            if( u_b != 15 ){ H("[NOT_15:#2]"); };
+        #undef  H //////////////////////////////////////////////
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[STORE_2]");
+    // ------------------------------------------------------ //
+
+        ptr_02=HOMOPOOL_BegArray( 2 );
+
+            HOMOPOOL_Next( ); //:2 bytes
+            HOMOPOOL_Next( ); //:4 bytes
+            HOMOPOOL_Next( ); //:6 bytes
+            HOMOPOOL_Next( ); //:8 bytes
+
+        len=HOMOPOOL_EndArray( &ptr_02 );
+
+        //! Memory should initially be zeroed out: ----------!//
+        #define H homopool_Halt ////////////////////////////////
+            if(len!=4){ H("[LEN_NOT_04]"); };
+
+            for(int i = 0; i < len; i++ ){
+                if( ptr_02[i] != 0 ){ H("[X_X:00_15]"); };
+                    ptr_02[i]  = i;
+            };;
+
+        #undef  H //////////////////////////////////////////////
+        #define H homopool_Halt ////////////////////////////////
+
+            for(int i = 0; i < len; i++ ){
+                if( ptr_02[i] != i ){ H("[P2:0_0:00_15]"); };
+            };;
+
+            u_b = HOMOPOOL_GetNumberOfUsedBytes();
+            if( u_b != 8 ){ H("[NOT_08:#2]"); };
+        #undef  H //////////////////////////////////////////////
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+
+    homopool_UnitTestPrint("[END:StorageTest]");
+}//[;LazyUnitTest_StorageTest;]/////////////////////////////////
 void homopool_LazyUnitTest_MixedAllocMethods( void ){
 
     homopool_UnitTestPrint("[BEG:MixedAllocMethods]");
