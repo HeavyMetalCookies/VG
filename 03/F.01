@@ -128,6 +128,9 @@ F02_F01_MACRO( vkCreateSwapchainKHR , vulkan-1 )
 
 ////////////////////////////////////////////////////////////////
 
+//:MAKES:  F02_vkCreateImageView
+F02_F01_MACRO( vkCreateImageView , vulkan-1 )
+
 
 //!( RegisterWindow   , user32  )  YOU_MADE_THIS_ONE_UP      !//
 

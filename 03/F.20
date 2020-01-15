@@ -90,10 +90,6 @@ F20_VkDebugUtilsObjectNameInfoEXT {
 
 ////////////////////////////////////////////////////////////////
 
-
-
-////////////////////////////////////////////////////////////////
-
 struct 
 F20_VkDebugUtilsMessengerCallbackDataEXT {
 
@@ -135,6 +131,39 @@ F20_VkDebugUtilsMessengerCallbackDataEXT {
     pObjects;
 
 };
+
+////////////////////////////////////////////////////////////////
+
+    #define UI32 unsigned int //////////////////////////////////
+    struct  ////
+    F20_VkComponentMapping{
+            UI32    r; /** ENUM/UINT32:VkComponentSwizzle  **/
+            UI32    g; /** ENUM/UINT32:VkComponentSwizzle  **/
+            UI32    b; /** ENUM/UINT32:VkComponentSwizzle  **/
+            UI32    a; /** ENUM/UINT32:VkComponentSwizzle  **/
+    };      ////
+    struct  ////
+    F20_VkImageSubresourceRange{    
+            UI32    aspectMask    ; /** VkImageAspectFlags **/
+            UI32    baseMipLevel  ;
+            UI32    levelCount    ;
+            UI32    baseArrayLayer;
+            UI32    layerCount    ;
+    };      ////
+    #undef  UI32 ///////////////////////////////////////////////
+struct F20_VkImageViewCreateInfo{ //////////////////////////////
+
+    unsigned int        sType    ; //:BITS:32|--
+    const void*         pNext    ; //:BITS:--|64 
+    unsigned int        flags    ; //:BITS:32|--
+    unsigned long long  image    ; //:BITS:--|64
+    unsigned int        viewType ; //:BITS:32|--
+    unsigned int        format   ; //:BITS:32|--
+
+    struct F20_VkComponentMapping         components      ;
+    struct F20_VkImageSubresourceRange    subresourceRange;
+
+};//[struct]////////////////////////////////////////////////////
 
 //+----------------------------------------------------------+//
 //|                                                          |//
@@ -740,9 +769,21 @@ f20_BlowUpIfStructSizesIncorrect( void ){
         struct F20_VkSwapchainCreateInfoKHR
     );;if(  104 != siz ){ f20_Halt("[!104:SCI]"); }
 
+    //X//
 
+    siz = (int)sizeof(
+        struct F20_VkImageViewCreateInfo
+    );;if(  80 != siz ){ f20_Halt("[!80:IVCI]"); }
 
+    siz = (int)sizeof(
+        struct F20_VkImageSubresourceRange
+    );;if(  20 != siz ){ f20_Halt("[!20:ISRR]"); }
 
+    siz = (int)sizeof(
+        struct F20_VkComponentMapping
+    );;if(  16 != siz ){ f20_Halt("[!16:CMAP]"); }
+
+    //X//
     
     printf("\n");
     printf("[f20:struct_size_checks_pass]\n");

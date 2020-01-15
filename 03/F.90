@@ -1,0 +1,142 @@
+//#FILE_REGION[ F.90 ]BEG#####################################//
+
+//:DOTADIW: SWAPCHAIN_VEW
+//:         ( Create SwapChainImageView(s) )
+
+//:VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkImage)
+unsigned int F90_swap_chain_image_view_count = 0;
+void**       F90_swap_chain_image_view_array = 0; 
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f90_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f90_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+static void
+f90_PrivateInit( void ){
+
+    #define IMG_ARR  F80_swap_chain_image_array      ///////////
+    #define IMG_LEN  F80_swap_chain_image_count      ///////////
+                                                     ///////////
+    #define VEW_ARR  F90_swap_chain_image_view_array ///////////
+    #define VEW_LEN  F90_swap_chain_image_view_count /////////// 
+                                                     ///////////
+    ////////////////////////////////////////////////////////////
+
+    //:Same number of views as images:
+    VEW_LEN = IMG_LEN; 
+
+    ////////////////////////////////////////////////////////////
+
+        struct F20_VkImageViewCreateInfo ci = { 0 };
+        ci.sType    = 15  ; /** IMAGE_VIEW_CREATE_INFO  **/ ;
+        ci.image    =  0  ; /** EDIT IT IN THE LOOP !   **/ ;
+        ci.viewType =  1  ; /** VK_IMAGE_VIEW_TYPE_2D   **/ ;
+
+        //:AKA: "swapChainImageFormat" SC[VTP2018]BP[01]
+        ci.format   = F62_surface_format.format; 
+
+        ////////////////////////////////////////////////////////
+        ci.subresourceRange.aspectMask=(
+            0x00000001 /** VK_IMAGE_ASPECT_COLOR_BIT  **/
+        );;
+        ci.subresourceRange.baseMipLevel   = 0;
+        ci.subresourceRange.levelCount     = 1;
+
+        ci.subresourceRange.baseArrayLayer = 0;
+        ci.subresourceRange.layerCount     = 1;
+        ////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////
+    //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+    int elm_siz =( sizeof( struct F20_VkImageViewCreateInfo ) );
+    VEW_ARR = HOMOPOOL_BegArray( elm_siz );
+    for( int vew_dex = 0; vew_dex < (int)VEW_LEN; vew_dex++ ){ 
+
+        
+
+            HOMOPOOL_Next( ); //:Add new array element
+
+            ci.image =(
+                (unsigned long long)
+                F80_swap_chain_image_array[ vew_dex ]
+            );;
+
+            int cmd_res=(int)(unsigned long long)(
+                ((F03_04)F02_vkCreateImageView)( 
+                     F64_logical_device
+                ,   &( ci ) //:VkImageViewCreateInfo
+                ,   NULL    //:VkAllocationCallbacks
+                ,   &(VEW_ARR[vew_dex] ) 
+                )
+            );;
+            if( cmd_res != 0 /**VK_SUCCESS**/ ){
+                f90_Halt("[CMD_RES]");
+            }else{
+                printf("[OK:VEW_ARR[#]]:%d\n", vew_dex );
+            };;
+
+
+
+    };;//[NEXT:vew_dex]/////////////////////////////////////////
+    VEW_LEN = HOMOPOOL_EndArray( &VEW_ARR ); ///////////////////
+    //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+    ////////////////////////////////////////////////////////////
+                     ///////////////////////////////////////////
+    #undef  IMG_ARR  ///////////////////////////////////////////
+    #undef  IMG_LEN  ///////////////////////////////////////////
+                     ///////////////////////////////////////////
+    #undef  VEW_ARR  ///////////////////////////////////////////
+    #undef  VEW_LEN  ///////////////////////////////////////////
+
+    //:Quick itegrity check:
+    ////////////////////////////////////////////////////////////
+    if(  F80_swap_chain_image_count
+    !=   F90_swap_chain_image_view_count
+    ){   f90_Halt("[COUNTS]"); };
+
+    if(  NULL == F80_swap_chain_image_array
+    ||   NULL == F90_swap_chain_image_view_array
+    ){   f90_Halt("[ARRAYS]"); };
+    ////////////////////////////////////////////////////////////
+    
+    
+
+
+}//[;PrivateInit;]//////////////////////////////////////////////
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F90_Init(){                           //[IM--------IM]//
+        printf("[BEG:F90:Init]\n");           //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F80_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f90_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F90:Init]\n");           //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F90_Main(){                           //[IM--------IM]//
+        F90_Init();                           //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F90:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.90 ]END#####################################//

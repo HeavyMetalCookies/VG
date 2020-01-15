@@ -7,6 +7,7 @@ static void
 e01_PrivateInit( void ){
 
     CONSTPOOL_Init();
+     HOMOPOOL_Init(8*64); //:InitialBytesMemoryIsGuess
 
 }//[;]//
 

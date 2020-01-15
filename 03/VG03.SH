@@ -143,6 +143,7 @@ printf "\n"                             >> "VG03.ALL"
     nl_cat "./F.66"     "VG03.ALL"  ## RET_QUEUE_HAN
     nl_cat "./F.70"     "VG03.ALL"  ## SWAP_CHAIN_WHATEVER
     nl_cat "./F.80"     "VG03.ALL"  ## GET_SWAP_CHAIN_IMAGES
+    nl_cat "./F.90"     "VG03.ALL"  ## SWAPCHAIN_VEW
 
 ########################################
 

@@ -2904,7 +2904,6 @@ HOMOPOOL_MiscAlloc( int reserve_n_bytes ){
     if( reserve_n_bytes <= 0 ){ homopool_Halt("[M_ZALO]"); };
     if( homopool_makarr != 0 ){ homopool_Halt("[M_MARR]"); };
     
-    //:TODO: Return pointer to where the memory starts
     void* memory_address=(
         &( homopool_memo[ homopool_NEXT_T0 ] )
     );;
@@ -2924,6 +2923,31 @@ HOMOPOOL_MiscAlloc( int reserve_n_bytes ){
 //! we seal the pool. -------------------------------------- !//
 void 
 HOMOPOOL_Seal( ){
+
+    //:HP_AS:HomoPool_AlreadySealed
+    if( 0 != homopool_sealed ){ homopool_Halt("[HP_AS]"); };
+
+    if(NULL==homopool_HeapReAlloc){
+        homopool_Halt("[HRA:NULL]");
+    };;
+
+    int b_u =( HOMOPOOL_GetNumberOfUsedBytes( ) );
+    void* ptr = NULL;
+
+    ptr=homopool_HeapReAlloc(
+            homopool_heap  //: HANDLE / void*
+        ,   0x00000010 /** U32:HEAP_REALLOC_IN_PLACE_ONLY **/ 
+        ,   homopool_memo  //: LPVOID / void*
+        ,   
+            (unsigned long long /**U64**/)
+            b_u /** NumberOfUsedBytes **/
+
+        );;
+
+    //:MAC: Memory_Address_Changed:
+    if( ptr != homopool_memo ){ homopool_Halt("[MAC]"); };
+
+    homopool_sealed = 1;
 
 }//[;Seal;]/////////////////////////////////////////////////////
 void
@@ -2958,6 +2982,7 @@ homopool_NukeFlags_General(){
 
     homopool_memo=NULL; //:The pools memory bank.
     homopool_heap=NULL; //:The heap pool allocated from.
+    homopool_sealed=0 ; //:Memory Is No Longer Sealed.
 
     homopool_ibytes  = 0   ;
 
@@ -3092,6 +3117,7 @@ void homopool_LazyUnitTest_ArrayAllocations(  void );
 void homopool_LazyUnitTest_MiscAlloc(         void );
 void homopool_LazyUnitTest_MixedAllocMethods( void );
 void homopool_LazyUnitTest_StorageTest(       void );
+void homopool_LazyUnitTest_SealTest(          void );
 void homopool_LazyUnitTest(                   void ){
     //:Avoid infinite recursion. Invoke test only once:
     if( homopool_tested | homopool_testin ){ return; };
@@ -3107,12 +3133,38 @@ void homopool_LazyUnitTest(                   void ){
     homopool_LazyUnitTest_MixedAllocMethods();
 
     homopool_LazyUnitTest_StorageTest();
+
+    homopool_LazyUnitTest_SealTest();
   
 
     ////////////////////////////////////////////////////////////
     homopool_testin = 0;
     homopool_tested = 1;
 }//[;LazyUnitTest;]/////////////////////////////////////////////
+void homopool_LazyUnitTest_SealTest( void ){
+    homopool_UnitTestPrint("[BEG:SealTest]");
+
+    //:int   len;
+    int   u_b;
+
+    ////////////////////////////////////////////////////////////
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[ST_0]");
+    // ------------------------------------------------------ //
+
+        //! First test, dont make any allocations.       ----!//
+        //! This would cause the memory to be reduced to ----!//
+        //! ZERO, which I anticipate being a problem.    ----!//
+
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 0 != u_b ){ homopool_Halt("[UB!0]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+
+    homopool_UnitTestPrint("[END:SealTest]");
+}//[;LazyUnitTest_SealTest;]////////////////////////////////////
 void homopool_LazyUnitTest_StorageTest( void ){
     homopool_UnitTestPrint("[BEG:StorageTest]");
 
@@ -3569,6 +3621,7 @@ static void
 e01_PrivateInit( void ){
 
     CONSTPOOL_Init();
+     HOMOPOOL_Init(8*64); //:InitialBytesMemoryIsGuess
 
 }//[;]//
 
@@ -3731,6 +3784,9 @@ F02_F01_MACRO( vkCreateSwapchainKHR , vulkan-1 )
 //:             EXAMPLE: F50_vkGetSwapchainImagesKHR
 
 ////////////////////////////////////////////////////////////////
+
+//:MAKES:  F02_vkCreateImageView
+F02_F01_MACRO( vkCreateImageView , vulkan-1 )
 
 
 //!( RegisterWindow   , user32  )  YOU_MADE_THIS_ONE_UP      !//
@@ -5654,10 +5710,6 @@ F20_VkDebugUtilsObjectNameInfoEXT {
 
 ////////////////////////////////////////////////////////////////
 
-
-
-////////////////////////////////////////////////////////////////
-
 struct 
 F20_VkDebugUtilsMessengerCallbackDataEXT {
 
@@ -5699,6 +5751,39 @@ F20_VkDebugUtilsMessengerCallbackDataEXT {
     pObjects;
 
 };
+
+////////////////////////////////////////////////////////////////
+
+    #define UI32 unsigned int //////////////////////////////////
+    struct  ////
+    F20_VkComponentMapping{
+            UI32    r; /** ENUM/UINT32:VkComponentSwizzle  **/
+            UI32    g; /** ENUM/UINT32:VkComponentSwizzle  **/
+            UI32    b; /** ENUM/UINT32:VkComponentSwizzle  **/
+            UI32    a; /** ENUM/UINT32:VkComponentSwizzle  **/
+    };      ////
+    struct  ////
+    F20_VkImageSubresourceRange{    
+            UI32    aspectMask    ; /** VkImageAspectFlags **/
+            UI32    baseMipLevel  ;
+            UI32    levelCount    ;
+            UI32    baseArrayLayer;
+            UI32    layerCount    ;
+    };      ////
+    #undef  UI32 ///////////////////////////////////////////////
+struct F20_VkImageViewCreateInfo{ //////////////////////////////
+
+    unsigned int        sType    ; //:BITS:32|--
+    const void*         pNext    ; //:BITS:--|64 
+    unsigned int        flags    ; //:BITS:32|--
+    unsigned long long  image    ; //:BITS:--|64
+    unsigned int        viewType ; //:BITS:32|--
+    unsigned int        format   ; //:BITS:32|--
+
+    struct F20_VkComponentMapping         components      ;
+    struct F20_VkImageSubresourceRange    subresourceRange;
+
+};//[struct]////////////////////////////////////////////////////
 
 //+----------------------------------------------------------+//
 //|                                                          |//
@@ -6304,9 +6389,21 @@ f20_BlowUpIfStructSizesIncorrect( void ){
         struct F20_VkSwapchainCreateInfoKHR
     );;if(  104 != siz ){ f20_Halt("[!104:SCI]"); }
 
+    //X//
 
+    siz = (int)sizeof(
+        struct F20_VkImageViewCreateInfo
+    );;if(  80 != siz ){ f20_Halt("[!80:IVCI]"); }
 
+    siz = (int)sizeof(
+        struct F20_VkImageSubresourceRange
+    );;if(  20 != siz ){ f20_Halt("[!20:ISRR]"); }
 
+    siz = (int)sizeof(
+        struct F20_VkComponentMapping
+    );;if(  16 != siz ){ f20_Halt("[!16:CMAP]"); }
+
+    //X//
     
     printf("\n");
     printf("[f20:struct_size_checks_pass]\n");
@@ -9686,6 +9783,7 @@ static void f70_PrivateInit( void ){
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
 
 //#FILE_REGION[ F.70 ]END#####################################//
+//#FILE_REGION[ F.80 ]BEG#####################################//
 
 //:DOTADIW: Get swapchain images
 
@@ -9711,13 +9809,16 @@ void**       F80_swap_chain_image_array = 0; /** F20_VkImage **/
 
 static void f80_PrivateInit( void ){
 
+    void* V_1   = 0; //:Command result #1 as void*
+    void* V_2   = 0; //:Command result #2 as void*
+
     #define H f80_Halt /////////////////////////////////////////
     if(NULL==F50_vkGetSwapchainImagesKHR){ H("[NULL_FUNC]"); };
     if(NULL==F64_logical_device         ){ H("[NULL_LDEV]"); };
     if( 0  ==F70_swapchain              ){ H("[NULL_SWAP]"); };
     #undef  H //////////////////////////////////////////////////
 
-    ((F03_04)(F50_vkGetSwapchainImagesKHR))(
+    V_1=((F03_04)(F50_vkGetSwapchainImagesKHR))(
     /**/F64_logical_device
 
     ,   (void*)F70_swapchain
@@ -9726,20 +9827,35 @@ static void f80_PrivateInit( void ){
     ,   NULL
     );;
 
-    #define ARR  F80_swap_chain_image_array  ///////////////////
-    #define LEN  F80_swap_chain_image_count  ///////////////////
-    ARR=CONSTPOOL_Beg( sizeof( void* ) );    ///////////////////
+    ////////////////////////////////////////////////////////////
+    #define H f80_Halt /////////////////////////////////////////
 
-        //This part might require functionality
-        //to reserve n number of zero initialized
-        //elements. Data reserved in the constpool
-        //is meant to stay there until the program
-        //has finished executing.
-        // CONSTPOOL_Add_ByValue
+    int siz = (sizeof( void* ) * F80_swap_chain_image_count);
+    F80_swap_chain_image_array =(
+        HOMOPOOL_MiscAlloc( 
+            siz //:BytesTakenUpBy:F80_swap_chain_image_array
+        )
+    );;
+    if(NULL==F80_swap_chain_image_array){ H("[NSCIA]"); };
 
-    LEN=CONSTPOOL_End( ARR ); //////////////////////////////////
-    #undef  LEN  ///////////////////////////////////////////////
-    #undef  ARR  ///////////////////////////////////////////////
+    #undef  H //////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+
+    V_2=((F03_04)(F50_vkGetSwapchainImagesKHR))(
+    /**/F64_logical_device
+
+    ,   (void*)F70_swapchain
+
+    ,   &( F80_swap_chain_image_count )
+    ,      F80_swap_chain_image_array
+    );;
+        
+    #define H f80_Halt /////////////////////////////////////////
+
+        if( ((signed long long)V_1) != 0 ){ H("[V_1]"); };
+        if( ((signed long long)V_2) != 0 ){ H("[V_2]"); };
+
+    #undef  H //////////////////////////////////////////////////
 
 }//[;]//
 
@@ -9770,54 +9886,187 @@ static void f80_PrivateInit( void ){
         return( 0 );                          //[IM--------IM]//
     }//[;]//                                  //[IM--------IM]//
 //[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
-//#FILE_REGION[ VG03.H ]BEG###################################//
-/////////////////////////////////. . . . . . 13
-/////////////////////////////////............|
-/////////////////////////////////123456789ABCD
-//|---- F01 ------|////[ DOTADIW:DLL_FUNC_LIST ]//
-//|---- F02 ------|////[ DOTADIW:DLL_FUNC_LOAD ]//
-//|-----F03 ------|////[ DOTADIW:DLL_CALL_CAST ]//
 
-//|-----F04 ------|////[ DOTADIW:DLL_STRUCTS   ]//
-//|-----F05 ------|////[ DOTADIW:DLL_TYPEDEFS  ]//
+//#FILE_REGION[ F.80 ]END#####################################//
+//#FILE_REGION[ F.90 ]BEG#####################################//
 
-//|-----F06 ------|////[ DOTADIW:DLL_PARG_LIST ]//
-//|-----F07 ------|////[ DOTADIW:DLL_WRAP_BOIL ]//
-//|-----F08 ------|////[ DOTADIW:DLL_WRAP_MAKE ]//
+//:DOTADIW: SWAPCHAIN_VEW
+//:         ( Create SwapChainImageView(s) )
 
-//|-----F09 ------|////[ DOTADIW:MAKE_A_WINDOW ]//
-//|-----F10 ------|////[ DOTADIW:WIN_IN_THREAD ]//
+//:VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkImage)
+unsigned int F90_swap_chain_image_view_count = 0;
+void**       F90_swap_chain_image_view_array = 0; 
 
-//|-----F20 ------|////[ DOTADIW:VULKAN_STRUCT ]//
-//|-----F30 ------|////[ DOTADIW:VULKAN_PFN_TD ]//
-//|-----F35 ------|////[ DOTADIW:STRUCTS_W_PFN ]//
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f90_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f90_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+static void
+f90_PrivateInit( void ){
 
-//|-----F40 ------|////[ DOTADIW:VK_INIT_PART1 ]//
-//|-----F50 ------|////[ DOTADIW:VK_INST_FUNCS ]//
-//|-----F60 ------|////[ DOTADIW:VK_INIT_PART2 ]//
+    #define IMG_ARR  F80_swap_chain_image_array      ///////////
+    #define IMG_LEN  F80_swap_chain_image_count      ///////////
+                                                     ///////////
+    #define VEW_ARR  F90_swap_chain_image_view_array ///////////
+    #define VEW_LEN  F90_swap_chain_image_view_count /////////// 
+                                                     ///////////
+    ////////////////////////////////////////////////////////////
 
-//|-----F61 ------|////[ DOTADIW:WIN32_SURFACE ]//
-//|-----F62 ------|////[ DOTADIW:PHYDEV_SELECT ]//
-//|-----F64 ------|////[ DOTADIW:MAK_LOGIC_DEV ]//
-//|-----F66 ------|////[ DOTADIW:RET_QUEUE_HAN ]//
+    //:Same number of views as images:
+    VEW_LEN = IMG_LEN; 
+
+    ////////////////////////////////////////////////////////////
+
+        struct F20_VkImageViewCreateInfo ci = { 0 };
+        ci.sType    = 15  ; /** IMAGE_VIEW_CREATE_INFO  **/ ;
+        ci.image    =  0  ; /** EDIT IT IN THE LOOP !   **/ ;
+        ci.viewType =  1  ; /** VK_IMAGE_VIEW_TYPE_2D   **/ ;
+
+        //:AKA: "swapChainImageFormat" SC[VTP2018]BP[01]
+        ci.format   = F62_surface_format.format; 
+
+        ////////////////////////////////////////////////////////
+        ci.subresourceRange.aspectMask=(
+            0x00000001 /** VK_IMAGE_ASPECT_COLOR_BIT  **/
+        );;
+        ci.subresourceRange.baseMipLevel   = 0;
+        ci.subresourceRange.levelCount     = 1;
+
+        ci.subresourceRange.baseArrayLayer = 0;
+        ci.subresourceRange.layerCount     = 1;
+        ////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////
+    //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+    int elm_siz =( sizeof( struct F20_VkImageViewCreateInfo ) );
+    VEW_ARR = HOMOPOOL_BegArray( elm_siz );
+    for( int vew_dex = 0; vew_dex < (int)VEW_LEN; vew_dex++ ){ 
+
+        
+
+            HOMOPOOL_Next( ); //:Add new array element
+
+            ci.image =(
+                (unsigned long long)
+                F80_swap_chain_image_array[ vew_dex ]
+            );;
+
+            int cmd_res=(int)(unsigned long long)(
+                ((F03_04)F02_vkCreateImageView)( 
+                     F64_logical_device
+                ,   &( ci ) //:VkImageViewCreateInfo
+                ,   NULL    //:VkAllocationCallbacks
+                ,   &(VEW_ARR[vew_dex] ) 
+                )
+            );;
+            if( cmd_res != 0 /**VK_SUCCESS**/ ){
+                f90_Halt("[CMD_RES]");
+            }else{
+                printf("[OK:VEW_ARR[#]]:%d\n", vew_dex );
+            };;
+
+
+
+    };;//[NEXT:vew_dex]/////////////////////////////////////////
+    VEW_LEN = HOMOPOOL_EndArray( &VEW_ARR ); ///////////////////
+    //:LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL://
+    ////////////////////////////////////////////////////////////
+                     ///////////////////////////////////////////
+    #undef  IMG_ARR  ///////////////////////////////////////////
+    #undef  IMG_LEN  ///////////////////////////////////////////
+                     ///////////////////////////////////////////
+    #undef  VEW_ARR  ///////////////////////////////////////////
+    #undef  VEW_LEN  ///////////////////////////////////////////
+
+    //:Quick itegrity check:
+    ////////////////////////////////////////////////////////////
+    if(  F80_swap_chain_image_count
+    !=   F90_swap_chain_image_view_count
+    ){   f90_Halt("[COUNTS]"); };
+
+    if(  NULL == F80_swap_chain_image_array
+    ||   NULL == F90_swap_chain_image_view_array
+    ){   f90_Halt("[ARRAYS]"); };
+    ////////////////////////////////////////////////////////////
     
+    
+
+
+}//[;PrivateInit;]//////////////////////////////////////////////
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F90_Init(){                           //[IM--------IM]//
+        printf("[BEG:F90:Init]\n");           //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F80_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f90_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F90:Init]\n");           //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F90_Main(){                           //[IM--------IM]//
+        F90_Init();                           //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F90:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.90 ]END#####################################//
+//#FILE_REGION[ VG03.H ]BEG###################################//
 
 int
 VG03_Demo( void ){
     printf("[BEG:VG03_DEMO]\n");
 
+///////////////////////////////. . . . . . 13
+///////////////////////////////............|
+///////////////////////////////123456789ABCD
+    //:F01_Main(); //[ DOTADIW:DLL_FUNC_LIST ]//
+    //:F02_Main(); //[ DOTADIW:DLL_FUNC_LOAD ]//
+    //:F03_Main(); //[ DOTADIW:DLL_CALL_CAST ]//
+    //:F04_Main(); //[ DOTADIW:DLL_STRUCTS   ]//
+    //:F05_Main(); //[ DOTADIW:DLL_TYPEDEFS  ]//
+    //:F06_Main(); //[ DOTADIW:DLL_PARG_LIST ]//
+    //:F07_Main(); //[ DOTADIW:DLL_WRAP_BOIL ]//
+    //:F08_Main(); //[ DOTADIW:DLL_WRAP_MAKE ]//
 
-    //:F10_Main();
-    //:F35_Main();
-    //:F40_Main();
-    //:F50_Main();
-    //:F60_Main();
-    //:F61_Main();
-    //:F62_Main();
-    //:F64_Main();
-    //:F66_Main();
-       F70_Main();
+    //:F09_Main(); //[ DOTADIW:MAKE_A_WINDOW ]//
+    //:F10_Main(); //[ DOTADIW:WIN_IN_THREAD ]//
 
+    //:F20_Main(); //[ DOTADIW:VULKAN_STRUCT ]//
+    //:F30_Main(); //[ DOTADIW:VULKAN_PFN_TD ]//
+    //:F35_Main(); //[ DOTADIW:STRUCTS_W_PFN ]//
+
+    //:F40_Main(); //[ DOTADIW:VK_INIT_PART1 ]//
+    //:F50_Main(); //[ DOTADIW:VK_INST_FUNCS ]//
+    //:F60_Main(); //[ DOTADIW:VK_INIT_PART2 ]//
+
+    //:F61_Main(); //[ DOTADIW:WIN32_SURFACE ]//
+    //:F62_Main(); //[ DOTADIW:PHYDEV_SELECT ]//
+    //:F64_Main(); //[ DOTADIW:MAK_LOGIC_DEV ]//
+    //:F66_Main(); //[ DOTADIW:RET_QUEUE_HAN ]//
+
+    //:F70_Main(); //:CREATE_SWAPCHAIN
+    //:F80_Main(); //:GET_SWAPCHAIN_IMAGES
+       F90_Main(); //:GET_SWAPCHAIN_IMAGE_VIEWS
 
     printf("[END:VG03_DEMO]\n");
     return( 0 );

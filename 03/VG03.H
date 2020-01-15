@@ -1,51 +1,40 @@
 //#FILE_REGION[ VG03.H ]BEG###################################//
-/////////////////////////////////. . . . . . 13
-/////////////////////////////////............|
-/////////////////////////////////123456789ABCD
-//|---- F01 ------|////[ DOTADIW:DLL_FUNC_LIST ]//
-//|---- F02 ------|////[ DOTADIW:DLL_FUNC_LOAD ]//
-//|-----F03 ------|////[ DOTADIW:DLL_CALL_CAST ]//
-
-//|-----F04 ------|////[ DOTADIW:DLL_STRUCTS   ]//
-//|-----F05 ------|////[ DOTADIW:DLL_TYPEDEFS  ]//
-
-//|-----F06 ------|////[ DOTADIW:DLL_PARG_LIST ]//
-//|-----F07 ------|////[ DOTADIW:DLL_WRAP_BOIL ]//
-//|-----F08 ------|////[ DOTADIW:DLL_WRAP_MAKE ]//
-
-//|-----F09 ------|////[ DOTADIW:MAKE_A_WINDOW ]//
-//|-----F10 ------|////[ DOTADIW:WIN_IN_THREAD ]//
-
-//|-----F20 ------|////[ DOTADIW:VULKAN_STRUCT ]//
-//|-----F30 ------|////[ DOTADIW:VULKAN_PFN_TD ]//
-//|-----F35 ------|////[ DOTADIW:STRUCTS_W_PFN ]//
-
-//|-----F40 ------|////[ DOTADIW:VK_INIT_PART1 ]//
-//|-----F50 ------|////[ DOTADIW:VK_INST_FUNCS ]//
-//|-----F60 ------|////[ DOTADIW:VK_INIT_PART2 ]//
-
-//|-----F61 ------|////[ DOTADIW:WIN32_SURFACE ]//
-//|-----F62 ------|////[ DOTADIW:PHYDEV_SELECT ]//
-//|-----F64 ------|////[ DOTADIW:MAK_LOGIC_DEV ]//
-//|-----F66 ------|////[ DOTADIW:RET_QUEUE_HAN ]//
-    
 
 int
 VG03_Demo( void ){
     printf("[BEG:VG03_DEMO]\n");
 
+///////////////////////////////. . . . . . 13
+///////////////////////////////............|
+///////////////////////////////123456789ABCD
+    //:F01_Main(); //[ DOTADIW:DLL_FUNC_LIST ]//
+    //:F02_Main(); //[ DOTADIW:DLL_FUNC_LOAD ]//
+    //:F03_Main(); //[ DOTADIW:DLL_CALL_CAST ]//
+    //:F04_Main(); //[ DOTADIW:DLL_STRUCTS   ]//
+    //:F05_Main(); //[ DOTADIW:DLL_TYPEDEFS  ]//
+    //:F06_Main(); //[ DOTADIW:DLL_PARG_LIST ]//
+    //:F07_Main(); //[ DOTADIW:DLL_WRAP_BOIL ]//
+    //:F08_Main(); //[ DOTADIW:DLL_WRAP_MAKE ]//
 
-    //:F10_Main();
-    //:F35_Main();
-    //:F40_Main();
-    //:F50_Main();
-    //:F60_Main();
-    //:F61_Main();
-    //:F62_Main();
-    //:F64_Main();
-    //:F66_Main();
-       F70_Main();
+    //:F09_Main(); //[ DOTADIW:MAKE_A_WINDOW ]//
+    //:F10_Main(); //[ DOTADIW:WIN_IN_THREAD ]//
 
+    //:F20_Main(); //[ DOTADIW:VULKAN_STRUCT ]//
+    //:F30_Main(); //[ DOTADIW:VULKAN_PFN_TD ]//
+    //:F35_Main(); //[ DOTADIW:STRUCTS_W_PFN ]//
+
+    //:F40_Main(); //[ DOTADIW:VK_INIT_PART1 ]//
+    //:F50_Main(); //[ DOTADIW:VK_INST_FUNCS ]//
+    //:F60_Main(); //[ DOTADIW:VK_INIT_PART2 ]//
+
+    //:F61_Main(); //[ DOTADIW:WIN32_SURFACE ]//
+    //:F62_Main(); //[ DOTADIW:PHYDEV_SELECT ]//
+    //:F64_Main(); //[ DOTADIW:MAK_LOGIC_DEV ]//
+    //:F66_Main(); //[ DOTADIW:RET_QUEUE_HAN ]//
+
+    //:F70_Main(); //:CREATE_SWAPCHAIN
+    //:F80_Main(); //:GET_SWAPCHAIN_IMAGES
+       F90_Main(); //:GET_SWAPCHAIN_IMAGE_VIEWS
 
     printf("[END:VG03_DEMO]\n");
     return( 0 );
