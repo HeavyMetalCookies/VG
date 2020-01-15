@@ -1,10 +1,23 @@
 
 #include <stdio.h>  //:printf(...)
 #include <stdlib.h> //: exit()
+
+//:Manually Get LoadLibrary and GetProcAddress
+//:from the Process Environment Block (PEB)
+////////////////////////////////////////////////////////////////
+    #include "../W32/DLLL/DLLL.COMSET"
+    #include "../W32/DLLL/TARG/W10.X64"
+    #include "../W32/DLLL/DLLL.H"
+////////////////////////////////////////////////////////////////
+
 #include "HP._"
 
 int main( void ){
 
-    printf("[TODO:main]");
+    printf("[BEF:homopool_LazyUnitTest]\n");
+
+    homopool_LazyUnitTest( );
+
+    printf("[AFT:homopool_LazyUnitTest]\n");
 
 }//[;]//

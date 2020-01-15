@@ -1,4 +1,6 @@
 //#FILE_REGION[ W32/DLLL/DLLL.H ]BEG##########################//
+#ifndef JOHN_MARKS_INCLUDE_GAURD_2020_01_14_0645PM /////////////
+#define JOHN_MARKS_INCLUDE_GAURD_2020_01_14_0645PM /////////////
 
 //[ DLLL: DLLL_Loader                          ]//
 //+--------------------------------------------+//
@@ -175,4 +177,5 @@ DLLL_GetProcAddress(
 
 }//[;]//
 
+#endif // JOHN_MARKS_INCLUDE_GAURD_2020_01_14_0645PM ///////////
 //#FILE_REGION[ W32/DLLL/DLLL.H ]END##########################//

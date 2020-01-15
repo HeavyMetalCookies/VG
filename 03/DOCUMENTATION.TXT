@@ -1,0 +1,27 @@
+HP_VS_CP:Homopool_Vs_Constpool
+////////////////////////////////////////////////////////////////
+CONSTPOOL: Pool for putting constant values on heap.
+ HOMOPOOL: Pool for reserving memory that WON'T be freed.
+
+CONSTPOOL: 
+    1: Set a KNOWN number of values.
+       (You always know how many calls to CONSTPOOL     )
+       (Will be made for the lifetime of your program   )
+       (using static analysis of code.                  )
+       (AKA: Don't call this in a fucking dynamic loop! )
+
+    2: Reserves the memory.
+    3. SETS the values in memory for you.
+
+HOMOPOOL:
+    1: Used for an UNKNOWN number of values.
+    2: Reserves the memory.
+    3: DOES NOT set the values in memory for you.
+
+    Use this for allocating more dyanmic memory that
+    will NOT BE FREED for the lifetime of the program.
+
+    Because of this, we can SHRINK the size of the pool 
+    once the program has reached homeostatis with
+    calls to HOMOPOOL.
+////////////////////////////////////////////////////////////////
