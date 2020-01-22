@@ -4,19 +4,22 @@
 
 //[ CONFIGURATION : ---------------------------------------- ]//
 
+    //|V:Visible/Public :____________________________________|//
+    //[VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV]//
 
     int HOMOPOOL_show_unit_test_debug_messages = 0;
 
-
-    ////////////////////////////////////////////////////////////
+    //[VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV]//
+    //:H:Hidden/Private
+    //:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
     //:Private "funbug" flags.
     //:Used when debugging and need to see more messages
     //:from different functions.
-    ////////////////////////////////////////////////////////////
+    //:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
 
-    int homopool_funbug_HOMOPOOL_Kill       = 1;
+    int homopool_funbug_HOMOPOOL_Kill       = 0;
 
-    ////////////////////////////////////////////////////////////
+    //:HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH://
 
 //[ TYPE : Typedefs ---------------------------------------- ]//
 
@@ -63,6 +66,27 @@
         (*homopool_PFN_GetLastError)(
             void
         );
+
+    //:AT: Argument Types: (For code readability):
+    //:ATATATATATATATATATATATATATATATATATATATATATATATATATATAT://
+
+    struct homopool_ARG_HeapAlloc{
+
+        #define VOD void               /////////////////////////
+        #define U32 unsigned long      /////////////////////////
+        #define U64 unsigned long long /////////////////////////
+
+                VOD*    hHeap; //:Heap_Pointer
+                U32   dwFlags; //:Bit_Flags
+                U64   dwBytes; //:Amount_Of_Mem_To_Allocate
+
+        #undef  VOD  ///////////////////////////////////////////
+        #undef  U32  ///////////////////////////////////////////
+        #undef  U64  ///////////////////////////////////////////
+
+    };//[struct]//
+        
+    //:ATATATATATATATATATATATATATATATATATATATATATATATATATATAT://
 
     ////////////////////////////////////////////////////////////
 
@@ -242,14 +266,30 @@ HOMOPOOL_Init( int input_homopool_ibytes ){
     //! Get pointers to win32 functions I need: -------------!//
     ////////////////////////////////////////////////////////////
 
-        homopool_LoadFunctionPointers();
 
+        homopool_LoadFunctionPointers(); //: Idempotent ://
+
+        //:HA:HeapAlloc():___________________________________://
+        //:HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHA://
+        unsigned long 
+        dwFlags=(
+            0
+            | 0x00000008 /** HEAP_ZERO_MEMORY **/
+            |
+            0
+        );;
+        struct homopool_ARG_HeapAlloc ARG ={ 0 };
         homopool_heap=homopool_GetProcessHeap();
         homopool_memo=homopool_HeapAlloc(
-                                  homopool_heap
-        ,   (unsigned long) input_homopool_ibytes
-        ,   0x00000008 /** HEAP_ZERO_MEMORY **/
+        /**/    ( ARG.hHeap   = homopool_heap         )
+        ,       ( ARG.dwFlags = dwFlags               )
+        ,       ( ARG.dwBytes = input_homopool_ibytes )
         );;
+        if( NULL == homopool_memo ){
+            //:HAF:HeapAllocFail
+            homopool_Halt("[HAF]");
+        };;
+        //:HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHA://
 
     ////////////////////////////////////////////////////////////
 
@@ -507,22 +547,36 @@ HOMOPOOL_Seal( ){
     //:HP_AS:HomoPool_AlreadySealed
     if( 0 != homopool_sealed ){ homopool_Halt("[HP_AS]"); };
 
-    if(NULL==homopool_HeapReAlloc){
-        homopool_Halt("[HRA:NULL]");
-    };;
+    #define H homopool_Halt ////////////////////////////////////
+    if(NULL==homopool_HeapReAlloc){ H("[SEAL:01]"); };
+    if(NULL==homopool_memo       ){ H("[SEAL:02]"); };
+    if(NULL==homopool_heap       ){ H("[SEAL:03]"); };
+    #undef  H //////////////////////////////////////////////////
 
     int b_u =( HOMOPOOL_GetNumberOfUsedBytes( ) );
     void* ptr = NULL;
 
+    unsigned long dwFlags=(
+        0
+        |   0x00000010 /** U32:HEAP_REALLOC_IN_PLACE_ONLY **/ 
+        |   0x00000004 /** U32:HEAP_GENERATE_EXCEPTIONS   **/
+        |
+        0
+    );;
+
     ptr=homopool_HeapReAlloc(
             homopool_heap  //: HANDLE / void*
-        ,   0x00000010 /** U32:HEAP_REALLOC_IN_PLACE_ONLY **/ 
+        ,   dwFlags
         ,   homopool_memo  //: LPVOID / void*
         ,   
             (unsigned long long /**U64**/)
             b_u /** NumberOfUsedBytes **/
 
         );;
+
+    if(NULL==ptr){
+        homopool_Halt("[HRA_FAIL]");
+    };;
 
     //:MAC: Memory_Address_Changed:
     if( ptr != homopool_memo ){ homopool_Halt("[MAC]"); };
@@ -1068,20 +1122,120 @@ void homopool_LazyUnitTest_SealTest( void ){
     int   u_b;
 
     ////////////////////////////////////////////////////////////
+    //[BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB]//
+
+
+
+
     // ------------------------------------------------------ //
-    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[ST_0]");
+    HOMOPOOL_Init( 128 ); 
+    homopool_UnitTestPrint("[ST:ABS:01]");
     // ------------------------------------------------------ //
 
-        //! First test, dont make any allocations.       ----!//
+        //| TEST_NAME:AVOID_BUS_ERROR#1 |//
+        HOMOPOOL_MiscAlloc( 64 ); 
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 64 != u_b ){ homopool_Halt("[UB64]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 256 ); 
+    homopool_UnitTestPrint("[ST:ABS:02]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:AVOID_BUS_ERROR#2 |//
+        HOMOPOOL_MiscAlloc( 128 ); 
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 128 != u_b ){ homopool_Halt("[X_X.|.]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
+
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 16 ); 
+    homopool_UnitTestPrint("[ST:ABS:03]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:AVOID_BUS_ERROR#3 |//
+        HOMOPOOL_MiscAlloc( 8 ); 
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 8 != u_b ){ homopool_Halt("[UB8AGAIN]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
+    //[BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB]//
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 0x00000008 /** HEAP_ZERO_MEMORY **/ ); 
+    homopool_UnitTestPrint("[ST_3]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:0x00000008/HEAP_ZERO_MEMORY |//
+        //:Expecting this test to pass, because this was
+        //:what was effectively happening with our original
+        //:Seal() test when we accidentially used the
+        //:HEAP_ZERO_MEMORY value as the amount of memory
+        //:to allocate.
+        HOMOPOOL_MiscAlloc( 4 ); //:LessThan:0x00000008
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 0x00000008 != u_b ){ homopool_Halt("[UB_8]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[ST_4]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:NOT_AN_EDGE_CASE |//
+        HOMOPOOL_MiscAlloc(10);
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 10 != u_b ){ homopool_Halt("[UB10]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[ST_5]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:ZERO_USED_BYTES |//
+        //! #2nd test:  Dont make any allocations.       ----!//
         //! This would cause the memory to be reduced to ----!//
         //! ZERO, which I anticipate being a problem.    ----!//
-
         HOMOPOOL_Seal();
         u_b = HOMOPOOL_GetNumberOfUsedBytes( );
         if( 0 != u_b ){ homopool_Halt("[UB!0]");};
 
     // ------------------------------------------------------ //
     HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 15 ); homopool_UnitTestPrint("[ST_6]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:FULL_ALLOC_TEST |//
+        //! Make the resize amount the same value as    -----!//
+        //! the pool to begin with, which should result -----!//
+        //! in no change. -----------------------------------!//
+        HOMOPOOL_MiscAlloc(15); //:UseUpAllSpace
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 15 != u_b ){ homopool_Halt("[UB15]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
 
     homopool_UnitTestPrint("[END:SealTest]");
 }//[;LazyUnitTest_SealTest;]////////////////////////////////////
