@@ -56,6 +56,19 @@ nl_cat "./W32/DLLL/DLLL.H"          "VG03.ALL"
 
 ################################################################
 
+
+## CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC ##
+## Once again, couldn't back up from "E.01"                   ##
+## Decided to back up to C instead of D since Intent          ##
+## was to add a static configuration file.                    ##
+## Started with "C50" / "C.50" this time instead of           ##
+## making mistakeof starting with "C01" / "C.01" .            ##                      ##
+## CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC ##
+
+    nl_cat "./C.50" "VG03.ALL"
+
+## CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC ##
+
 ## I can't back up any futher, so moving down to "E"
 ## EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ##
 
@@ -144,6 +157,10 @@ printf "\n"                             >> "VG03.ALL"
     nl_cat "./F.70"     "VG03.ALL"  ## SWAP_CHAIN_WHATEVER
     nl_cat "./F.80"     "VG03.ALL"  ## GET_SWAP_CHAIN_IMAGES
     nl_cat "./F.90"     "VG03.ALL"  ## SWAPCHAIN_VEW
+    nl_cat "./F.100"    "VG03.ALL"  ## VERT+FRAG Source
+    nl_cat "./F.110"    "VG03.ALL"  ## Make Path To FinderFile
+    nl_cat "./F.120"    "VG03.ALL"  ## Does FinderFile Exist?
+    nl_cat "./F.130"    "VG03.ALL"  ## FIND:glslangvalidator.exe
 
 ########################################
 

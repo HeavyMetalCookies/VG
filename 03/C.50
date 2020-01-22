@@ -1,0 +1,136 @@
+//#FILE_REGION[ C.50 ]BEG#####################################//
+
+    //: DOTADIW: Static_Configuration
+
+    //:T: This file only configuration:
+    //:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT://
+    signed char c50_tell_me_everything = 0; //:Info_Messages
+    //:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT://
+
+    //:S:Static_Configuration (START) |||||||||||||||||||||||://
+    //:SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS://
+
+    //|Variables named with this casing because              |//
+    //|the actual .exe file in my vulkan SDK                 |//
+    //|folder is "glslangValidator.exe"                      |//
+    //|E:\NV\SDK\VK\111300\Bin (AS OF: 2020_01_20)           |//
+    //|Using such naming convention makes it more likely     |//
+    //|to stumble upon this file when using                  |//
+    //|                                                      |//
+    //|     CONSOLE_INPUT>  egrep -ir "glslangValidator.exe" |//
+    //|                                                      |//
+
+    const char* C50_glslangValidator_Finder_FOLDER=(
+
+      //:--------10--14 
+      //:12345678901234 
+        "00_USER_CONFIG" //:<---Current Folder. Same As .EXE
+
+    );//[C50_glslangValidator_Finder_FOLDER //////////////// ]//
+
+    const char* C50_glslangValidator_Finder_FILE=(
+
+      //:--------10--------20---25
+      //:1234567890123456789012345
+        "FIND_glslangValidator_EXE.TXT"
+
+    );//[C50_glslangValidator_Finder_FILE ////////////////// ]//
+
+    //:SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS://
+    //:S:Static_Configuration (END) |||||||||||||||||||||||||://
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    c50_Halt( const char* msg ){        /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[c50_Halt]:%s\n", msg      /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+                                                            
+    //|TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT|// 
+    //#TT| DO_NOT_MAKE: Yell/Alert/Warn function!     |TT#//
+    //|TT| Either message is good news (say/info/tell)|TT|//
+    //|TT| Or we Halt/Panic with an error message.    |TT|//
+    //|TT| #FAIL_FAST# #FAILFAST#                     |TT|//
+    extern signed char c50_tell_me_everything;      //|TT|//
+    static void                                     //|TT|//
+    c50_Tell( const char* msg ){                    //|TT|//
+        if( c50_tell_me_everything != 0 ){          //|TT|//
+            printf( "[c50_tell:OK]:%s\n", msg );    //|TT|//              
+            fflush(stdout);                         //|TT|//
+        };;                                         //|TT|//
+    }//|;Tell;_________________________________________TT|//
+    //|TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT|// 
+
+
+
+
+static void
+c50_PrivateInit( void ){
+    #define H c50_Halt /////////////////////////////////////////
+
+    const char* A = C50_glslangValidator_Finder_FOLDER;
+    const char* B = C50_glslangValidator_Finder_FILE  ;
+
+    if(NULL==A){ H("[NULL_A]"); }; //:NULL_FOLDER_PATH
+    if(NULL==B){ H("[NULL_B]"); }; //:NULL_FILE_NAME__
+
+    int len_A;
+    int len_B;
+    while( (*(A++)) != 0 ){ len_A++; };
+    while( (*(B++)) != 0 ){ len_B++; };
+
+    if( len_A <= 0 ){ H("[EMPTY_A]"); };
+    if( len_B <= 0 ){ H("[EMPTY_B]"); };
+
+    if( c50_tell_me_everything != 0 ){
+
+        c50_Tell("[STRINGS_NON_ZERO]");
+        printf("[len_A]:%d\n", len_A);
+        printf("[len_B]:%d\n", len_B);
+
+    };;
+
+    //# VALIDATION OF IF THE FILE POINTED TO BY VARIABLES    #//
+    //# IN THIS CONFIGURATION FILE IS OUTSIDE OF THE SCOPE   #//
+    //# OF THIS FILE. Remember: DOTADIW                      #//
+
+    #undef  H //////////////////////////////////////////////////
+
+}//[;PrivateInit;]//////////////////////////////////////////////
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int C50_Init(){                           //[IM--------IM]//
+        printf("[BEG:C50:Init]\n");           //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+         //:int ret = F前_Init(); NO_PREVIOUS
+            int ret = 0; //:FUCKOFF_2020_01_20
+
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            c50_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:C50:Init]\n");           //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int C50_Main(){                           //[IM--------IM]//
+        C50_Init();                           //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[C50:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ C.50 ]END#####################################//

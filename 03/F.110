@@ -1,0 +1,256 @@
+//#FILE_REGION[ F.110 ]BEG####################################//
+
+    signed char f110_tell_me_everything = 1;
+
+    //[DOTADIW: Find absolute path to glslangvalidator.exe   ]//
+    ////////////////////////////////////////////////////////////
+
+    //:Not meant to be changed once set:
+    char* F110_abs_path_to_glslangvalidator_finder=NULL;
+
+    //:Because we DOTADIW (do one thing and do it well)
+    //:We can be this vauge and know that this string length
+    //:variable means:
+    //:F110_abs_path_to_glslangvalidator_finder.Length()
+    int F110_string_length = 0;
+
+    ////////////////////////////////////////////////////////////
+
+    //# OUTSIDE_SCOPE_OF_THIS_FILE: ------------------------ #//
+    //: 1: Seeing path actually points to existing finder file.
+    //: 2: Attempting to READ finder file.
+    //: 3: Locating glslangvalidator.exe
+    //: 4: Compiling any shader code.
+    //:   (Finding absolute path to the compiler    )
+    //:   (Will be enough work, and counts as       )
+    //:   (One unit of work as far as I am concerned)
+    //: 5: Any attempt to load glslangvalidator.exe
+    //:    into memory.
+    //: ---------------------------------------------------- ://
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f110_Halt( const char* msg ){       /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f110_Halt]:%s\n", msg     /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/**///|TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT|///**/
+/**///#TT| DO_NOT_MAKE: Yell/Alert/Warn function!     |TT#///**/
+/**///|TT| Either message is good news (say/info/tell)|TT|///**/
+/**///|TT| Or we Halt/Panic with an error message.    |TT|///**/
+/**///|TT| #FAIL_FAST# #FAILFAST#                     |TT|///**/
+/**/extern signed char f110_tell_me_everything;     //|TT|///**/
+/**/static void                                     //|TT|///**/
+/**/f110_Tell( const char* msg ){                   //|TT|///**/
+/**/    if( f110_tell_me_everything != 0 ){         //|TT|///**/
+/**/        printf( "[f110_tell:OK]:%s\n", msg );   //|TT|///**/          
+/**/        fflush(stdout);                         //|TT|///**/
+/**/    };;                                         //|TT|///**/
+/**/}//|;Tell;_________________________________________TT|///**/
+/**///|TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT|///**/
+static void
+f110_PrivateInit( void ){
+
+
+    //:Concat to create relative path to finder file:
+    #define CC const char //////////////////////////////////////
+    CC* fldr_name_str = C50_glslangValidator_Finder_FOLDER;
+    CC* file_name_str = C50_glslangValidator_Finder_FILE  ;
+    #undef  CC /////////////////////////////////////////////////
+
+    int fldr_name_len =    0;
+    int file_name_len =    0;
+    int           len =    0;
+    int*      ptr_len = &(len);
+    const char*   str = NULL;
+
+    str = fldr_name_str;
+    for( (*ptr_len)=0; str[*ptr_len]; (*ptr_len)++ );
+          fldr_name_len = len;
+    if( len != (*ptr_len) ){ f110_Halt("[NOT_EXP_01]"); };
+
+    str = file_name_str;
+    for( (*ptr_len)=0; str[*ptr_len]; (*ptr_len)++ );
+          file_name_len = len;
+    if( len != (*ptr_len) ){ f110_Halt("[NOT_EXP_02]"); };
+    
+    
+    if( fldr_name_len <= 0 ){ f110_Halt("[FLDR]"); };
+    if( file_name_len <= 0 ){ f110_Halt("[FILE]"); };
+
+    int F110_string_length =( //:AKA:fullpath_len
+       0
+       + fldr_name_len
+       + 1 //: "/" between parts
+       + file_name_len
+       + 0 //: DO_NOT_INCLUDE:NULL_TERMINATOR
+     //0//
+    );;
+    
+
+    //:Use [ CONSTPOOL |or| HOMOPOOL ]
+    //:to reserve enough memory for
+    //:fldr_name_str + "/" + file_name_str
+    F110_abs_path_to_glslangvalidator_finder=(
+    /**/    HOMOPOOL_MiscAlloc( 
+    /**/        ( F110_string_length + 1 ) //:+1 NULL_TERMINATOR
+    /**/        * 
+    /**/        sizeof(char) 
+    /**/    )
+    );;
+    int used_bytes=( HOMOPOOL_GetNumberOfUsedBytes( ) );
+    if( f110_tell_me_everything ){
+    /**/    
+    /**/    printf( "[HOMOPOOL:used_bytes]:%d\n", used_bytes );
+    /**/    
+    };;
+
+  /////////////  F110_abs_path_to_glslangvalidator_finder=(
+  /////////////      malloc(
+  /////////////          ( F110_string_length + 1 )
+  /////////////          *
+  /////////////          sizeof( char )
+  /////////////      )
+  /////////////  );;
+
+    int will_exceed_strlen_by_2 = 0;
+    int os = (0-1); //:Absolute Offset
+    int ro = (0-1); //:Relative Offset
+    while( 1 ){
+        os++; //:First used value is ZERO
+        ro++; //:First used value is ZERO
+            will_exceed_strlen_by_2++;
+        if( will_exceed_strlen_by_2 
+            > 
+           (F110_string_length + 1) //:+1 for:NULL_TERMINATOR
+        ){
+            break;
+        };;
+
+        if( os < fldr_name_len ){
+            //:COPY FOLDER PATH:
+            F110_abs_path_to_glslangvalidator_finder[os]=(
+                 fldr_name_str[ ro ]
+            );;
+        }else
+        if( os == fldr_name_len ){
+            //:ADD "/"
+            F110_abs_path_to_glslangvalidator_finder[os]=(
+                 '/'
+            );;
+            ro =( 0-1 );; //:Reset relative offset.
+        }else
+        if( os < fldr_name_len + 1 + file_name_len ){
+            //:COPY FILE NAME:
+            F110_abs_path_to_glslangvalidator_finder[os]=(
+                 file_name_str[ ro ]
+            );;
+        }else
+        if( os == fldr_name_len + 1 + file_name_len ){
+            //:ADD NULL TERMINATOR:
+            F110_abs_path_to_glslangvalidator_finder[os]=(
+                (char)0
+            );;
+        }else{
+            //:OUT_OF_FUCKING_BOUNDS
+            f110_Halt("[OOB]");
+        };;
+    };;
+
+    //:Checksums:
+    ////////////////////////////////////////////////////////////
+    
+    //|                       OS == 4 (Overflowed)  -------- |// 
+    //|            LEN==3     |       (OS==LEN+1 )  -------- |//
+    //|             |         |                     -------- |//
+    //| [ 0 ][ 1 ][ 2 ][ 3 ]( 4 )                   -------- |//
+    //|                 NUL                         -------- |//
+    if( (os + 1 ) != will_exceed_strlen_by_2 ){      
+        f110_Halt("[CHECKSUM_01]");
+    };;
+    //:Because null terminator not included on F110 var:
+    if( (os - 1 ) != (F110_string_length)      ){
+
+        printf("[F110_string_length]:%d\n",
+                 F110_string_length );;
+
+        printf("[F110:will_exceed_strlen_by_2]:%d\n",
+                      will_exceed_strlen_by_2 );;
+
+        f110_Halt("[CHECKSUM_02]");
+    };;
+    //:Formalizing null terminator fact:
+    if(    ( will_exceed_strlen_by_2 - 1) //:LenWith:NULL_TERM
+        != ( F110_string_length      + 1) //:LenWith:NULL_TERM
+    ){
+        f110_Halt("[CHECKSUM_03]");
+    };;
+
+    //:Assume everything is okay:
+    f110_Tell("[AbsolutePathToFinderFileCreated]");
+
+    //:If everything is NOT alright,
+    //:The following code might crash:
+        str = F110_abs_path_to_glslangvalidator_finder;
+    for( (*ptr_len)=0; str[*ptr_len]; (*ptr_len)++ );
+    if( len != (*ptr_len) ){ f110_Halt("[NOT_EXP_03]"); };
+    if( len != F110_string_length ){
+    
+
+        printf("[will_exceed_strlen_by_2]:%d\n",
+                 will_exceed_strlen_by_2 );;
+
+        printf("[F110_string_length]:%d\n",
+                 F110_string_length );;
+
+        printf("[len]:%d\n",
+                 len );;
+        
+        f100_Halt("[CHECKSUM_04]");
+    };;
+    
+    //:This is enough fucking logic!
+    if( f110_tell_me_everything != 0 ){
+
+        printf("[F110:ABSPATH]:%s\n"
+        ,F110_abs_path_to_glslangvalidator_finder
+        );;
+    };;
+
+}//[;PrivateInit;]//////////////////////////////////////////////
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F110_Init(){                           //[IM--------IM]//
+        printf("[BEG:F110:Init]\n");           //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F100_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f110_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F110:Init]\n");           //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F110_Main(){                           //[IM--------IM]//
+        F110_Init();                           //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F110:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.110 ]END####################################//
+

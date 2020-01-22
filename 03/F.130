@@ -1,0 +1,340 @@
+//#FILE_REGION[ F.130 ]BEG####################################//
+//! DOTADIW: Find absolute path to glslangvalidator.exe      !//
+//( By reading the finder file. )//
+
+    signed char f130_tell_me_everything = 1;
+
+    //: The buffer for this will need to be allocated.  -----://
+    //: Best to put this one in the HOMOPOOL since the  -----://
+    //: path length is not under our control.           -----://
+    //:
+    //: This path is the path read from
+    //: FIND_glslangValidator_EXE.TXT
+    //:
+    //: Not going to name it "relative" or "absolute"
+    //: because I cannot commit at this time.
+    char* F130_raw_pathto_glslangvalidator=NULL;
+
+    unsigned char F130_glslangvalidator_FOUND = 0;
+
+    //:Absolute path to glslangvalidator.exe
+    //:Last part of path should be "/glslangValidator.exe"
+    char* F130_abs_pathto_glslangvalidator=NULL;
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f130_Halt( const char* msg ){       /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f130_Halt]:%s\n", msg     /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+        //|TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT|// 
+        //#TT| DO_NOT_MAKE: Yell/Alert/Warn function!     |TT#//
+        //|TT| Either message is good news (say/info/tell)|TT|//
+        //|TT| Or we Halt/Panic with an error message.    |TT|//
+        //|TT| #FAIL_FAST# #FAILFAST#                     |TT|//
+        extern signed char f130_tell_me_everything;     //|TT|//
+        static void                                     //|TT|//
+        f130_Tell( const char* msg ){                   //|TT|//
+            if( f130_tell_me_everything != 0 ){         //|TT|//
+                printf( "[f130_tell:OK]:%s\n", msg );   //|TT|//              
+                fflush(stdout);                         //|TT|//
+            };;                                         //|TT|//
+        }//|;Tell;_________________________________________TT|//
+        //|TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT|// 
+static signed char              ////////////////////////////////
+f130_AttemptExecutableLoad(     ////////////////////////////////
+    char* path_to_exe_folder    ////////////////////////////////
+){                              ////////////////////////////////
+
+    signed char
+    exe_found = 0;
+
+    signed char 
+    ret = (0-1); //:TrapValue
+
+    if( NULL == path_to_exe_folder ){ 
+        ret = (0-1); //:Fatal status
+        f130_Halt("[FATAL]");
+    };;
+
+    char* exe_name = "glslangValidator.exe";
+
+    //:Allocate space for string:
+    char*  full_path_to_exe = malloc( 0
+    +   strlen( path_to_exe_folder )
+    +   1 //:For "/"
+    +   strlen( exe_name )
+    +   1 //:For Null Terminator
+    );;
+        
+    //:Create String:
+    strcpy( full_path_to_exe, path_to_exe_folder );
+    strcat( full_path_to_exe, "/"                );
+    strcat( full_path_to_exe, exe_name           );
+    
+    //:Attempt to open file:
+    ////////////////////////////////////////////////////////////
+    FILE* file = fopen( full_path_to_exe, "rb" ); //:BINARY_READ
+    if( NULL == file ){
+        exe_found = 0;
+    }else{
+        exe_found = 1;
+        fclose( file );
+    };;
+    ////////////////////////////////////////////////////////////
+
+    //:Before deciding if we want to dispose string,
+    //:print out the filepath we were looking at:
+    if( f130_tell_me_everything ){
+
+        if( exe_found > 0 ){
+
+            printf("[EXE:FOUND!!]:%s\n", full_path_to_exe);
+            fflush(stdout);
+
+        }else{
+
+            printf("[EXE:NO_DICE]:%s\n", full_path_to_exe);
+            fflush(stdout);
+
+        };;
+    };;
+
+    if( exe_found <= 0 ){
+        free( full_path_to_exe );
+        ret = 0;
+    }else{
+        ret = 1;
+        F130_glslangvalidator_FOUND    = 1;
+        F130_abs_pathto_glslangvalidator=(
+            full_path_to_exe
+        );;
+    };;
+
+
+    //: Return value to communicate with calling code:
+    ////////////////////////////////////////////////////////////
+    //: +1==ret : success: stop looping
+    //: -1==ret : failure: CRASH
+    //:  0==ret : success: keep looping
+    return( ret ); /////////////////////////////////////////////
+
+}//[;AttemptExecutableLoad;]////////////////////////////////////
+static void
+f130_PrivateInit( void ){
+
+    //:Open file we know to exists:
+    if( F120_abs_path_to_glslangvalidator_finder_EXISTS <= 0 ){
+        f130_Halt("[WTF]"); //:thought already checked!?
+    };;
+
+    FILE*   the_mother_fucking_file = NULL;
+            the_mother_fucking_file = fopen(
+            /**/    F110_abs_path_to_glslangvalidator_finder
+            ,       "r" //:Open For Read
+            );;
+    
+    //:Read lines, but discard anything at and after "##"
+    //:which is our comment character:
+    
+    ////////////////////////////////////////////////////////////
+    //: Find the maximum line length so you can create a    ////
+    //: buffer that will not overflow.                      ////
+    ////////////////////////////////////////////////////////////
+    #define F_F  the_mother_fucking_file ///////////////////////
+    #define H_H  f130_Halt //:----------:///////////////////////
+    if(NULL==F_F){ H_H("[FP_NULL]"); }                      ////
+    int max=0;                                              ////
+    int i_i=0;                                              ////
+    int c_c=0;                                              ////
+    do{                                                     ////
+        if(  1                                              ////
+            && (  ( c_c  = fgetc( F_F ) ) !=EOF )           ////
+            && (  ( c_c != '\n'         )       )           ////
+            &&                                              ////
+             1                                              ////
+        ){                       ///////////////////////////////
+                                 ///////////////////////////////
+            i_i ++ ;             ////                       ////
+                                 ////                       ////
+        }else                    ////                       ////
+        if( max < i_i ){         ////  Find the maximum     ////
+            max = i_i    ;       ////  line length so you   ////
+                  i_i = 0;       ////  can create a buffer  ////
+        }else                    ////  that will not        ////
+        if( max >=i_i ){         ////  overflow             ////
+            //:DO_NOTHING        ////                       ////
+        }else{                   ////  -Kevin_Spacey        ////
+            H_H("[EDCL]");       ////                       ////
+        };;                      ////                       ////
+    }while (c_c != EOF);         ////                       ////
+    #undef  F_F ////////////////////////////////////////////////
+    #undef  H_H ////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+
+    if( f130_tell_me_everything != 0 ){
+
+        f130_Tell("[0_0]");
+        printf("[MaxLineLength]:%d\n", max );
+
+    };;
+
+    //:Temporary string buffer for read line of file:
+    #define C signed   char ////////////////////////////////////
+    #define B signed   char ////////////////////////////////////
+
+    C*  str_buf = malloc( sizeof( C ) * max );
+    B   str_dex = (0-1);
+    B   str_max =     0; //:string_max_index
+    B   hashrow =     0; //:Number of "#" in a row counted.
+    B   end_lin =     0; //:end_of_line?
+    B   do_read =     0; //:read_accumulated_buffer?
+    B   noempty =     0; //:More than just whitespace?
+    B   calstat =     0; //:function call status code?
+
+    #undef  C   ////////////////////////////////////////////////
+    #undef  B   ////////////////////////////////////////////////
+
+    //:Rewind for 2nd pass of reading file:
+    rewind( the_mother_fucking_file );
+
+    #define F_F the_mother_fucking_file  ///////////////////////
+    #define H_H f130_Halt //:-----------:///////////////////////
+    ////////////////////////////////////////////////////////////
+
+    while( (c_c = fgetc( F_F )) != EOF ){
+
+        str_dex++;
+        str_buf[ str_dex ] = c_c;
+
+        if( end_lin > 0 ){
+
+            //:Ignore until see "\n" to reset
+            if( c_c == '\n' ){ do_read = 1; };
+
+        }else{
+
+            if( c_c == '\n' ){
+                    str_max = ( str_dex - 1 );  
+                    end_lin = 1; //: End_Of_Usable_Line : YES
+                    do_read = 1; //: End_Of_Actual_Line : YES
+            }else
+            if( c_c == '#' ){
+                hashrow++;
+                if( hashrow == 2 ){
+                    str_max = ( str_dex - 2 );
+                    end_lin = 1; //: End_Of_Usable_Line : YES
+                    do_read = 0; //: End_Of_Actual_Line : NO
+                }else
+                if( hashrow  > 2 ){
+                    H_H( "[OHFUCK]");
+                };;
+            }else{
+
+                //:  Wrap reset of hashrow like such      ---://
+                //:  so we can catch edge case of line    ---://
+                //:  that contains only "#" as the sole   ---://
+                //:  non-whitespace character.            ---://
+                if( hashrow > 0 ){
+                    hashrow = 0;
+                    noempty = 1;
+                };;
+                
+                
+                if( 1   
+                    &&  c_c != '\t'
+                    &&  c_c !=  ' '
+                ){
+                    //:contains more than just whitespace
+                    noempty = 1;
+                };;
+            };;
+
+        };;
+
+        //:Should we dump the current buffer and reset?
+        //:Should we read out collected line contents ?
+        if( do_read > 0 ){
+            //:Add null terminator at "\n" or "#" location.
+            str_buf[ str_max + 1 ] = (char)0; //:0==NullTerm
+
+            //:Do useful work with line data:
+            //:But ONLY if the line is non-empty.
+            if( noempty > 0 ){
+
+                if( f130_tell_me_everything ){
+                    printf("[LINE:str_buf]:%s\n", str_buf );
+                    fflush( stdout );
+                };;
+        
+                //:Dont put anymore logic here than function
+                //:call in case you want to re-use this
+                //:logic to make re-usable utility.
+                calstat = f130_AttemptExecutableLoad( 
+                    (char*) str_buf  //:Remove SignedNess
+                );;
+                if( calstat > 0 ){
+                    break; //: POSITIVE==(success / exe found)
+                };;
+
+            };;
+
+            //:Reset Logic For Next Line:
+            str_dex =( 0-1 );
+            str_max =( 0   );
+            hashrow =( 0   );
+            end_lin =( 0   );
+            do_read =( 0   );
+            noempty =( 0   );
+        };;
+
+    };;
+
+    #undef  F_F  ///////////////////////////////////////////////
+    #undef  H_H  ///////////////////////////////////////////////
+
+    
+
+    ////////////////////////////////////////////////////////////
+
+
+    free( str_buf );
+    fclose( the_mother_fucking_file );
+
+
+}//[;PrivateInit;]//////////////////////////////////////////////
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F130_Init(){                          //[IM--------IM]//
+        printf("[BEG:F130:Init]\n");          //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F120_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f130_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F130:Init]\n");          //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F130_Main(){                          //[IM--------IM]//
+        F130_Init();                          //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F130:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.130 ]END####################################//

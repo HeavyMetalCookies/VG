@@ -32,9 +32,14 @@ VG03_Demo( void ){
     //:F64_Main(); //[ DOTADIW:MAK_LOGIC_DEV ]//
     //:F66_Main(); //[ DOTADIW:RET_QUEUE_HAN ]//
 
-    //:F70_Main(); //:CREATE_SWAPCHAIN
+    //:F70_Main(); //:CREATE_SWAPCHAIN       <<<<<<<<<<<<<<<<<<<<<< CrashOverTime?:NO
     //:F80_Main(); //:GET_SWAPCHAIN_IMAGES
-       F90_Main(); //:GET_SWAPCHAIN_IMAGE_VIEWS
+    //:F90_Main(); //:GET_SWAPCHAIN_IMAGE_VIEWS
+    //:F100_Main(); //:100 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< CrashOverTime?:NO
+
+    F110_Main(); //:Form Absolute Path <<<<<<<<<<<<<<<<<<<<<<<<< CrashOverTime?:YES
+    //:F120_Main(); //:Absolute path point to FINDER_FILE ? <<<<<<<<CrashOverTime?:YES
+    //:F130_Main(); //:Extract .exe path from FINDER_FILE
 
     printf("[END:VG03_DEMO]\n");
     return( 0 );

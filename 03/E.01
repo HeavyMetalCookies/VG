@@ -17,8 +17,7 @@ e01_PrivateInit( void ){
         printf("[BEG:E01:Init]\n");
 
             //:Call previous initialiers on chain:
-            //:int ret = XXX_Init(); //: ".SUPER_CHAIN()"
-            int ret = 0;
+            int ret = C50_Init(); //: ".SUPER_CHAIN()"
 
             e01_PrivateInit();
 

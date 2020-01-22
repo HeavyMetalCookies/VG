@@ -1,0 +1,101 @@
+//#FILE_REGION[ F.120 ]BEG####################################//
+//[ DOTADIW: Does Finder File Actually Exist?     ]//
+
+    signed char f120_tell_me_everything = 1;
+
+    //: 0: Unknown/Null
+    //:<0: No
+    //:>0: Yes
+    unsigned char 
+    F120_abs_path_to_glslangvalidator_finder_EXISTS =(0);
+ //:F110_abs_path_to_glslangvalidator_finder
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    f120_Halt( const char* msg ){       /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[f120_Halt]:%s\n", msg     /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+        //|TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT|// 
+        //#TT| DO_NOT_MAKE: Yell/Alert/Warn function!     |TT#//
+        //|TT| Either message is good news (say/info/tell)|TT|//
+        //|TT| Or we Halt/Panic with an error message.    |TT|//
+        //|TT| #FAIL_FAST# #FAILFAST#                     |TT|//
+        extern signed char f120_tell_me_everything;     //|TT|//
+        static void                                     //|TT|//
+        f120_Tell( const char* msg ){                   //|TT|//
+            if( f120_tell_me_everything != 0 ){         //|TT|//
+                printf( "[f120_tell:OK]:%s\n", msg );   //|TT|//              
+                fflush(stdout);                         //|TT|//
+            };;                                         //|TT|//
+        }//|;Tell;_________________________________________TT|//
+        //|TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT|// 
+static void
+f120_PrivateInit( void ){
+
+    
+    
+    FILE *file;
+    file = fopen(F110_abs_path_to_glslangvalidator_finder,"r");
+    if( file != NULL){
+        //: file exists
+        fclose( file );
+        F120_abs_path_to_glslangvalidator_finder_EXISTS=(0+1);
+    }else{
+        //: File not found, no memory leak since 
+        //: 'file' == NULL
+        //: fclose(file) would cause an error
+        F120_abs_path_to_glslangvalidator_finder_EXISTS=(0-1);
+    };;
+
+    if( F120_abs_path_to_glslangvalidator_finder_EXISTS <= 0 ){
+
+        //:FDNE:FileDoesNotExist
+        f120_Halt("[FDNE]");
+
+    }else{
+
+        f120_Tell("[FileFinderExists]");
+
+    };;
+
+    file = NULL;
+
+
+
+}//[;PrivateInit;]//////////////////////////////////////////////
+//|IM:Init_And_Main: (SHORTCUT[ VKG_03_IAMB ]) |||||||||||||||//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+    int F120_Init(){                          //[IM--------IM]//
+        printf("[BEG:F120:Init]\n");          //[IM--------IM]//
+                                              //[IM--------IM]//
+            ////////////////////////////////////////////////////
+            //| ".SUPER_CHAIN()" |||||||||||||||||||||||||||||//
+            int ret = F110_Init(); 
+            //| LAST_ITEM_IN_CODE_CHAIN: |||||||||||||||||||||//
+            f120_PrivateInit();
+            ////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        printf("[END:F120:Init]\n");          //[IM--------IM]//
+        return( ret );                        //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+    int F120_Main(){                          //[IM--------IM]//
+        F120_Init();                          //[IM--------IM]//
+                                              //[IM--------IM]//
+        //| RLSI:RENDER_LOOP_STAND_IN ||||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+        printf("[F120:TO_EXIT:CTRL+C]\n");fflush(stdout );
+        while( 1 ){ }; //| LOOP_FOREVER ||||||||||||||||||||||//
+        ////////////////////////////////////////////////////////
+                                              //[IM--------IM]//
+        return( 0 );                          //[IM--------IM]//
+    }//[;]//                                  //[IM--------IM]//
+//[IMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIMIM]//
+
+//#FILE_REGION[ F.120 ]END####################################//

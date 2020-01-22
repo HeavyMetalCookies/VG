@@ -1,0 +1,26 @@
+
+    ## "##" is     a comment.
+    ## "#"  is NOT a comment.
+
+    ## Include Paths To The FOLDER where glslangValidator.exe
+    ## is located. For now, should be a relative path
+    ## to a FOLDER, not file.
+
+    ## wrong: "/path/to/folder"
+    ## wrong: "C:/path/to/folder/glslangValidator.exe"
+
+    ## BROKEN: "C:/path/to/folder/" <<<Trailing Slash
+    ##  RIGHT: "C:/path/to/folder"  <<<No Trailing Slash
+   
+    ############################################################
+
+    E:\NV\SDK\VK\111300   ## Expect not to be found.
+    E:\NV\SDK\VK\111300\  ## Same path but with slash.
+
+    ## Same path, one with slash at end, one without.
+    ## Expect either format to work:
+    E:\NV\SDK\VK\111300\Bin  ## Expect found 
+    E:\NV\SDK\VK\111300\Bin\ ## Expect found
+
+
+    ############################################################
