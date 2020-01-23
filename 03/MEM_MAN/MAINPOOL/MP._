@@ -1,0 +1,474 @@
+//[ -------------------------------------------------------- ]//
+//[ DOTADIW: Control allocations for 3 diffrent memory     --]//
+//[          pools that are built on top of mainpool_memo. --]//
+//[ -------------------------------------------------------- ]//
+#define MACRO_mainpool_memo_byte_count 1024 ////////////////////
+#define FUCK MAINPOOL_Halt /////////////////////////////////////
+
+    //:Pool index defines: ( To make logic less verbose )
+    ////////////////////////////////////////////////////////////
+    #define _C_ mainpool_C  ////////////////////////////////////
+    #define _H_ mainpool_H  ////////////////////////////////////
+    #define _G_ mainpool_G  ////////////////////////////////////
+    #define _M_ mainpool_M  ////////////////////////////////////
+
+    #define X_Z mainpool_X_Z ///////////////////////////////////
+    #define C_H mainpool_C_H ///////////////////////////////////
+    #define M_X mainpool_M_X ///////////////////////////////////
+    ////////////////////////////////////////////////////////////
+
+    #define NUKE_C MAINPOOL_NukedResetCalledAtLeastOnce ////////
+
+    //:The memory pool:
+    static unsigned char
+    mainpool_memo[ MACRO_mainpool_byte_count ]={ 0 };
+
+    static int
+    mainpool_nuke_counter = 0; //:Number of times Reset().
+
+//|   |<------------- mainpool_memo -------------------->|   |//
+//|   |MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM|   |//
+//|   |CCCCCCCCCCCCCC||HHHHHHHHHHHH|      |GGGGGGGGGGGGGG|   |//
+//|   ||<-constpool->||<-homopool->|      |<-gaurdpool->||   |//
+//|   0|             ||            H      G             ||   |//
+//[   ||- - - - - - -||>>>>>>>>>>>>H      G<<<<<<<<<<<<<||   ]//
+//[   |Z             C|                                 M|   ]//
+//[   |               |                                  |   ]//
+//[  X_Z             C_H                                M_X  ]//
+//+   Z: FIRST usable/public byte allocated to constpool.    +//
+//+   C: Last USABLE/PUBLIC byte allocated to constpool.     +//
+//+       (C1 byte is used as gaurd byte)                    +//
+//+                                                          +//
+//+   H:   Last byte index allocated to homopool  section.   +//
+//+                                                          +//
+//+   G:   Last byte index allocated to gaurdpool section.   +//
+//+                                                          +//
+//+   M: * 1st byte index allocated to gaurdpool section.    +//
+//+        (Allocation grows towards lower mem address.)     +//
+//+ -------------------------------------------------------- +//
+//+                                                          +//
+//+   X_Z: Guard byte at beginning of mainpool               +//
+//+   C_H: Guard byte between constpool & homopool           +//
+//+   M_X: Guard byte at end of the mainpool.                +//
+//+ -------------------------------------------------------- +//
+////////////////////////////////////////////////////////////////
+//: constpool: Constant data that will never change is
+//:            allocated here.
+//:
+//: homopool : Data that is allocated once, but uncertain
+//:            about how much data it will be allocated
+//:            here. This pool has HOMOPOOL_Seal()
+//:            function. Use it when program reaches
+//:            homeostatis and certain no more allocations
+//:            will be made here.
+//:
+//: guardpool: A byte-guarded pool. Memory is is allocated
+//:            backwards here. Guard bytes are put between
+//:            each allocation request.
+////////////////////////////////////////////////////////////////
+
+    //:For simplicity, zero allocation is not allowed.
+    //:This way is any of these indicies are ZERO or negative,
+    //:we know allocation has not been made yet.
+    #define  C const int ///////////////////////////////////////
+    #define  I       int ///////////////////////////////////////
+    #define  T  MACRO_mainpool_memo_byte_count /////////////////
+
+    //:                         ---
+    C mainpool_X_Z = 0; //: X_Z  | <<<<<<<<<<<<<< CONSTANT
+    C mainpool_Z   = 1; //:  Z   | <<<<<<<<<<<<<< CONSTANT
+    //:                         ---          
+    I mainpool_C   = 0; //:  C   | <<<<<<<<<<<<<< CHANGE_ABLE
+    I mainpool_C_H = 0; //: C_H  | <<<<<<<<<<<<<< CHANGE_ABLE
+    I mainpool_H   = 0; //:  H   | <<<<<<<<<<<<<< CHANGE_ABLE
+    I mainpool_G   = 0; //:  G   | <<<<<<<<<<<<<< CHANGE_ABLE
+    //:                         -----------
+    C mainpool_M   =( T - 2 );  //:  M   | <<<<<< CONSTANT
+    C mainpool_M_X =( T - 1 );  //: M_X  | <<<<<< CONSTANT
+    //:                         ------------
+
+    #undef  T  /////////////////////////////////////////////////
+    #undef  C  /////////////////////////////////////////////////
+    #undef  I  /////////////////////////////////////////////////
+
+
+
+#define R static void //////////////////////////////////////////
+R MAINPOOL_Init( void ){ FUCK("[NO:Init():USE:NukeReset()]"); };
+R MAINPOOL_Kill( void ){ FUCK("[NO:Kill():USE:NukeReset()]"); };
+R MAINPOOL_NukeReset( void ){
+
+    //:Unit Test Goes Here:
+    MAINPOOL_LazyUnitTest( );
+
+    //:I often have bugs between the state of first use
+    //:and the state after a "Reset()" function is called.
+    //:To avoid this, the MAINPOOL must be "Reset()" even
+    //:when using it for the first time. It is technically
+    //:not necessary, but will save lots of headache if
+    //:the initial state differs from the state after
+    //:"Reset()" is called.
+    mainpool_nuke_counter++;
+
+    //:Reset to default state:
+    _C_ = 0 ;  //: mainpool_C     
+    C_H = 0 ;  //: mainpool_C_H   
+    _H_ = 0 ;  //: mainpool_H     
+    _G_ = 0 ;  //: mainpool_G     
+
+    //:Put zeros at every index:
+    if( M_X != (MACRO_mainpool_memo_byte_count - 1) ){
+        FUCK("[M_X:WRONG]");
+    };;
+
+    for( int i = 0; i <= M_X; i++ ){ mainpool_memo[i] = 0x0; };
+
+}//[;;]//
+#undef  R //////////////////////////////////////////////////////
+
+static void MAINPOOL_NukedResetCalledAtLeastOnce( 
+    const char* msg //:<<<name_of_calling_function
+){
+    if( mainpool_nuke_counter <= 0 ){
+        printf("[NO_NUKES]:%s\n", msg );
+        FUCK("[No_Weapons_Of_Mass_Destruction_Found]");
+    };;
+};;
+
+static unsigned char
+MAINPOOL_GuardByte_Status( void ){ 
+NUKE_C("[GuardByte_Status]");
+    
+    unsigned char S = 0; //:Status
+    if( mainpool_memo[ X_Z ] != 0 ){ S |= (1 << 1); };
+    if( mainpool_memo[ C_H ] != 0 ){ S |= (1 << 2); };
+    if( mainpool_memo[ M_X ] != 0 ){ S |= (1 << 3); };
+
+    //:Un-Allocated section should be un-touched:
+    if( (_H_ > _G_)     ){ FUCK("[H/G]"); }; //:OOB
+    if( (_G_ - _H_)  > 1 ){ //:Empty_Space?
+        int T0    = _H_ + 1;
+        int T1    = _G_ - 1;
+        int UH_HO =  0     ;
+        for( int i = T0; i <= T1; i++ ){
+            if( mainpool_memo[ i ] != 0 ){
+                UH_OH = 1;
+                break;
+            };;
+        };;
+        if( UH_HO != 0 ){
+            S |= (1 << 4 );
+        };;
+    };;
+
+    return( S );
+}
+static void
+MAINPOOL_GaurdByte_Assert( void ){
+NUKE_C("[GaurdByte_Assert]");
+    unsigned char status = MAINPOOL_GuardByte_Status( );
+    if( status != 0 ){ 
+
+        ////////////////////////////////////////////////////////
+        //:  Tell me what sections of memory are compromised.://
+        //:  This can help location problem. For example:    ://
+        //:   [C_H] probably means allocation to CONSTPOOL   ://
+        //:         trampled the memory.                     ://
+        //:   [H/G] probably means HOMOPOOL trampled memory. ://
+        //:         Your second suspect being GAURDPOOL      ://
+        #define P printf ///////////////////////////////////////
+        if( ( status & ( 1 << 1 ) ) != 0 ){ P("[X_Z]"); };
+        if( ( status & ( 1 << 2 ) ) != 0 ){ P("[C_H]"); };
+        if( ( status & ( 1 << 3 ) ) != 0 ){ P("[M_X]"); };
+        if( ( status & ( 1 << 4 ) ) != 0 ){ P("[H/G]"); };
+        fflush( stdout );
+        #undef  P //////////////////////////////////////////////
+
+        FUCK("[FAIL:GBA]");
+    };;
+}
+
+//:NOTE: constpool must be allocated before the other
+//:      pools are allocated. Constpool may only be
+//:      allocated once.
+static unsigned char* //:<--Always_Returns_Same_Pointer
+MAINPOOL_Calloc_CONSTPOOL( int num_bytes ){
+NUKE_C("[Calloc_CONSTPOOL]");
+
+    //:Error_Checks_And_One_Byte_Allocation_Hack:
+    if( _H_ > 0 || _G_ > 0 ){ FUCK("[MP01]"); };
+    if( _C_ > 0 ){            FUCK("[DC.C]"); };
+    if( num_bytes == 0 ){ num_bytes = 1 /**[PZA]**/ ; };  
+    
+    //:Set_Allocation_Index_And_Bounds_Check:
+        _C_  =( _Z_ + num_bytes - 1 );
+    if(1 == num_bytes && _C_ != _Z_ ){ FUCK("[ZC1]"); };
+    if( _C_ >= _M_ ){ FUCK("[OOB:C]"); };
+
+    //:Update_Guard_Byte
+    C_H = _C_ + 1;
+
+    //:Return_Pointer_To_Memory:
+    return( &( mainpool_memo[ _C_ ] ) );
+
+}
+static unsigned char* //:<--Always_Returns_Same_Pointer
+MAINPOOL_Calloc_HOMOPOOL( int num_bytes ){
+NUKE_C("[Calloc_HOMOPOOL]");
+
+    //:Error_Checks_And_One_Byte_Allocation_Hack:
+    if( _C_ <= 0 ){ FUCK("[MP02]"); };
+    if( _H_  > 0 ){ FUCK("[DC.H]"); };
+    if( num_bytes == 0 ){ num_bytes = 1 /**[PZA]**/ ; }; 
+
+    //:Set_Allocation_Index_And_Bounds_Check:
+    //:Comparison to: _G_, is not valid unless _G_ set:
+        _H_  = ( C_H + num_bytes + 0x00 );
+    if( _H_ <=   C_H             ){ FUCK("[NEG_OOB:H]"); };
+    if( _H_ >=   _G_ && 0 != _G_ ){ FUCK("[POS_OOB:H]"); };
+    if( _H_ <=   _Z_             ){ FUCK("[UNDFLOW:H]"); };
+    if( _H_ >=   _M_             ){ FUCK("[OVRFLOW:H]"); };
+
+    //:Update_Guard_Byte: NO_GAURD_BYTE: _H_
+
+    //:Return_Pointer_To_Memory:
+    //:You return C_H NOT _H_ for the base of HOMOPOOOL.
+    //:_H_ is the tip, which is a memory address that
+    //:will change if pool is resized.
+    return( &( mainpool_memo[ C_H ] ) );
+
+}
+static unsigned char* //:<--Always_Returns_Same_Pointer
+MAINPOOL_Calloc_GAURDPOOL( int num_bytes ){
+NUKE_C("[Calloc_GAURDPOOL]");
+
+    //:Error_Checks_And_One_Byte_Allocation_Hack:
+    if( _C_ <= 0 ){ FUCK("[MP03]"); };
+    if( _G_  > 0 ){ FUCK("[DC.G]"); };
+    if( num_bytes == 0 ){ num_bytes = 1 /**[PZA]**/ ; }; 
+
+    //:Set_Allocation_Index_And_Bounds_Check:
+    //:Comparison to: _H_, is not valid unless _H_ set:
+        _G_ = ( _M_ - num_bytes + 1 );
+    if( 1 == num_bytes && _G_ != _M_ ){ FUCK("[GM1]"); };
+    if( _G_ >   _M_             ){ FUCK("[POS_OOB:G]"); };
+    if( _G_ <=  _H_ && 0 != _H_ ){ FUCK("[NEG_OOB:G]"); };
+    if( _G_ <=  _Z_             ){ FUCK("[UNDFLOW:G]"); };
+    if( _G_ >=  _M_             ){ FUCK("[OVRFLOW:H]"); };
+    
+    //:Update_Guard_Byte: NO_GAURD_BYTE: _G_
+
+    //:Return_Pointer_To_Memory:
+    //:You return _M_ NOT _G_ for the base of the GUARDPOOL
+    //:allocation. We want a pointer that will never change!
+    return( &( mainpool_memo[ _M_ ] ) );
+}
+
+//[SO:SizeOf:________________________________________________]//
+//[SOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSO]//
+//[                                                          ]//
+//[ NOTE: The sizes of the different sub pools               ]//
+//[       ( CONSTPOOL, HOMOPOOL, GAURDPOOL )                 ]//
+//[       are the amounts of memory requested by             ]//
+//[       the respective pool "classes" of the same          ]//
+//[       name. It does NOT reflect how many bytes           ]//
+//[       of memory have been given meaningful data.         ]//
+//[       ( Well, it could reflect that, but what the )      ]//
+//[       ( memory is being used for is kind of black )      ]//
+//[       ( boxed. MAINPOOL is in the dark.           )      ]//
+//[                                                          ]//
+//[SOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSO]//
+    int MAINPOOL_SizeOf_CONSTPOOL( void ){
+        NUKE_C("[SizeOf_CONSTPOOL]");
+
+        return( _C_ - _Z_ + 1 );
+
+    }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
+    int MAINPOOL_SizeOf_HOMOPOOL(  void ){
+        NUKE_C("[SizeOf_HOMOPOOL]");
+
+        return( _H_ - C_H + 1 );
+
+    }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
+    int MAINPOOL_SizeOf_GAURDPOOL( void ){
+        NUKE_C("[SizeOf_GAURDPOOL]");
+
+        return( _M_ - _G_ + 1 );
+
+    }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+
+    int MAINPOOL_SizeOf_BytesAll(  void ){
+        NUKE_C("[SizeOf_BytesAll]");
+
+        return( MACRO_mainpool_memo_byte_count );
+        
+    }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
+    int MAINPOOL_SizeOf_BytesUsed( void ){
+        NUKE_C("[SizeOf_BytesUsed]");
+
+        int siz_C = MAINPOOL_SizeOf_CONSTPOOL( );
+        int siz_H = MAINPOOL_SizeOf_HOMOPOOL(  );
+        int siz_G = MAINPOOL_SizeOf_GAURDPOOL( );
+
+        int siz_all = ( siz_C + siz_H + siz_G );
+
+        return( siz_all );
+
+    }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
+//[SOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSO]//
+
+//[RA:Re_Allocation():_______________________________________]//
+//[RARARARARARARARARARARARARARARARARARARARARARARARARARARARARA]//
+//[                                                          ]//
+//[ NOTE:                                                    ]//
+//[         MORE:                                            ]//
+//[         When up-sizing, do not zero out memory because   ]//
+//[         that memory should already be zero.              ]//
+//[                                                          ]//
+//[         LESS:                                            ]//
+//[         When down-sizing, zero out the memory. Because it]//
+//[         was previously used. Also, this previously used  ]//
+//[         section between _H_ and _G_ becomes an array     ]//
+//[         of guard bytes who's value should always be      ]//
+//[         zero. Nonzero anywhere in this region means      ]//
+//[         the memory has been trampled.                    ]//
+//[                                                          ]//
+//[RARARARARARARARARARARARARARARARARARARARARARARARARARARARARA]//
+    static unsigned char*
+    MAINPOOL_ReCalloc_HOMOPOOL( int num_bytes ){ ///////////////
+    NUKE_C("[ReCalloc_HOMOPOOL]");
+
+        int prev_bytes = MAINPOOL_SizeOf_HOMOPOOL();
+
+    }//[;;;;;ReCalloc_HOMOPOOL;]////////////////////////////////
+    static unsigned char*
+    MAINPOOL_ReCalloc_GUARDPOOL( int num_bytes ){ //////////////
+    NUKE_C("[ReCalloc_GUARDPOOL]");
+
+        int prev_bytes = MAINPOOL_SizeOf_GAURDPOOL();
+
+    }//[;;;;;ReCalloc_GUARDPOOL;]///////////////////////////////
+//[RARARARARARARARARARARARARARARARARARARARARARARARARARARARARA]//
+
+//|//////////////////////////////////////////////////////////|//
+//|                                                          |//
+//|     BELOW: Unit Test Code                                |//
+//|     BELOW (even futher) Comments + Undefs                |//
+//|                                                          |//
+//|//////////////////////////////////////////////////////////|//
+
+    //:Forward declarations of sub-tests:
+    #define R static void //////////////////////////////////////
+    #define V        void //////////////////////////////////////
+
+            R mainpool_LazyUnitTest_CallocAndCheckSizes( V );
+
+    #undef  R  /////////////////////////////////////////////////
+    #undef  V  /////////////////////////////////////////////////
+static void MAINPOOL_LazyUnitTest( void ){ /////////////////////
+    if( MAINPOOL_tested <= 0 && MAINPOOL_testin <= 0 ){ ////////
+        MAINPOOL_tested  = 0;
+        MAINPOOL_testin  = 1;
+        MAINPOOL_NukeReset(); //:Before All Tests:
+        ////////////////////////////////////////////////////////
+        
+        
+
+        mainpool_LazyUnitTest_CallocAndCheckSizes();
+
+        
+
+        ////////////////////////////////////////////////////////
+        MAINPOOL_NukeReset(); //:After  All Tests:
+        MAINPOOL_tested  = 1;
+        MAINPOOL_testin  = 0;
+    };; ////////////////////////////////////////////////////////
+}//[;LazyUnitTest;]/////////////////////////////////////////////
+static void mainpool_LazyUnitTest_CallocAndCheckSizes( void ){
+
+    
+
+}//[;LazyUnitTest_CallocAndCheckSizes;]]////////////////////////
+//|//////////////////////////////////////////////////////////|//
+//|                                                          |//
+//|     BELOW: UNDEFS + COMMENTS                             |//
+//|                                                          |//
+//|//////////////////////////////////////////////////////////|//
+
+    #undef  NUKE_C /////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////
+
+    #undef  X_Z   ////  mainpool_X_Z  //////////////////////////
+    #undef  C_H   ////  mainpool_C_H  //////////////////////////
+    #undef  M_X   ////  mainpool_M_X  //////////////////////////
+
+    #undef  _C_   ////  mainpool_C    //////////////////////////
+    #undef  _H_   ////  mainpool_H    //////////////////////////
+    #undef  _G_   ////  mainpool_G    //////////////////////////
+    #undef  _M_   ////  mainpool_M    //////////////////////////
+
+    ////////////////////////////////////////////////////////////
+
+#undef  FUCK  //////////////////////////////////////////////////
+#undef  MACRO_mainpool_memo_byte_count /////////////////////////
+/** 00000000000000000000000000000000000000000000000000000000 ***
+
+    MP01: Somehow MAINPOOL_Calloc_HOMOPOOL or
+                  MAINPOOL_Calloc_GAURDPOOL
+          got called before 
+                  MAINPOOL_Calloc_CONSTPOOL
+
+    MP02: Please call MAINPOOL_Calloc_CONSTPOOL first.
+    MP03: Please call MAINPOOL_Calloc_CONSTPOOL first.
+
+    ------------------------------------------------------------
+
+    DC.C: Double Calloc (2x). NOT IDEMPOTENT: CONSTPOOL
+    DC.H: Double Calloc (2x). NOT IDEMPOTENT: HOMOPOOL
+    DC.G: Double Calloc (2x). NOT IDEMPOTENT: GAURDPOOL
+
+    ------------------------------------------------------------
+
+    [PZA]: Prevent Zero Allocation.
+           A hack to prevent memory stomps.
+           A hack to simplify the math involved.
+
+    +0x00: I thought about the math, and no (+1) or (-1)
+           is needed here to make the math correct.
+
+    ------------------------------------------------------------
+
+    [OOB:C]: Const pool allocation out of bounds.
+        
+    [NEG_OOB:H]: Homopool  allocation out of bounds. NEGATIVE.
+    [POS_OOB:H]: Homopool  allocation out of bounds. POSITIVE.
+
+    [POS_OOB:G]: Guardpool allocation out of bounds. POSITIVE.
+    [NEG_OOB:G]: Guardpool allocation out of bounds. NEGATIVE.
+
+    Update_Guard_Byte:
+        Might be simpler to define gaurd byte indicies
+        as macros in relation to other variables.
+        For example: C_H == ( C + 1 ) always.   
+        But I don't want to get too heavy with macro logic.
+        And I think this might be too much indirection.
+        Also, never done something like that before and I
+        could forsee some weird un-intended effect on the
+        code.
+
+    CALLOC_HG_ANY_ORDER:
+        BECAUSE: Can call Calloc_HOMOPOOL & Calloc_GAURDPOOL
+        In any order relative to each other.
+
+    [GM1]: When only one byte of memory is allocated,
+           _G_ and _M_ will be at the same point.
+
+    [ZC1]: When only one byte of memory is allocated,
+           _Z_ and _M_ will be at the same point.
+
+*** 00000000000000000000000000000000000000000000000000000000 **/

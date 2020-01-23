@@ -7,7 +7,7 @@
     //|V:Visible/Public :____________________________________|//
     //[VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV]//
 
-    int HOMOPOOL_show_unit_test_debug_messages = 0;
+    int HOMOPOOL_show_unit_test_debug_messages = 1;
 
     //[VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV]//
     //:H:Hidden/Private
@@ -1156,14 +1156,105 @@ void homopool_LazyUnitTest_SealTest( void ){
     // ------------------------------------------------------ //
     HOMOPOOL_Kill( ); 
     // ------------------------------------------------------ //
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 128 ); 
+    homopool_UnitTestPrint("[TRY:128_TO_32]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:AVOID_BUS_ERROR#3 |//
+        HOMOPOOL_MiscAlloc( 32 ); 
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 32 != u_b ){ homopool_Halt("[128_TO_32]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 128 ); 
+    homopool_UnitTestPrint("[TRY:128_TO_128]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:AVOID_BUS_ERROR#3 |//
+        HOMOPOOL_MiscAlloc( 128 ); 
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 128 != u_b ){ homopool_Halt("[128_TO_128]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
 
 
+    //:Hypothesis: 
+    //:On my current environment: Windows10 
+    //:
+    //:1 :Allocated memory block size cannot go below 128 bytes.
+    //:2 :Re-alloc to numbers BELOW 128 will LIE to you.
+    //:  :and not really re-alloc memory.
+    //:3 :Re-alloc to numbers BELOW 128 when starting out
+    //:  :with an alloc under 128 will always crash.
+    //:
+    //[ FROM WHAT I READ ON WIKIPEDIA, PRE_SLICED_BREAD      ]//
+    //[ hypothesis is likely correct.                        ]//
+    //:ALTERNATE HYPOTHESIS: PRE_SLICED_BREAD
+    //:Memory_Links in the Heap_Manager on an OS are organized
+    //:into buckets of the same-size link. When you ask for
+    //:a chunk of memory, it gives you a contigous
+    //:Memory_Link_Chain, enough to accomidate the allocation
+    //:you asked for.
+    //:Asking for 128 bytes might give you:
+    //:    1:   1 128 byte link
+    //:    2:   2  64 byte links
+    //:    3:   4  32 byte links
+    //:    4:   8  16 byte links
+    //:    5:  16   8 byte links
+    //:You have no way of knowing what you'll get. 
+    //:And what you get will determine if you can successfully
+    //:"HeapReAlloc" to a lower amount of memory in-place.
+    //:SHORTCUT[ that_paper_that_mentions_heap_unlinking ]
+    //:
+    //[ THIRD(3rd/3) Hypothesis: --------------------------- ]//
+    //: Your BUS size is 128 or 64 bits.
+    //: (You were getting a "bus error"
+    //:
+    //# REGARDLESS: ---------------------------------------- #//
+    //: Cannot rely on windows HeapAlloc and HeapRealloc     ://
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 64 ); 
+    homopool_UnitTestPrint("[TRY:64_TO_64]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:AVOID_BUS_ERROR#3 |//
+        HOMOPOOL_MiscAlloc( 64 ); 
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 64 != u_b ){ homopool_Halt("[64_TO_64]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
+    // ------------------------------------------------------ //
+    HOMOPOOL_Init( 64 ); 
+    homopool_UnitTestPrint("[TRY:64_TO_32]");
+    // ------------------------------------------------------ //
+
+        //| TEST_NAME:AVOID_BUS_ERROR#4 |//
+        HOMOPOOL_MiscAlloc( 32 ); 
+        HOMOPOOL_Seal();
+        u_b = HOMOPOOL_GetNumberOfUsedBytes( );
+        if( 32 != u_b ){ homopool_Halt("[128_TO_32]");};
+
+    // ------------------------------------------------------ //
+    HOMOPOOL_Kill( ); 
+    // ------------------------------------------------------ //
     // ------------------------------------------------------ //
     HOMOPOOL_Init( 16 ); 
     homopool_UnitTestPrint("[ST:ABS:03]");
     // ------------------------------------------------------ //
 
-        //| TEST_NAME:AVOID_BUS_ERROR#3 |//
+        //| TEST_NAME:AVOID_BUS_ERROR#5 |//
         HOMOPOOL_MiscAlloc( 8 ); 
         HOMOPOOL_Seal();
         u_b = HOMOPOOL_GetNumberOfUsedBytes( );

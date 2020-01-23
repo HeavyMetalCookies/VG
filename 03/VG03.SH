@@ -42,7 +42,8 @@ touch "VG03.ALL"  ##Create
 ##NO Dependencies besides standard library includes:
 ################################################################
 
-    nl_cat "./CONSTPOOL/CP._"       "VG03.ALL"
+##  nl_cat "./MEM_MAN/CONSTPOOL/CP._"       "VG03.ALL"
+    nl_cat         "./CONSTPOOL/CP._"       "VG03.ALL"
 
 ################################################################
 
@@ -52,7 +53,8 @@ nl_cat "./W32/DLLL/DLLL.H"          "VG03.ALL"
 
 ################################################################
 
-    nl_cat "./HOMOPOOL/HP._"        "VG03.ALL"
+##  nl_cat "./MEM_MAN/HOMOPOOL/HP._"        "VG03.ALL"
+    nl_cat         "./HOMOPOOL/HP._"        "VG03.ALL"
 
 ################################################################
 
