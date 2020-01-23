@@ -5,6 +5,15 @@
 #define MACRO_mainpool_memo_byte_count 1024 ////////////////////
 #define FUCK MAINPOOL_Halt /////////////////////////////////////
 
+    //: No_Way_To_Reliably_Run_Unit_Tests_If_We_Dont
+    //: enforce_A_Minimum_Value_For_The_Byte_Count_Define
+    #if( MACRO_mainpool_memo_byte_count < 1024 ) ///////////////
+
+        #error LAZY_UNIT_TESTS_REQUIRE_AT_LEAST_1024_BYTES
+
+    #endif  ////////////////////////////////////////////////////
+
+
     //:Pool index defines: ( To make logic less verbose )
     ////////////////////////////////////////////////////////////
     #define _C_ mainpool_C  ////////////////////////////////////
@@ -133,6 +142,25 @@ static void MAINPOOL_NukedResetCalledAtLeastOnce(
         printf("[NO_NUKES]:%s\n", msg );
         FUCK("[No_Weapons_Of_Mass_Destruction_Found]");
     };;
+};;
+
+static int MAINPOOL_MaxCallocableBytes( void ){
+
+    //:TODO: Make sure a 1-byte boundary is
+    //:      maintained between HOMOPOOL and GUARDPOOL
+    //:      This will ensure you always have at least
+    //:      1 gaurd byte between these sections.
+    FUCK("[TODO:Enforce_1_Byte_Boundary_Between:H-&-G]");
+
+    int exp_usable  =(
+        MACRO_mainpool_memo_byte_count
+        - 1 //:Guard Byte At START
+        - 1 //:Guard byte between CONST + HOMOPOOL
+        - 1 //:1Byte gap between HOMOPOOL+GAURDPOOL
+        - 1 //:1Byte gap between GAURDPOOL and end of memory
+    );;
+
+    return( exp_usable );
 };;
 
 static unsigned char
@@ -365,7 +393,9 @@ NUKE_C("[Calloc_GAURDPOOL]");
     #define R static void //////////////////////////////////////
     #define V        void //////////////////////////////////////
 
-            R mainpool_LazyUnitTest_CallocAndCheckSizes( V );
+            R mainpool_LazyUnitTest_CallocAndCheckSizes_3( V );
+            R mainpool_LazyUnitTest_CallocAndCheckSizes_4( V );
+            R mainpool_LazyUnitTest_CallocAndCheckSizes  ( V );
 
     #undef  R  /////////////////////////////////////////////////
     #undef  V  /////////////////////////////////////////////////
@@ -376,10 +406,12 @@ static void MAINPOOL_LazyUnitTest( void ){ /////////////////////
         MAINPOOL_NukeReset(); //:Before All Tests:
         ////////////////////////////////////////////////////////
         
-        
+        mainpool_LazyUnitTest_UsableBytesCheck();
 
-        mainpool_LazyUnitTest_CallocAndCheckSizes();
-
+        mainpool_LazyUnitTest_CallocAndCheckSizes_3();
+        mainpool_LazyUnitTest_CallocAndCheckSizes_4();
+        mainpool_LazyUnitTest_CallocAndCheckSizes_7();
+        mainpool_LazyUnitTest_CallocAndCheckSizes  ();
         
 
         ////////////////////////////////////////////////////////
@@ -388,11 +420,258 @@ static void MAINPOOL_LazyUnitTest( void ){ /////////////////////
         MAINPOOL_testin  = 0;
     };; ////////////////////////////////////////////////////////
 }//[;LazyUnitTest;]/////////////////////////////////////////////
+static void mainpool_LazyUnitTest_UsableBytesCheck( void ){
+
+    int exp_usable  =(
+        MACRO_mainpool_memo_byte_count
+        - 1 //:Guard Byte At START
+        - 1 //:Guard byte between CONST + HOMOPOOL
+        - 1 //:1Byte gap between HOMOPOOL+GAURDPOOL
+        - 1 //:1Byte gap between GAURDPOOL and end of memory
+    );;
+
+    int got_usable = MAINPOOL_MaxCallocableBytes( );
+    if( exp_usable != got_usable ){
+        FUCK("[NOT_IN_AGREEMENT]");
+    };;
+
+
+}//[;;]//
 static void mainpool_LazyUnitTest_CallocAndCheckSizes( void ){
+
+    int siz_U   = 0; //:USED
+    int usable  =(
+        MACRO_mainpool_memo_byte_count
+        - 1 //:Guard Byte At START
+        - 1 //:Guard byte between CONST + HOMOPOOL
+        - 1 //:1Byte gap between HOMOPOOL+GAURDPOOL
+        - 1 //:1Byte gap between GAURDPOOL and end of memory
+    );;
 
     
 
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+
+    MAINPOOL_Calloc_CONSTPOOL(          1 );
+    MAINPOOL_Calloc_HOMOPOOL (          1 );  
+    MAINPOOL_Calloc_GAURDPOOL( usable - 2 );  
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 7 ){ FUCK("[siz_U:5/1/1]"); };  
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+    
 }//[;LazyUnitTest_CallocAndCheckSizes;]]////////////////////////
+static void mainpool_LazyUnitTest_CallocAndCheckSizes_7( void ){
+
+    int siz_U  = 0; //:USED
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 5 );
+    MAINPOOL_Calloc_HOMOPOOL ( 1 );  
+    MAINPOOL_Calloc_GAURDPOOL( 1 );  
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 7 ){ FUCK("[siz_U:5/1/1]"); };  
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 1 ); 
+    MAINPOOL_Calloc_HOMOPOOL ( 5 );
+    MAINPOOL_Calloc_GAURDPOOL( 1 );  
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 7 ){ FUCK("[siz_U:1/5/1]"); };  
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 1 );  
+    MAINPOOL_Calloc_HOMOPOOL ( 1 );  
+    MAINPOOL_Calloc_GAURDPOOL( 5 );
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 7 ){ FUCK("[siz_U:1/1/5]"); };  
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+    
+}//[;LazyUnitTest_CallocAndCheckSizes_7;]]//////////////////////
+static void mainpool_LazyUnitTest_CallocAndCheckSizes_4( void ){
+
+    //:WHY_4: Because 0 allocation force 1 byte to be
+    //:       allocated to make math easier and avoid
+    //:       weird things.
+
+    int siz_C  = 0;
+    int siz_H  = 0;  
+    int siz_G  = 0;
+
+    int siz_U  = 0; //:USED
+    int siz_A  = 0; //: ALL
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 2 );
+    MAINPOOL_Calloc_HOMOPOOL ( 2 );
+    MAINPOOL_Calloc_GAURDPOOL( 2 );
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 6 ){ FUCK("[siz_U:2/2/2]"); };
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 2 );
+    MAINPOOL_Calloc_HOMOPOOL ( 0 ); //: +1
+    MAINPOOL_Calloc_GAURDPOOL( 0 ); //: +1
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 4 ){ FUCK("[siz_U:2/0/0]"); }; //:SEE:WHY_4
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 0 ); //: +1
+    MAINPOOL_Calloc_HOMOPOOL ( 2 );
+    MAINPOOL_Calloc_GAURDPOOL( 0 ); //: +1
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 4 ){ FUCK("[siz_U:0/2/0]"); }; //:SEE:WHY_4
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 0 ); //: +1
+    MAINPOOL_Calloc_HOMOPOOL ( 0 ); //: +1
+    MAINPOOL_Calloc_GAURDPOOL( 2 );
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 4 ){ FUCK("[siz_U:0/0/2]"); }; //:SEE:WHY_4
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+    
+}//[;LazyUnitTest_CallocAndCheckSizes_4;]]//////////////////////
+static void mainpool_LazyUnitTest_CallocAndCheckSizes_3( void ){
+
+    //:All values of "siz_U" in this test should be === 3.
+    //:Hence the "_3" at end of the function name.
+
+    int siz_C  = 0;
+    int siz_H  = 0;  
+    int siz_G  = 0;
+
+    int siz_U  = 0; //:USED
+    int siz_A  = 0; //: ALL
+
+    //:Zero allocations will be forced to allocate
+    //:at least one byte internally, which will be
+    //:reported when you query usages.
+    MAINPOOL_Calloc_CONSTPOOL( 0 );
+    MAINPOOL_Calloc_HOMOPOOL ( 0 );
+    MAINPOOL_Calloc_GAURDPOOL( 0 );
+
+    siz_C = MAINPOOL_SizeOf_CONSTPOOL( );
+    siz_H = MAINPOOL_SizeOf_HOMOPOOL ( );
+    siz_G = MAINPOOL_SizeOf_GAURDPOOL( );
+
+    if( siz_C != 1 ){ FUCK("[siz_C]"); };
+    if( siz_H != 1 ){ FUCK("[siz_H]"); };
+    if( siz_G != 1 ){ FUCK("[siz_G]"); };
+
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != ( siz_C+siz_H+siz_G )){ FUCK("[siz_U]"); };
+
+    siz_A = MAINPOOL_SizeOf_BytesAll( );
+    if( siz_A != MACRO_mainpool_memo_byte_count ){
+        FUCK("[siz_A]");
+    };;
+        
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 1 );
+    MAINPOOL_Calloc_HOMOPOOL ( 1 );
+    MAINPOOL_Calloc_GAURDPOOL( 1 );
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 3 ){ FUCK("[siz_U:1/1/1]"); };
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 1 );
+    MAINPOOL_Calloc_HOMOPOOL ( 0 );
+    MAINPOOL_Calloc_GAURDPOOL( 0 );
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 3 ){ FUCK("[siz_U:1/0/0]"); };
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 0 );
+    MAINPOOL_Calloc_HOMOPOOL ( 1 );
+    MAINPOOL_Calloc_GAURDPOOL( 0 );
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 3 ){ FUCK("[siz_U:0/1/0]"); };
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_Calloc_CONSTPOOL( 0 );
+    MAINPOOL_Calloc_HOMOPOOL ( 0 );
+    MAINPOOL_Calloc_GAURDPOOL( 1 );
+    siz_U = MAINPOOL_SizeOf_BytesUsed( );
+    if( siz_U != 3 ){ FUCK("[siz_U:0/0/1]"); };
+
+    ////////////////////////////////////////////////////////////
+    
+
+}//[;LazyUnitTest_CallocAndCheckSizes_3;]]//////////////////////
 //|//////////////////////////////////////////////////////////|//
 //|                                                          |//
 //|     BELOW: UNDEFS + COMMENTS                             |//
