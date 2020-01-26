@@ -2,8 +2,10 @@
 //[ DOTADIW: Control allocations for 3 diffrent memory     --]//
 //[          pools that are built on top of mainpool_memo. --]//
 //[ -------------------------------------------------------- ]//
+//# OUTSIDE OF SCOPE OF THIS FILE:                           #//
+//# Allocating memory at aligned memory addresses.           #//
 #define MACRO_mainpool_memo_byte_count 1024 ////////////////////
-#define FUCK MAINPOOL_Halt /////////////////////////////////////
+#define FUCK mainpool_Halt /////////////////////////////////////
 
     //: No_Way_To_Reliably_Run_Unit_Tests_If_We_Dont
     //: enforce_A_Minimum_Value_For_The_Byte_Count_Define
@@ -12,29 +14,107 @@
         #error LAZY_UNIT_TESTS_REQUIRE_AT_LEAST_1024_BYTES
 
     #endif  ////////////////////////////////////////////////////
+    #define MACRO_mainpool_non_CONSTPOOL_min_mem (  16 )
+    #if (   MACRO_mainpool_non_CONSTPOOL_min_mem != 16 )
+
+        //|==================================================|//
+        //| You might be able to get away with less bytes.   |//
+        //| I am sure you can. But you better do the math    |//
+        //| and logical thinking required to know what that  |//
+        //| value is. Because I gauro-fucking-tee that       |//
+        //| minimum value is NOT 0 or 1.                     |//
+        //|                                                  |//
+        //| Do you really need an extra 14 bytes for all the |//
+        //| potential horrific problems this could cause?    |//
+        //|                                                  |//
+        //| Let's say you are smart enough to figure it out..|//
+        //| Even if you are, there are more productive things|//
+        //| with a greater return-on-investment than this.   |//
+        //|                                                  |// 
+        //| -John Mark Isaac Madison: 2020_01_25             |// 
+        //|==================================================|//
+        #error THIS_VALUE_SHOULD_BE_16_FOR_16_BYTES_MIN_MEMORY
+
+    #endif /////////////////////////////////////////////////////
+    #define MACRO_num_reserved_gaurd_bytes (  4 )
+    #if(    MACRO_num_reserved_gaurd_bytes != 4 )
+
+        //:SEE[ #THE_DIAGRAM# ]
+        #error DO_I_NOT_SEE_FUCKING_4_GAURD_BYTES_IN_THE_DIAGRAM
+
+    #endif
 
 
     //:Pool index defines: ( To make logic less verbose )
     ////////////////////////////////////////////////////////////
-    #define _C_ mainpool_C  ////////////////////////////////////
-    #define _H_ mainpool_H  ////////////////////////////////////
-    #define _G_ mainpool_G  ////////////////////////////////////
-    #define _M_ mainpool_M  ////////////////////////////////////
+    #define _Z_ mainpool_Z   ///////////////////////////////////
+    #define _C_ mainpool_C   ///////////////////////////////////
+    #define _H_ mainpool_H   ///////////////////////////////////
+    #define _G_ mainpool_G   ///////////////////////////////////
+    #define _M_ mainpool_M   ///////////////////////////////////
 
     #define X_Z mainpool_X_Z ///////////////////////////////////
     #define C_H mainpool_C_H ///////////////////////////////////
     #define M_X mainpool_M_X ///////////////////////////////////
     ////////////////////////////////////////////////////////////
 
+    //:NUKE_C: NUKE_Check:
     #define NUKE_C MAINPOOL_NukedResetCalledAtLeastOnce ////////
 
     //:The memory pool:
     static unsigned char
-    mainpool_memo[ MACRO_mainpool_byte_count ]={ 0 };
+    mainpool_memo[ MACRO_mainpool_memo_byte_count ]={ 0 };
 
     static int
     mainpool_nuke_counter = 0; //:Number of times Reset().
 
+    //:Minimum Pool Sizes:
+    //:Enforce at least one byte of usable memory for each pool:
+    static const int mainpool_min_bytes_CONSTPOOL = 1;
+    static const int mainpool_min_bytes_HOMOPOOL  = 1;
+    static const int mainpool_min_bytes_GAURDPOOL = 1;
+
+    ////////////////////////////////////////////////////////////
+    //| I don't want to think too hard about what happens    |//
+    //| when your CONSTPOOL allocation uses up all the memory|//
+    //| so a HOMOPOOL and GUARDPOOL cannot exist. So just    |//
+    //| making a few bytes that MUST be allocated to         |//
+    //| HOMOPOOL and GUARDPOOL to avoid edge cases.          |//
+    //| ORIGINAL_NAME:                                       |//
+    //| mainpool_non_const_pool_section_min_reserved_space   |//
+    ////////////////////////////////////////////////////////////
+    static const int
+          mainpool_non_CONSTPOOL_min_mem = (
+    MACRO_mainpool_non_CONSTPOOL_min_mem
+        /** 16 **/
+    );//:A
+
+    static const int 
+    mainpool_poolcap_CONSTPOOL=( //:<<<CONSTPOOL CAP
+        MACRO_mainpool_memo_byte_count
+        -
+        MACRO_mainpool_non_CONSTPOOL_min_mem
+    );//:B
+    static const int
+    mainpool_poolcap_HOMOPOOL =( 0 ); //: 0==NO_CAP
+    static const int
+    mainpool_poolcap_GAURDPOOL=( 0 ); //: 0==NO_CAP
+    ////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////
+//| #THE_DIAGRAM#                                            |//
+////////////////////////////////////////////////////////////////
+//[   Z === _Z_ == mainpool_Z   ]////+                       +//
+//[   C === _C_ == mainpool_C   ]////+                       +//
+//[   H === _H_ == mainpool_H   ]////+ <<<<<<<KEY            +//
+//[   G === _G_ == mainpool_G   ]////+                       +//
+//[   M === _M_ == mainpool_M   ]////+                       +//
+//|                                                          |//
+//|    Z             C             H      G             M    |//
+//|   _Z_           _C_           _H_    _G_           _M_   |//
+//|   |||           |||           |||    |||           |||   |//
+//|    V             V             V      V             V    |//
 //|   |<------------- mainpool_memo -------------------->|   |//
 //|   |MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM|   |//
 //|   |CCCCCCCCCCCCCC||HHHHHHHHHHHH|      |GGGGGGGGGGGGGG|   |//
@@ -61,19 +141,19 @@
 //+   M_X: Guard byte at end of the mainpool.                +//
 //+ -------------------------------------------------------- +//
 ////////////////////////////////////////////////////////////////
-//: constpool: Constant data that will never change is
-//:            allocated here.
-//:
-//: homopool : Data that is allocated once, but uncertain
-//:            about how much data it will be allocated
-//:            here. This pool has HOMOPOOL_Seal()
-//:            function. Use it when program reaches
-//:            homeostatis and certain no more allocations
-//:            will be made here.
-//:
-//: guardpool: A byte-guarded pool. Memory is is allocated
-//:            backwards here. Guard bytes are put between
-//:            each allocation request.
+//| constpool: Constant data that will never change is       |//
+//|            allocated here.                               |//
+//|                                                          |//
+//| homopool : Data that is allocated once, but uncertain    |//
+//|            about how much data it will be allocated      |//
+//|            here. This pool has HOMOPOOL_Seal()           |//
+//|            function. Use it when program reaches         |//
+//|            homeostatis and certain no more allocations   |//
+//|            will be made here.                            |//
+//|                                                          |//
+//| guardpool: A byte-guarded pool. Memory is is allocated   |//
+//|            backwards here. Guard bytes are put between   |//
+//|            each allocation request.                      |//
 ////////////////////////////////////////////////////////////////
 
     //:For simplicity, zero allocation is not allowed.
@@ -100,11 +180,29 @@
     #undef  C  /////////////////////////////////////////////////
     #undef  I  /////////////////////////////////////////////////
 
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+/** ---- **/                                        /** ---- **/
+/** ---- **/    //[First function always "Halt"]//  /** ---- **/
+/** ---- **/    static void                         /** ---- **/
+/** ---- **/    mainpool_Halt( const char* msg ){   /** ---- **/
+/** ---- **/        printf(                         /** ---- **/
+/** ---- **/            "[mainpool_Halt]:%s\n", msg /** ---- **/
+/** ---- **/        );;                             /** ---- **/
+/** ---- **/        fflush(stdout); exit(666);      /** ---- **/
+/** ---- **/    }//[;]//                            /** ---- **/
+/** ---- **/                                        /** ---- **/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
 
+//[FD:Forward_Declarations ( NOT comprehensive list ) ______ ]//
+//[FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD]//
+
+    static void MAINPOOL_LazyUnitTest( void ); //:FWD_DEC
+
+//[FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD]//
 
 #define R static void //////////////////////////////////////////
-R MAINPOOL_Init( void ){ FUCK("[NO:Init():USE:NukeReset()]"); };
-R MAINPOOL_Kill( void ){ FUCK("[NO:Kill():USE:NukeReset()]"); };
+R MAINPOOL_Init( void ){ FUCK("[NO:Init():USE:NukeReset()]"); } 
+R MAINPOOL_Kill( void ){ FUCK("[NO:Kill():USE:NukeReset()]"); } 
 R MAINPOOL_NukeReset( void ){
 
     //:Unit Test Goes Here:
@@ -134,7 +232,7 @@ R MAINPOOL_NukeReset( void ){
 
 }//[;;]//
 #undef  R //////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////
 static void MAINPOOL_NukedResetCalledAtLeastOnce( 
     const char* msg //:<<<name_of_calling_function
 ){
@@ -142,15 +240,29 @@ static void MAINPOOL_NukedResetCalledAtLeastOnce(
         printf("[NO_NUKES]:%s\n", msg );
         FUCK("[No_Weapons_Of_Mass_Destruction_Found]");
     };;
-};;
+}//[NRCALO]/////////////////////////////////////////////////////
+static int MAINPOOL_NumReservedGaurdBytes( void ){
+    int num_reserved_gaurd_bytes=( 0
+        + 1  //:Guard Byte At START
+        + 1  //:Guard byte between CONST + HOMOPOOL
+        + 1  //:1Byte gap between HOMOPOOL+GAURDPOOL
+        + 1  //:1Byte gap between GAURDPOOL and end of memory
+    );;
 
+    if( num_reserved_gaurd_bytes != 4 ){
+        FUCK("[JustifyWhyNoLongerExactly4]");
+    };;
+    if( MACRO_num_reserved_gaurd_bytes !=
+              num_reserved_gaurd_bytes
+    ){
+        //:NRGB:NumReservedGaurdBytes
+        //: MMM:Macro_Mis_Match
+        FUCK("[NRGB:MMM]");
+    };;
+
+    return( num_reserved_gaurd_bytes );
+}//[NRGB]///////////////////////////////////////////////////////
 static int MAINPOOL_MaxCallocableBytes( void ){
-
-    //:TODO: Make sure a 1-byte boundary is
-    //:      maintained between HOMOPOOL and GUARDPOOL
-    //:      This will ensure you always have at least
-    //:      1 gaurd byte between these sections.
-    FUCK("[TODO:Enforce_1_Byte_Boundary_Between:H-&-G]");
 
     int exp_usable  =(
         MACRO_mainpool_memo_byte_count
@@ -160,9 +272,45 @@ static int MAINPOOL_MaxCallocableBytes( void ){
         - 1 //:1Byte gap between GAURDPOOL and end of memory
     );;
 
-    return( exp_usable );
-};;
+    //:This usable calculation assumes guard bytes
+    //:between each memory sub pool (2 bytes)
+    //:and guard bytes at tips of mempool_memo strip
+    //:(another 2 bytes). A total of 4 bytes.
+    int usable_calculated_again_for_redundancy=(
+        MACRO_mainpool_memo_byte_count 
+        -   
+        MAINPOOL_NumReservedGaurdBytes() /** 4 **/
+    );;
+    if( exp_usable 
+        != 
+        usable_calculated_again_for_redundancy 
+    ){
+        mainpool_Halt("[Redundancy_Fail:02]");
+    };;
 
+    return( exp_usable );
+}//[MCB]////////////////////////////////////////////////////////
+static void
+mainpool_AssertAtLeastOneGuardByteBetween_HG_Pools( ////////////
+    const char* msg //:From where was function called?
+){
+
+    if( (_G_ - _H_)  > 1 ){ 
+        //:Okay. At least one byte between memory sub-pools.
+    }else{
+        //:Assert fail, notify where source of problem is:
+        printf("[ERROR::ATLOGBBHGP::FROM]:%s\n", msg );
+        fflush(stdout);
+        mainpool_Halt("[ATLOGBBHGP]");
+    };;
+}//[;AssertAtLeastOneGuardByteBetween_HG_Pools;]////////////////
+//:This method designed before I decided I want to assure
+//:that there is at least one gaurd byte between _G_ and _H_
+//:memory pools. (HOMOPOOL and GUARDPOOL). 
+//:See comment: Empty_Space_Homo_Guard
+//:I like this behavior. Not going to modify function.
+//:Just use mainpool_AssertAtLeastOneGuardByteBetween_HG_Pools
+//:if you want at least 1 gaurd byte between pools.
 static unsigned char
 MAINPOOL_GuardByte_Status( void ){ 
 NUKE_C("[GuardByte_Status]");
@@ -173,29 +321,37 @@ NUKE_C("[GuardByte_Status]");
     if( mainpool_memo[ M_X ] != 0 ){ S |= (1 << 3); };
 
     //:Un-Allocated section should be un-touched:
-    if( (_H_ > _G_)     ){ FUCK("[H/G]"); }; //:OOB
-    if( (_G_ - _H_)  > 1 ){ //:Empty_Space?
+    if( (_H_ > _G_)     ){ FUCK("[H/G]"); }; //:OOB     ////////
+    if( (_G_ - _H_)  > 1 ){ //:Empty_Space_Homo_Guard?  ////////
+
         int T0    = _H_ + 1;
         int T1    = _G_ - 1;
-        int UH_HO =  0     ;
+        signed char 
+        you_done_fucked_up =  0 ;
         for( int i = T0; i <= T1; i++ ){
             if( mainpool_memo[ i ] != 0 ){
-                UH_OH = 1;
+                you_done_fucked_up = 1;
                 break;
             };;
         };;
-        if( UH_HO != 0 ){
+        if( you_done_fucked_up != 0 ){
             S |= (1 << 4 );
         };;
-    };;
+
+    };; //://////////////////////////////////////////////////://
 
     return( S );
-}
+}//[GBS]////////////////////////////////////////////////////////
 static void
-MAINPOOL_GaurdByte_Assert( void ){
+MAINPOOL_GaurdByte_Assert( 
+    const char* msg //:Unique_Location_In_Code_Call_Is_From
+){
 NUKE_C("[GaurdByte_Assert]");
     unsigned char status = MAINPOOL_GuardByte_Status( );
     if( status != 0 ){ 
+
+        //:Use to trace back point of failure:
+        printf("[GBA:MSG]:%s\n", msg );
 
         ////////////////////////////////////////////////////////
         //:  Tell me what sections of memory are compromised.://
@@ -214,7 +370,7 @@ NUKE_C("[GaurdByte_Assert]");
 
         FUCK("[FAIL:GBA]");
     };;
-}
+}//[GBA]////////////////////////////////////////////////////////
 
 //:NOTE: constpool must be allocated before the other
 //:      pools are allocated. Constpool may only be
@@ -222,11 +378,25 @@ NUKE_C("[GaurdByte_Assert]");
 static unsigned char* //:<--Always_Returns_Same_Pointer
 MAINPOOL_Calloc_CONSTPOOL( int num_bytes ){
 NUKE_C("[Calloc_CONSTPOOL]");
+    MAINPOOL_GaurdByte_Assert("[BEG:CC]");
+    //:g_g_g_g_g_g_g_g_g_g_g_g_g_gg_g_g_g_g_g_g_g_g_g_g_g_g_g://
+
+    //########################################################//
+    //# NOTE: Calloc_Funcs_Dont_Zero_Out_Memory              #//
+    //#       RE_Calloc_Functions_DO_Zero_Out_Memory         #//
+    //#       Changing this will break Re-Calloc             #//
+    //########################################################//
 
     //:Error_Checks_And_One_Byte_Allocation_Hack:
-    if( _H_ > 0 || _G_ > 0 ){ FUCK("[MP01]"); };
-    if( _C_ > 0 ){            FUCK("[DC.C]"); };
-    if( num_bytes == 0 ){ num_bytes = 1 /**[PZA]**/ ; };  
+    #define M_A_X  mainpool_poolcap_CONSTPOOL ///////////////
+    ////////////////////////////////////////////////////////////
+
+    if( _H_ > 0 || _G_ > 0 ){  FUCK("[MP01]"); };
+    if( _C_ > 0 ){             FUCK("[DC.C]"); };
+    if( num_bytes  >  M_A_X ){ FUCK("[CPOM]"); };
+    if( num_bytes ==    0   ){ num_bytes = 1 /**[PZA]**/ ; };  
+
+    #undef M_A_X ///////////////////////////////////////////////
     
     //:Set_Allocation_Index_And_Bounds_Check:
         _C_  =( _Z_ + num_bytes - 1 );
@@ -236,13 +406,23 @@ NUKE_C("[Calloc_CONSTPOOL]");
     //:Update_Guard_Byte
     C_H = _C_ + 1;
 
+    //:g_g_g_g_g_g_g_g_g_g_g_g_g_gg_g_g_g_g_g_g_g_g_g_g_g_g_g://
+    MAINPOOL_GaurdByte_Assert("[BEG:CC]");
+
     //:Return_Pointer_To_Memory:
     return( &( mainpool_memo[ _C_ ] ) );
-
-}
+}//[CC]/////////////////////////////////////////////////////////
 static unsigned char* //:<--Always_Returns_Same_Pointer
 MAINPOOL_Calloc_HOMOPOOL( int num_bytes ){
 NUKE_C("[Calloc_HOMOPOOL]");
+    MAINPOOL_GaurdByte_Assert("[BEG:CH]");
+    //:g_g_g_g_g_g_g_g_g_g_g_g_g_gg_g_g_g_g_g_g_g_g_g_g_g_g_g://
+
+    //########################################################//
+    //# NOTE: Calloc_Funcs_Dont_Zero_Out_Memory              #//
+    //#       RE_Calloc_Functions_DO_Zero_Out_Memory         #//
+    //#       Changing this will break Re-Calloc             #//
+    //########################################################//
 
     //:Error_Checks_And_One_Byte_Allocation_Hack:
     if( _C_ <= 0 ){ FUCK("[MP02]"); };
@@ -258,17 +438,29 @@ NUKE_C("[Calloc_HOMOPOOL]");
     if( _H_ >=   _M_             ){ FUCK("[OVRFLOW:H]"); };
 
     //:Update_Guard_Byte: NO_GAURD_BYTE: _H_
+    mainpool_AssertAtLeastOneGuardByteBetween_HG_Pools("[H]");
+
+    //:g_g_g_g_g_g_g_g_g_g_g_g_g_gg_g_g_g_g_g_g_g_g_g_g_g_g_g://
+
+    MAINPOOL_GaurdByte_Assert("[END:CH]");
 
     //:Return_Pointer_To_Memory:
     //:You return C_H NOT _H_ for the base of HOMOPOOOL.
     //:_H_ is the tip, which is a memory address that
     //:will change if pool is resized.
     return( &( mainpool_memo[ C_H ] ) );
-
-}
+}//[CH]/////////////////////////////////////////////////////////
 static unsigned char* //:<--Always_Returns_Same_Pointer
 MAINPOOL_Calloc_GAURDPOOL( int num_bytes ){
 NUKE_C("[Calloc_GAURDPOOL]");
+    MAINPOOL_GaurdByte_Assert("[BEG:CG]");
+    //:g_g_g_g_g_g_g_g_g_g_g_g_g_gg_g_g_g_g_g_g_g_g_g_g_g_g_g://
+
+    //########################################################//
+    //# NOTE: Calloc_Funcs_Dont_Zero_Out_Memory              #//
+    //#       RE_Calloc_Functions_DO_Zero_Out_Memory         #//
+    //#       Changing this will break Re-Calloc             #//
+    //########################################################//
 
     //:Error_Checks_And_One_Byte_Allocation_Hack:
     if( _C_ <= 0 ){ FUCK("[MP03]"); };
@@ -285,13 +477,18 @@ NUKE_C("[Calloc_GAURDPOOL]");
     if( _G_ >=  _M_             ){ FUCK("[OVRFLOW:H]"); };
     
     //:Update_Guard_Byte: NO_GAURD_BYTE: _G_
+    mainpool_AssertAtLeastOneGuardByteBetween_HG_Pools("[G]");
+
+    //:g_g_g_g_g_g_g_g_g_g_g_g_g_gg_g_g_g_g_g_g_g_g_g_g_g_g_g://
+
+    MAINPOOL_GaurdByte_Assert("[END:CG]");
 
     //:Return_Pointer_To_Memory:
     //:You return _M_ NOT _G_ for the base of the GUARDPOOL
     //:allocation. We want a pointer that will never change!
     return( &( mainpool_memo[ _M_ ] ) );
-}
-
+}//[CG]/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 //[SO:SizeOf:________________________________________________]//
 //[SOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSO]//
 //[                                                          ]//
@@ -309,24 +506,43 @@ NUKE_C("[Calloc_GAURDPOOL]");
     int MAINPOOL_SizeOf_CONSTPOOL( void ){
         NUKE_C("[SizeOf_CONSTPOOL]");
 
+        //:only_useful_bytes_returned
+        //:gaurd_bytes_not_counted
         return( _C_ - _Z_ + 1 );
 
     }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
     int MAINPOOL_SizeOf_HOMOPOOL(  void ){
         NUKE_C("[SizeOf_HOMOPOOL]");
 
+        //:only_useful_bytes_returned
+        //:gaurd_bytes_not_counted
         return( _H_ - C_H + 1 );
 
     }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
     int MAINPOOL_SizeOf_GAURDPOOL( void ){
         NUKE_C("[SizeOf_GAURDPOOL]");
 
+        //:only_useful_bytes_returned
+        //:gaurd_bytes_not_counted
         return( _M_ - _G_ + 1 );
 
     }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
 
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+
+    //########################################################//
+    //# NOTE: MAINPOOL_SizeOf_BytesUsed()                    #//
+    //#       +                                              #//
+    //#       MAINPOOL_SizeOf_BytesFree()                    #//
+    //#       !=                                             #//
+    //#       MACRO_mainpool_memo_byte_count                 #//
+    //#                                                      #//
+    //# BECAUSE: 4 reserved gaurd bytes that cannot be       #//
+    //#          allocated to any of the sub-pools.          #//
+    //########################################################//
+
     ////////////////////////////////////////////////////////////
 
     int MAINPOOL_SizeOf_BytesAll(  void ){
@@ -347,7 +563,201 @@ NUKE_C("[Calloc_GAURDPOOL]");
         return( siz_all );
 
     }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
+    int MAINPOOL_SizeOf_BytesFree( void ){
+        int used_DATA        = MAINPOOL_SizeOf_BytesUsed();
+        int used_GUARD_BYTES = MAINPOOL_NumReservedGaurdBytes();
+        int used_TOTAL       =(0
+        +   used_DATA
+        +   used_GUARD_BYTES
+        );;
+        int available =(
+            /** MAINPOOL_SizeOf_BytesAll **/
+            MACRO_mainpool_memo_byte_count
+            -
+            used_TOTAL
+        );;
+
+        //| Note here that "all_bytes != available + used"   |//
+        //| Because of the gaurd bytes.                      |//
+        //| WHERE: all_bytes==MACRO_mainpool_memo_byte_count |//
+        if( (available + used_DATA + used_GUARD_BYTES)
+            !=
+            MACRO_mainpool_memo_byte_count
+        ){
+            //:YMIO:Your_Math_Is_Off
+            FUCK("[YMIO]");
+        };;
+
+        return( available );
+    }  // - - - - - - - - - - - - - - - - - - - - - - - - - - //
 //[SOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSOSO]//
+//[SO:SizeOf: ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ ]//
+
+//| Before trying to re-alloc to MORE memory, you can use    |//
+//| this to check if you are able to get more bytes for the  |//
+//| specific pool.                                           |//
+////////////////////////////////////////////////////////////////
+static int
+MAINPOOL_UnClaimedBytes_TOTAL(){
+
+    int     bytes_free = MAINPOOL_SizeOf_BytesFree( ); //[B_F]//
+    return( bytes_free );
+
+}//[UCBT]///////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//:ReservedBytes: Math.Max( curSubPoolSize(),minSubPoolSize() )
+//:RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR://
+static int MAINPOOL_ReservedBytes_CONSTPOOL(){
+    //:Reserved bytes for CONSTPOOL:
+    //:Math.Max(CONSTPOOL.curSize() , CONSTPOOL.minSize());
+    int siz = MAINPOOL_SizeOf_CONSTPOOL();
+    int min = mainpool_min_bytes_CONSTPOOL;
+    int res = min;
+    if( res < siz ){ res = siz; };
+    return( res );
+}//[RBC]]///////////////////////////////////////////////////////
+static int MAINPOOL_ReservedBytes_HOMOPOOL(){
+    //:Reserved bytes for HOMOPOOL:
+    //:Math.Max(HOMOPOOL.curSize() , HOMOPOOL.minSize());
+    int siz = MAINPOOL_SizeOf_HOMOPOOL();
+    int min = mainpool_min_bytes_HOMOPOOL;
+    int res = min;
+    if( res < siz ){ res = siz; };
+    return( res );
+}//[RBH]////////////////////////////////////////////////////////
+static int MAINPOOL_ReservedBytes_GAURDPOOL(){
+    //:Reserved bytes for GAURDPOOL:
+    //:Math.Max(GAURDPOOL.curSize() , GAURDPOOL.minSize());
+    int siz = MAINPOOL_SizeOf_GAURDPOOL();
+    int min = mainpool_min_bytes_GAURDPOOL;
+    int res = min;
+    if( res < siz ){ res = siz; };
+    return( res );
+}//[RBG]////////////////////////////////////////////////////////
+//:RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR://
+
+//:UB:Unclaimed_Bytes:_______________________________________://
+//:UBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUB://
+    static int
+    MAINPOOL_UnClaimedBytes_CONSTPOOL(){
+        int up_for_grabs /**CONSTPOOL**/ =(
+            mainpool_poolcap_CONSTPOOL
+            -
+            MAINPOOL_SizeOf_CONSTPOOL()
+        );;
+        return( up_for_grabs );
+    }//[UCB_C]//////////////////////////////////////////////////
+    static int
+    mainpool_UnClaimedBytes_AnyPoolWithoutArtificalCap(){
+        int up_for_grabs =( 0
+        + MAINPOOL_UnClaimedBytes_TOTAL()
+
+        //:You must subtract "Reserved" ( NOT "Used" )
+        //:Bytes in case the respective pools have not
+        //:yet been allocated.
+        - MAINPOOL_ReservedBytes_CONSTPOOL()   
+        -  MAINPOOL_ReservedBytes_HOMOPOOL()   
+        - MAINPOOL_ReservedBytes_GAURDPOOL()
+        );;
+
+        return( up_for_grabs );
+    }//[UCB_APWAC]//////////////////////////////////////////////
+    static int
+    MAINPOOL_UnClaimedBytes_HOMOPOOL(){
+        int up_for_grabs =( 0
+        + MAINPOOL_UnClaimedBytes_TOTAL()
+        - MAINPOOL_ReservedBytes_CONSTPOOL() 
+        - MAINPOOL_ReservedBytes_HOMOPOOL( )   
+        - MAINPOOL_ReservedBytes_GAURDPOOL()
+        );;
+
+        int check_work =(
+            mainpool_UnClaimedBytes_AnyPoolWithoutArtificalCap()
+        );; 
+        if( check_work != up_for_grabs ){ 
+            FUCK("[BADMATH:H]"); 
+        };;
+
+        return( up_for_grabs );
+    }//[UCB_H]//////////////////////////////////////////////////
+    static int
+    MAINPOOL_UnClaimedBytes_GAURDPOOL(){
+        int up_for_grabs =( 0
+        + MAINPOOL_UnClaimedBytes_TOTAL()
+        - MAINPOOL_ReservedBytes_CONSTPOOL() 
+        - MAINPOOL_ReservedBytes_HOMOPOOL( )   
+        - MAINPOOL_ReservedBytes_GAURDPOOL()
+        );;
+
+        int check_work =(
+            mainpool_UnClaimedBytes_AnyPoolWithoutArtificalCap()
+        );; 
+        if( check_work != up_for_grabs ){ 
+            FUCK("[BADMATH:G]"); 
+        };;
+
+        return( up_for_grabs );
+    }//[UCB_G]//////////////////////////////////////////////////
+//:UBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUBUB://
+
+//:MA: Max_Allocation (size in bytes)
+//:MAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMA://
+    static int MAINPOOL_MaxAllocationSize_CONSTPOOL( void ){
+        int non_artificial_cap=(
+            + MACRO_mainpool_memo_byte_count      //:ALL_MEMORY
+    
+            - MAINPOOL_ReservedBytes_HOMOPOOL( )  //:OTHER_POOLS 
+            - MAINPOOL_ReservedBytes_GAURDPOOL()  //:OTHER_POOLS
+    
+            - MACRO_num_reserved_gaurd_bytes      //:GAURD_BYTES
+        );;
+    
+        //:Truncate:
+        int cap     =  non_artificial_cap;
+        int cap_max = mainpool_poolcap_CONSTPOOL;
+        if( cap_max > 0 /** Artificial_Cap_Exists? **/ ){
+            if( cap > cap_max ){ cap = cap_max; };
+        };;
+    
+        return( cap );
+    }//[MAS_C]//////////////////////////////////////////////////
+    static int MAINPOOL_MaxAllocationSize_HOMOPOOL( void ){
+        int non_artificial_cap=(
+            + MACRO_mainpool_memo_byte_count      //:ALL_MEMORY
+    
+            - MAINPOOL_ReservedBytes_CONSTPOOL()  //:OTHER_POOLS 
+            - MAINPOOL_ReservedBytes_GAURDPOOL()  //:OTHER_POOLS
+    
+            - MACRO_num_reserved_gaurd_bytes      //:GAURD_BYTES
+        );;
+    
+        //:Truncate:
+        int cap     =  non_artificial_cap;
+        int cap_max = mainpool_poolcap_HOMOPOOL;
+        if( cap_max > 0 /** Artificial_Cap_Exists? **/ ){
+            if( cap > cap_max ){ cap = cap_max; };
+        };;
+        return( cap );
+    }//[MAS_H]//////////////////////////////////////////////////
+    static int MAINPOOL_MaxAllocationSize_GAURDPOOL( void ){
+        int non_artificial_cap=(
+            + MACRO_mainpool_memo_byte_count      //:ALL_MEMORY
+    
+            - MAINPOOL_ReservedBytes_CONSTPOOL()  //:OTHER_POOLS 
+            - MAINPOOL_ReservedBytes_HOMOPOOL( )  //:OTHER_POOLS
+    
+            - MACRO_num_reserved_gaurd_bytes      //:GAURD_BYTES
+        );;
+    
+        //:Truncate:
+        int cap     =  non_artificial_cap;
+        int cap_max = mainpool_poolcap_GAURDPOOL;
+        if( cap_max > 0 /** Artificial_Cap_Exists? **/ ){
+            if( cap > cap_max ){ cap = cap_max; };
+        };;   
+        return( cap );
+    }//[MAS_G]//////////////////////////////////////////////////
+//:MAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMA://
 
 //[RA:Re_Allocation():_______________________________________]//
 //[RARARARARARARARARARARARARARARARARARARARARARARARARARARARARA]//
@@ -365,21 +775,161 @@ NUKE_C("[Calloc_GAURDPOOL]");
 //[         zero. Nonzero anywhere in this region means      ]//
 //[         the memory has been trampled.                    ]//
 //[                                                          ]//
+//[         #REALLOC# #ReAlloc# #reAlloc# #ReAllocate#       ]//
 //[RARARARARARARARARARARARARARARARARARARARARARARARARARARARARA]//
+    static unsigned char* //////////////////////////////////////
+    MAINPOOL_ReCalloc_CONSTPOOL( int num_bytes ){   
+        FUCK("[RE_CALLOC_OF_CONSTPOOL_NOT_ALLOWED]");
+        if( num_bytes ){ /** NOOP **/ };
+        return( (void*)0 ); //:<---NULL
+    }//[RC_C]///////////////////////////////////////////////////
     static unsigned char*
     MAINPOOL_ReCalloc_HOMOPOOL( int num_bytes ){ ///////////////
     NUKE_C("[ReCalloc_HOMOPOOL]");
+        MAINPOOL_GaurdByte_Assert( "[BEG:RC_H/RCH]" );
 
-        int prev_bytes = MAINPOOL_SizeOf_HOMOPOOL();
+        //| cur_bytes , min_bytes , max_bytes , del_bytes  _ |//
+        int  cur =            MAINPOOL_SizeOf_HOMOPOOL();
+        int  min =         mainpool_min_bytes_HOMOPOOL;
+        int  max = MAINPOOL_MaxAllocationSize_HOMOPOOL();
+        int  del = ( num_bytes - cur ); //:DELTA
+      
+        //:Error_Checks__RangeAndCapacity:
+        ////////////////////////////////////////////////////////
+        if(!( min <= num_bytes && num_bytes <= max )){
+            FUCK("[BAD_RANGE:H]");
+        };;
+        if( num_bytes > cur ){
+ 
+            //: _NTG: Nothing_To_Give
+            //: NETG: Not_Enough_To_Give
+            int has_more = MAINPOOL_UnClaimedBytes_HOMOPOOL();
+            if( has_more <= 0  ){ FUCK("[RC_C:_NTG]");}
+            if( has_more < del ){ FUCK("[RC_C:NETG]");}
+            
+        };;
+        ////////////////////////////////////////////////////////
 
-    }//[;;;;;ReCalloc_HOMOPOOL;]////////////////////////////////
+        if( num_bytes == cur /** cur_bytes **/ ){
+            //:Do_Nothing
+        }else
+        if( num_bytes  > cur /** cur_bytes **/ ){
+            //:Don_t_Zero_Out_New_Memory
+            MAINPOOL_Calloc_HOMOPOOL( num_bytes);
+        }else
+        if( num_bytes  < cur /** cur_bytes **/ ){
+
+            //[ Memory_View ________________________________ ]//
+            //|==============================================|//
+            //|(base_ptr)              old_H   (base_ptr)    |//
+            //| _Z_        _C_   new_H    |        _M_       |//
+            //|  |          |       |     |         |        |//
+            //| _CCCCCCCCCCCCHHHHHHHHhhhhhh...ggggggg_       |//
+            //| |            |                       |       |//
+            //|X_Z           |     mainpool_memo[ MAXDEX ]   |//
+            //|              |         (Also_a_gaurd_byte)   |//
+            //|             C_H                              |//
+            //|           (base_ptr)                         |//
+            //|==============================================|//
+
+            //:Zero_Out_Memory_You_Gave_Back
+            int old_H = _H_;
+            MAINPOOL_Calloc_HOMOPOOL( num_bytes );
+            int new_H = _H_;
+
+            if( !( old_H > new_H) ){
+                //:OIP_LT_NIP:Old_Index_Ptr_LT_New_Index_Ptr
+                //:LT:Less_Than
+                FUCK("[BAD_MEM_INDEXES:OIP_LT_NIP]");
+            };;
+            
+            //:Indexes_Into_Buffer_Are_INCLUSIVE
+            int T0 = new_H + 1; //:Dont_Stomp_Last_Used_Byte
+            int T1 = old_H + 0; //:Stomp_Last_Byte_Of_Old
+            if((T1-T0) <= 0){ FUCK("[RC_H:NEGERAN]"); }
+            for( int i = T0; i <= T1; i++ ){
+                mainpool_memo[ i ] = 0; //:Erase_Byte
+            };;
+        }else{
+            FUCK("[EDCL:RC:H]");
+        };;
+
+        MAINPOOL_GaurdByte_Assert( "[END:RC_H/RCH]" );
+        return( &( mainpool_memo[ _G_ ] ) );
+    }//[RC_H]///////////////////////////////////////////////////
     static unsigned char*
     MAINPOOL_ReCalloc_GUARDPOOL( int num_bytes ){ //////////////
     NUKE_C("[ReCalloc_GUARDPOOL]");
+        MAINPOOL_GaurdByte_Assert( "[BEG:RC_G/RCG]" );
 
-        int prev_bytes = MAINPOOL_SizeOf_GAURDPOOL();
+        //| cur_bytes , min_bytes , max_bytes , del_bytes  _ |//
+        int  cur =            MAINPOOL_SizeOf_GUARDPOOL();
+        int  min =         mainpool_min_bytes_GUARDPOOL;
+        int  max =    MAINPOOL_UnClaimedBytes_GUARDPOOL();
+        int  del = ( num_bytes - cur ); //:DELTA
 
-    }//[;;;;;ReCalloc_GUARDPOOL;]///////////////////////////////
+        //:Error_Checks__RangeAndCapacity:
+        ////////////////////////////////////////////////////////
+        if(!( min <= num_bytes && num_bytes <= max )){
+            FUCK("[BAD_RANGE:G]");
+        };;
+        if( num_bytes > cur ){
+
+            //: _NTG: Nothing_To_Give
+            //: NETG: Not_Enough_To_Give
+            int has_more = MAINPOOL_UnClaimedBytes_GAURDPOOL();
+            if( has_more <= 0  ){ FUCK("[RC_G:_NTG]");}
+            if( has_more < del ){ FUCK("[RC_G:NETG]");}
+
+        };;
+        ////////////////////////////////////////////////////////
+
+        if( num_bytes == cur /** cur_bytes **/ ){
+            //:Do_Nothing
+        }else
+        if( num_bytes  > cur /** cur_bytes **/ ){
+            //:Don_t_Zero_Out_New_Memory
+            MAINPOOL_Calloc_GAURDPOOL();
+        }else
+        if( num_bytes  < cur /** cur_bytes **/ ){
+
+            //[ Memory_View ________________________________ ]//
+            //|==============================================|//
+            //|  ( base_ptr )     new_G                      |//
+            //|      C_H     old_G   |   _M_ ( base_ptr )    |//
+            //|       |         |    |    |                  |//
+            //| ...CCCHHHHHHH___gggggGGGGGG_                 |//
+            //|              |||           |                 |//
+            //|              ^^^   mainpool_memo[ MAXDEX ]   |//
+            //|              |||   (Also_a_gaurd_byte)       |//
+            //|     GaurdBytesBetweenPools                   |//
+            //|==============================================|//
+
+            //:Zero_Out_Memory_You_Gave_Back
+            int old_G = _G_;
+            MAINPOOL_Calloc_GAURDPOOL();
+            int new_G = _G_;
+
+            if( !( old_G < new_G) ){
+                //:OGGTNG:Old_G_Greater_Than_New_G
+                //:OIPGTNIP:Old_Index_Ptr_GT_New_Index_Ptr
+                //:GT:Greater_Than
+                FUCK("[BAD_MEM_INDEXES:OIP_GT_NIP]");
+            };;
+            
+            //:Indexes_Into_Buffer_Are_INCLUSIVE
+            int T0 = old_G + 0; //:Stomp_Last_Byte_Of_Old 
+            int T1 = new_G - 1; //:Dont_Stomp_Last_Used_Byte
+            if((T1-T0) <= 0){ FUCK("[RC_G:NEGERAN]"); }
+            for( int i = T0; i <= T1; i++ ){
+                mainpool_memo[ i ] = 0; //:Erase_Byte
+            };;
+        }else{
+            FUCK("[EDCL:RC:G]");
+        };;
+
+        MAINPOOL_GaurdByte_Assert( "[END:RC_G/RCG]" );
+    }//[RC_G]///////////////////////////////////////////////////
 //[RARARARARARARARARARARARARARARARARARARARARARARARARARARARARA]//
 
 //|//////////////////////////////////////////////////////////|//
@@ -411,8 +961,14 @@ static void MAINPOOL_LazyUnitTest( void ){ /////////////////////
         mainpool_LazyUnitTest_CallocAndCheckSizes_3();
         mainpool_LazyUnitTest_CallocAndCheckSizes_4();
         mainpool_LazyUnitTest_CallocAndCheckSizes_7();
-        mainpool_LazyUnitTest_CallocAndCheckSizes  ();
+        mainpool_LazyUnitTest_CallocAndCheckSizes_MAX();
+
+        //:Intentionally corrupt memory and do gaurd
+        //:byte check to find the problems:
+        mainpool_LazyUnitTest_DetectMemoryCorruptions();
         
+        FUCK("[TODO: RE-calloc tests]");
+        FUCK("[TODO: Read-back memory tests]");
 
         ////////////////////////////////////////////////////////
         MAINPOOL_NukeReset(); //:After  All Tests:
@@ -420,8 +976,203 @@ static void MAINPOOL_LazyUnitTest( void ){ /////////////////////
         MAINPOOL_testin  = 0;
     };; ////////////////////////////////////////////////////////
 }//[;LazyUnitTest;]/////////////////////////////////////////////
+static void mainpool_LazyUnitTest_DetectMemoryCorruptions(void){
+    MAINPOOL_NukeReset();
+    //: NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN ://
+
+    //:NOTE: macro_STATUS_FOR_GAURD_BYTE_03 is actually      ://
+    //:      a [strip/region] of gaurd bytes. Unless         ://
+    //:      all memory has been allocated from memory       ://
+    //:      pool, then it is a single byte. Or more         ://
+    //:      accurately (but oddly), a contigous strip of    ://
+    //:      bytes containing only 1 byte.                   ://
+    #define  macro_STATUS_FOR_GAURD_BYTE_01   (1 << 1)  ////////
+    #define  macro_STATUS_FOR_GAURD_BYTE_02   (1 << 2)  ////////
+    #define  macro_STATUS_FOR_GAURD_BYTE_03   (1 << 3)  ////////
+    #define  macro_STATUS_FOR_GAURD_BYTE_04   (1 << 4)  ////////
+
+    unsigned char  stats = 0;
+    unsigned char* mem_C = NULL;
+    unsigned char* mem_H = NULL;
+    unsigned char* mem_G = NULL;
+
+    mem_C = MAINPOOL_Calloc_CONSTPOOL( 16 );
+    mem_H = MAINPOOL_Calloc_HOMOPOOL ( 16 );
+    mem_G = MAINPOOL_Calloc_GAURDPOOL( 16 );
+    MAINPOOL_GaurdByte_Assert("[LUT:DMC:01]");
+
+    //: The guard byte between "C" and "H" sections of   ----://
+    //: memory can be accessed relative to mem_C or      ----://
+    //: relative to mem_H, since these allocations       ----://
+    //: are right next to each other:                    ----://
+    if( &( mem_C[ 16 ] ) != &( mem_H[ 0 - 1 ] ) ){
+        FUCK("[Expected_Same_Memory_Addresses]");
+    };;
+
+    #define U64 unsigned long long int /////////////////////////
+
+            U64 mem_base      = (U64)mainpool_memo;
+            U64 mem_base_also = (U64)( mem_C[ 0 - 1 ] );
+            if( mem_base != mem_base_also ){
+                FUCK("[ESMA:02]");
+                //:ESMA:ExpectedSameMemoryAddress
+            };;
+
+    #undef  U64 ////////////////////////////////////////////////
+
+    //:Writing only in allocated sections of memory, so
+    //:the gaurd bytes should NOT be triggered.
+    // ------------------------------------------------------ //
+    for( int i = 0; i < 16; i++ ){
+        mem_C[ 0 + i ] = 0xFF;
+        mem_H[ 0 + i ] = 0xFF;
+        mem_G[ 0 - i ] = 0xFF;
+    };;
+    stats = MAINPOOL_GuardByte_Status( );
+    if( 0 != stats ){
+        FUCK("[EGBTBIT]"); //:ExpectedGaurdBytesToBeInTact
+    };;
+    // ------------------------------------------------------ //
+
+    //:The gaurd byte between "H" and "M" sections is
+    //:not always just one guard byte. It can be an entire
+    //:section. But we guarantee at least one gaurd byte
+    //:between sections.
+    if( &( mem_H[ 0 + 16 ] ) <= &( mem_G[ 0 - 16 ] ) ){
+        FUCK("[RUSTY_ROBOT_HEAD]"); //:[NEM]
+    };;
+
+    ////////////////////////////////////////////////////////////
+    //:111111111111111111111111111111111111111111111111111111://
+    mem_C[ 0 - 1 ] = 0xFF;
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != macro_STATUS_FOR_GAURD_BYTE_01 ){
+        //:EGBTBT:ExpectedGaurdByteToBeTripped
+        FUCK("[EGBTBT:01_A]");
+    };;
+    mem_C[ 0 - 1 ] = 0x00; //:UnFlag guard byte
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != 0 ){ 
+        //:MRF:Manual_Reset_Fail
+        FUCK("[MRF:01_A]");
+    };;
+    //:111111111111111111111111111111111111111111111111111111://
+    mainpool_memo[ 0 ] = 0xFF;
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != macro_STATUS_FOR_GAURD_BYTE_01 ){
+        //:EGBTBT:ExpectedGaurdByteToBeTripped
+        FUCK("[EGBTBT:01_B]");
+    };;
+    mainpool_memo[ 0 ] = 0x00; //:UnFlag guard byte
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != 0 ){ 
+        //:MRF:Manual_Reset_Fail
+        FUCK("[MRF:01_B]");
+    };;
+    //:111111111111111111111111111111111111111111111111111111://
+    ////////////////////////////////////////////////////////////
+    //:222222222222222222222222222222222222222222222222222222://
+    mem_C[ 16 ] = 0xFF;
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != macro_STATUS_FOR_GAURD_BYTE_02 ){
+        //:EGBTBT:ExpectedGaurdByteToBeTripped
+        FUCK("[EGBTBT:02]");
+    };;
+    mem_C[ 16 ] = 0x00; //:UnFlag guard byte
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != 0 ){ 
+        //:MRF:Manual_Reset_Fail
+        FUCK("[MRF:02]");
+    };;
+    //:222222222222222222222222222222222222222222222222222222://
+    //:This should ALSO trip the 2nd gaurd byte,
+    //:Just a different way to access the same gaurd byte.
+    mem_H[ 0 - 1 ] = 0xFF;
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != macro_STATUS_FOR_GAURD_BYTE_02 ){
+        //:EGBTBT:ExpectedGaurdByteToBeTripped
+        FUCK("[EGBTBT:03]");
+    };;
+    mem_H[ 0 - 1 ] = 0x00; //:UnFlag guard byte
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != 0 ){ 
+        //:MRF:Manual_Reset_Fail
+        FUCK("[MRF:03]");
+    };;
+    //:222222222222222222222222222222222222222222222222222222://
+    ////////////////////////////////////////////////////////////    
+    //:333333333333333333333333333333333333333333333333333333://
+    mem_H[ 16 ] = 0xFF;
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != macro_STATUS_FOR_GAURD_BYTE_03 ){
+        //:EGBTBT:ExpectedGaurdByteToBeTripped
+        FUCK("[EGBTBT:04]");
+    };;
+    mem_H[ 16 ] = 0x00; //:UnFlag guard byte
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != 0 ){ 
+        //:MRF:Manual_Reset_Fail
+        FUCK("[MRF:04]");
+    };;
+    //:333333333333333333333333333333333333333333333333333333://
+    mem_G[ 0 - 16 ] = 0xFF;
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != macro_STATUS_FOR_GAURD_BYTE_03 ){
+        //:EGBTBT:ExpectedGaurdByteToBeTripped
+        FUCK("[EGBTBT:05]");
+    };;
+    mem_G[ 0 - 16 ] = 0x00; //:UnFlag guard byte
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != 0 ){ 
+        //:MRF:Manual_Reset_Fail
+        FUCK("[MRF:05]");
+    };;
+    //:333333333333333333333333333333333333333333333333333333://
+    ////////////////////////////////////////////////////////////
+    //:444444444444444444444444444444444444444444444444444444://
+    mem_G[ 0 + 1 ] = 0xFF;
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != macro_STATUS_FOR_GAURD_BYTE_04 ){
+        //:EGBTBT:ExpectedGaurdByteToBeTripped
+        FUCK("[EGBTBT:06]");
+    };;
+    mem_G[ 0 + 1 ] = 0x00; //:UnFlag guard byte
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != 0 ){ 
+        //:MRF:Manual_Reset_Fail
+        FUCK("[MRF:06]");
+    };;
+    //:444444444444444444444444444444444444444444444444444444://
+    mainpool_memo[ MACRO_mainpool_memo_byte_count ] = 0xFF;
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != macro_STATUS_FOR_GAURD_BYTE_04 ){
+        //:EGBTBT:ExpectedGaurdByteToBeTripped
+        FUCK("[EGBTBT:07]");
+    };;
+    //:UnFlag guard byte
+    mainpool_memo[ MACRO_mainpool_memo_byte_count ] = 0x00; 
+    stats = MAINPOOL_GuardByte_Status();
+    if( stats != 0 ){ 
+        //:MRF:Manual_Reset_Fail
+        FUCK("[MRF:07]");
+    };;
+    //:444444444444444444444444444444444444444444444444444444://
+    ////////////////////////////////////////////////////////////
+    
+    #undef   macro_STATUS_FOR_GAURD_BYTE_01    /////////////////
+    #undef   macro_STATUS_FOR_GAURD_BYTE_02    /////////////////
+    #undef   macro_STATUS_FOR_GAURD_BYTE_03    /////////////////
+    #undef   macro_STATUS_FOR_GAURD_BYTE_04    /////////////////
+
+    //: NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN ://
+    MAINPOOL_NukeReset();
+}
 static void mainpool_LazyUnitTest_UsableBytesCheck( void ){
 
+    //|  This usable calculation assumes guard bytes    -----|//
+    //|  between each memory sub pool (2 bytes)         -----|//
+    //|  and guard bytes at tips of mempool_memo strip  -----|//
+    //|  (another 2 bytes). A total of 4 bytes.         -----|//
     int exp_usable  =(
         MACRO_mainpool_memo_byte_count
         - 1 //:Guard Byte At START
@@ -435,20 +1186,39 @@ static void mainpool_LazyUnitTest_UsableBytesCheck( void ){
         FUCK("[NOT_IN_AGREEMENT]");
     };;
 
-
 }//[;;]//
-static void mainpool_LazyUnitTest_CallocAndCheckSizes( void ){
+static void mainpool_LazyUnitTest_CallocAndCheckSizes_MAX( 
+    void
+){
+    //| Check edge cases by attempting max allocations. -----|//
+    //| (Use up 100% of memory via different sub-pool   -----|//
+    //| partitions.                                     -----|//
 
-    int siz_U   = 0; //:USED
-    int usable  =(
-        MACRO_mainpool_memo_byte_count
-        - 1 //:Guard Byte At START
-        - 1 //:Guard byte between CONST + HOMOPOOL
-        - 1 //:1Byte gap between HOMOPOOL+GAURDPOOL
-        - 1 //:1Byte gap between GAURDPOOL and end of memory
-    );;
+    int siz_ALL = 0; //:Number of max allocatable bytes.
+    int siz_USE = 0; //:Number of used bytes.
 
+    //:MIN_MAX: Max out allocations by doing min allocations
+    //:         for TWO pools and use the rest of the remaining
+    //:         bytes on a third pool.
+    //[MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
     
+    ////////////////////////////////////////////////////////////
+
+    siz_USE = MAINPOOL_SizeOf_BytesUsed(  );
+    siz_ALL = MAINPOOL_MaxCallocableBytes();
+    if( siz_USE != 0 ){ FUCK("[ENAB:01]"); };
+
+    MAINPOOL_Calloc_CONSTPOOL(           1  );
+    MAINPOOL_Calloc_HOMOPOOL (           1  );  
+    MAINPOOL_Calloc_GAURDPOOL( siz_ALL - 2  );  
+
+    siz_USE = MAINPOOL_SizeOf_BytesUsed(  );
+    siz_ALL = MAINPOOL_MaxCallocableBytes();
+
+    if( siz_USE != siz_ALL ){ FUCK("[EABU:01]"); };
 
     ////////////////////////////////////////////////////////////
 
@@ -456,20 +1226,52 @@ static void mainpool_LazyUnitTest_CallocAndCheckSizes( void ){
     
     ////////////////////////////////////////////////////////////
 
+    siz_USE = MAINPOOL_SizeOf_BytesUsed(  );
+    siz_ALL = MAINPOOL_MaxCallocableBytes();
+    if( siz_USE != 0 ){ FUCK("[ENAB:02]"); };
 
-    MAINPOOL_Calloc_CONSTPOOL(          1 );
-    MAINPOOL_Calloc_HOMOPOOL (          1 );  
-    MAINPOOL_Calloc_GAURDPOOL( usable - 2 );  
-    siz_U = MAINPOOL_SizeOf_BytesUsed( );
-    if( siz_U != 7 ){ FUCK("[siz_U:5/1/1]"); };  
+    MAINPOOL_Calloc_CONSTPOOL(           1  );
+    MAINPOOL_Calloc_HOMOPOOL ( siz_ALL - 2  );  
+    MAINPOOL_Calloc_GAURDPOOL(           1  );  
+
+    siz_USE = MAINPOOL_SizeOf_BytesUsed(  );
+    siz_ALL = MAINPOOL_MaxCallocableBytes();
+
+    if( siz_USE != siz_ALL ){ FUCK("[EABU:02]"); };
 
     ////////////////////////////////////////////////////////////
 
     MAINPOOL_NukeReset();
     
     ////////////////////////////////////////////////////////////
+    siz_USE = MAINPOOL_SizeOf_BytesUsed(  );
+    siz_ALL = MAINPOOL_MaxCallocableBytes();
+    if( siz_USE != 0 ){ FUCK("[ENAB:03]"); };
+
+    //:Constpool has artificial cap on allocation size
+    //:to ensure so many bytes are available for
+    //:the guardpool and homopool. So calculations
+    //:a bit different here.
+    int x2 = mainpool_non_CONSTPOOL_min_mem;
+    int x1 = (x2/2);
     
-}//[;LazyUnitTest_CallocAndCheckSizes;]]////////////////////////
+    MAINPOOL_Calloc_CONSTPOOL( siz_ALL - x2  );
+    MAINPOOL_Calloc_HOMOPOOL (           x1  );  
+    MAINPOOL_Calloc_GAURDPOOL(           x1  );  
+
+    siz_USE = MAINPOOL_SizeOf_BytesUsed(  );
+    siz_ALL = MAINPOOL_MaxCallocableBytes();
+
+    if( siz_USE != siz_ALL ){ FUCK("[EABU:03]"); };
+
+    ////////////////////////////////////////////////////////////
+
+    MAINPOOL_NukeReset();
+    
+    ////////////////////////////////////////////////////////////
+    //[MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
+    
+}//[;LazyUnitTest_CallocAndCheckSizes_MAX;]]////////////////////
 static void mainpool_LazyUnitTest_CallocAndCheckSizes_7( void ){
 
     int siz_U  = 0; //:USED
@@ -693,8 +1495,10 @@ static void mainpool_LazyUnitTest_CallocAndCheckSizes_3( void ){
 
     ////////////////////////////////////////////////////////////
 
-#undef  FUCK  //////////////////////////////////////////////////
-#undef  MACRO_mainpool_memo_byte_count /////////////////////////
+#undef  FUCK  /////////////////////////////////::///////////:://
+#undef  MACRO_num_reserved_gaurd_bytes       //::///////////:://
+#undef  MACRO_mainpool_non_CONSTPOOL_min_mem //::///////////:://
+#undef  MACRO_mainpool_memo_byte_count ////////::///////////:://
 /** 00000000000000000000000000000000000000000000000000000000 ***
 
     MP01: Somehow MAINPOOL_Calloc_HOMOPOOL or
@@ -749,5 +1553,18 @@ static void mainpool_LazyUnitTest_CallocAndCheckSizes_3( void ){
 
     [ZC1]: When only one byte of memory is allocated,
            _Z_ and _M_ will be at the same point.
+
+    [CPOM]:ConstPool_Over_Max
+           You allocated too much memory.
+           Some bytes need to be saved for the other pool
+           partitions.
+    
+    EABU: Expected_All_Bytes_Used
+
+    ENAB: Expected_No_Allocated_Bytes
+
+    [NEM]: Nonsensical_Error_Message
+
+    NEGERAN: NEGative_Erase_RANge
 
 *** 00000000000000000000000000000000000000000000000000000000 **/

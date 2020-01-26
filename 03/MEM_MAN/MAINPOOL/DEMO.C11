@@ -1,7 +1,15 @@
 
+
+//: My sub libraries should NOT include standard library
+//: includes. For tidyness + simplicity of final build.
+#include <stdio.h> //:printf(...)
+
+#include <stdlib.h> //: exit()
+
+
 #include "MP._"
 
-#include <stdio.h> //:printf(...)
+
 int main( void ){
 
 
