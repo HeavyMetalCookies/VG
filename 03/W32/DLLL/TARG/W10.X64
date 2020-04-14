@@ -745,11 +745,25 @@ JMIM_GetModuleBaseAddress(
             )
         ){
     
-            //:No clue why, but the base address
-            //:of the DLL seems to be at:
-            //:"pLdrDataTableEntry->Reserved2[0]"
-            //:which is the member right before
-            //:"pLdrDataTableEntry->DllBase"
+            //: Q:QUESTION:
+            //:----------------------------------------------://
+            //: No clue why, but the base address            ://
+            //: of the DLL seems to be at:                   ://
+            //: "pLdrDataTableEntry->Reserved2[0]"           ://
+            //: which is the member right before             ://
+            //: "pLdrDataTableEntry->DllBase"                ://
+            //:                                              ://
+            //: A:ANSWER:                                    ://
+            //: The linked list is NOT embedded              ://
+            //: at the base of the _LDR_DATA_TABLE_ENTRY.    ://
+            //: InMemoryOrderLinks starts at offset 0x10.    ://
+            //: So your 0x20 is effectively: 0x10+0x20==0x30.://
+            //: And 0x30 IS DllBase!                         ://
+            //:                                              ://
+            //: NOTE: Figured this out while working on      ://
+            //: my PEB_BASE.C11 code. I do not plan on       ://
+            //: fixing or maintaining W10.X64.               ://
+            //:----------------------------------------------://
 
             //: pLdrDataTableEntry -> Reserved2[0]
             //////////////////////////////////////
