@@ -1,0 +1,13 @@
+#define MACRO_project_prefix_HIDDEN  vg04  
+#define MACRO_project_prefix_VISIBLE VG04 
+
+//:These macros are used to give the prefix "vg04" to
+//:"private" data and "VG04" to public data.
+//:
+//: HIDDEN  == private
+//: VISIBLE == public
+//:
+//:
+//: Use the words "HIDDEN" and "VISIBLE" so that
+//: can abbreviate as: "V" and "H" or "VIS" and "HID".
+//:

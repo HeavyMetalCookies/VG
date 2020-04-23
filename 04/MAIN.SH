@@ -1,0 +1,78 @@
+
+
+exe_SRC="exe.SRC"
+EXE_CAT () {
+    echo "[INPUTS:1&2]:" $1 $2
+    cat $1     >> $exe_SRC
+    echo $'\n' >> $exe_SRC
+}
+
+
+
+>  "exe.SRC" ##ERASE_OLD_FILE_CONTENTS
+
+## Dependencies before any our our library global macros
+## so that we don't risk our macros fucking up any library
+## code included in the project:
+EXE_CAT "./SRC/DEPENDENCIES._"
+
+
+## Project namespace basically. Undefined in footer.
+EXE_CAT "./SRC/PROJECT_PREFIX.DEFINE._" 
+
+## So we don't have to re-create all the function signatures
+## we want to use.
+EXE_CAT "./SRC/FUNCTION_TYPEDEF_PYRAMID._"
+
+################################################################
+
+##These dependencies should be listed in order of execution:
+##You can comment off as may sequential files from the tip,
+##And the project should still compile.
+
+   EXE_CAT "./SRC/NATIVE/CALLWRAP/GetProcAddress"
+   EXE_CAT "./SRC/NATIVE/ping"
+   EXE_CAT "./SRC/NATIVE/WINDOW/creation._"
+
+
+
+################################################################
+
+EXE_CAT "./MAIN.C11" 
+
+
+EXE_CAT "./SRC/CHAIN_FILE.UNDEF._"     
+EXE_CAT "./SRC/PROJECT_PREFIX.UNDEF._" 
+
+
+
+    ##  SC[ hkmf-mini] #########################################
+    ## SEE[ hkmf-c11 ] for reference:  #########################
+    ############################################################
+    gcc                                                        \
+        -x c                                                   \
+        -c "exe.SRC"                                           \
+        -o  exe.OBJ                                            \
+                                                               \
+            -Werror                                            \
+            -Wfatal-errors                                     \
+            -Wpedantic                                         \
+            -Wall                                              \
+            -Wextra                                            \
+                                                               \
+            -fstrict-aliasing                                  \
+            -Wstrict-aliasing                                  \
+                                                               \
+                                                               \
+            -D MACRO_COMPILE_ONLY_THIS_FILE_AS_DEMO            \
+                                                               \
+            -std=c11                                           \
+            -m64 ###############################################
+                                    ####                    ####
+    gcc -o EXE.exe exe.OBJ          ####                    ####
+    rm             exe.OBJ          ####                    ####
+        ./EXE.exe                  ####                    ####
+    rm     EXE.exe                  ####                    ####
+                                    ####                    ####
+    read -p "[ENTER_TO_EXIT]:"      ####                    ####
+    ############################################################

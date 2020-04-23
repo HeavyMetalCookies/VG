@@ -1,0 +1,9 @@
+
+
+    //:Undefine Chain Files:
+    //:There is no "CHAIN_FILE.DEFINE._"
+    //:File because those macros are added when
+    //:different files are concatted together in the
+    //:building bash script.
+
+    #undef SRC_NATIVE_WINDOW_CREATION

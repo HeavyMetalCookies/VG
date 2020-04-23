@@ -1,0 +1,2 @@
+#undef  MACRO_project_prefix_HIDDEN   
+#undef  MACRO_project_prefix_VISIBLE  

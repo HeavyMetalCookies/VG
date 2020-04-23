@@ -1,0 +1,21 @@
+//:Dependencies:
+#include <stdio.h> //:for: printf(...)
+#include <assert.h> //:define NDEBUG to turn off assertions.
+
+
+//:Not a fan of windows header injecting macros all over
+//:the place into my code. We will use my "DLLL" hack instead.
+////////////////////////////////////////////////////////////////
+//: #include <windows.h> //:GetProcAddress, LoadLibrary
+
+    //:Demo file: "V:\VG\03\W32\DLLL\DEMO\DLLL.C11"
+    //:            Has the imports in this order:
+    #include "V:/VG/03/W32/DLLL/DLLL.COMSET"
+    #include "V:/VG/03/W32/DLLL/TARG/W10.X64"
+    #include "V:/VG/03/W32/DLLL/DLLL.H"
+
+    //:Access to:
+    //:     DLLL_LoadLibraryA
+    //:     DLLL_GetProcAddress
+
+////////////////////////////////////////////////////////////////

@@ -1,0 +1,1233 @@
+//:Dependencies:
+#include <stdio.h> //:for: printf(...)
+#include <assert.h> //:define NDEBUG to turn off assertions.
+
+
+//:Not a fan of windows header injecting macros all over
+//:the place into my code. We will use my "DLLL" hack instead.
+////////////////////////////////////////////////////////////////
+//: #include <windows.h> //:GetProcAddress, LoadLibrary
+
+    //:Demo file: "V:\VG\03\W32\DLLL\DEMO\DLLL.C11"
+    //:            Has the imports in this order:
+    #include "V:/VG/03/W32/DLLL/DLLL.COMSET"
+    #include "V:/VG/03/W32/DLLL/TARG/W10.X64"
+    #include "V:/VG/03/W32/DLLL/DLLL.H"
+
+    //:Access to:
+    //:     DLLL_LoadLibraryA
+    //:     DLLL_GetProcAddress
+
+////////////////////////////////////////////////////////////////
+
+
+#define MACRO_project_prefix_HIDDEN  vg04  
+#define MACRO_project_prefix_VISIBLE VG04 
+
+//:These macros are used to give the prefix "vg04" to
+//:"private" data and "VG04" to public data.
+//:
+//: HIDDEN  == private
+//: VISIBLE == public
+//:
+//:
+//: Use the words "HIDDEN" and "VISIBLE" so that
+//: can abbreviate as: "V" and "H" or "VIS" and "HID".
+//:
+
+#define lib MACRO_project_prefix_HIDDEN  //:Private   //: 01 ://
+#define LIB MACRO_project_prefix_VISIBLE //:Public    //: 02 ://
+#define GM1( a , b )      a## _ ##b      //:GLUEMAC_01//: 03 ://
+#define GM2( a , b ) GM1( a   ,   b )    //:GLUEMAC_02//: 04 ://
+#define K_1( a,b,c )      a## _ ##b## _ ##c  //:KIND  //: 05 ://
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )//:KIND  //: 06 ://                                   
+#define MAK(  nam  ) K_2( LIB ,MAK, nam )//:MAK:MACRO //: 07 ://   
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )//:TYP:TYPE  //: 08 ://   
+#define INS(  nam  ) K_2( LIB ,INS, nam )//:INS:INST  //: 09 ://   
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )//:FUN:FUNC  //: 10 :// 
+#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 11 :// 
+#define VAR(  nam  ) GM2( VAR   ,   nam )//:Local_Var //: 12 ://
+
+    #define  T typedef ///////////////////////////////////////// 
+    #define  V void* /////////////////////////////////////////// 
+    #define  a void* /////////////////////////////////////////// 
+    #define  b void* /////////////////////////////////////////// 
+    #define  c void* /////////////////////////////////////////// 
+    #define  d void* /////////////////////////////////////////// 
+    #define  e void* /////////////////////////////////////////// 
+
+    T V (*TYP(F_00) )( void );
+    T V (*TYP(F_01) )( a                                      );
+    T V (*TYP(F_02) )( a,a                                    );
+    T V (*TYP(F_03) )( a,a,a                                  );
+    T V (*TYP(F_04) )( a,a,a,a                                );
+    T V (*TYP(F_05) )( a,a,a,a,b                              );
+    T V (*TYP(F_06) )( a,a,a,a,b,b                            );
+    T V (*TYP(F_07) )( a,a,a,a,b,b,b                          );
+    T V (*TYP(F_08) )( a,a,a,a,b,b,b,b                        );
+    T V (*TYP(F_09) )( a,a,a,a,b,b,b,b,c                      );
+    T V (*TYP(F_10) )( a,a,a,a,b,b,b,b,c,c                    );
+    T V (*TYP(F_11) )( a,a,a,a,b,b,b,b,c,c,c                  );
+    T V (*TYP(F_12) )( a,a,a,a,b,b,b,b,c,c,c,c                );
+    T V (*TYP(F_13) )( a,a,a,a,b,b,b,b,c,c,c,c,d              );
+    T V (*TYP(F_14) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d            );
+    T V (*TYP(F_15) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d          );
+    T V (*TYP(F_16) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d        );
+    T V (*TYP(F_17) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e      );
+    T V (*TYP(F_18) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e    );
+    T V (*TYP(F_19) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e  );
+    T V (*TYP(F_20) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e,e);
+
+    #undef   T ///////////////////////////////////////////////// 
+    #undef   V ///////////////////////////////////////////////// 
+    #undef   a ///////////////////////////////////////////////// 
+    #undef   b ///////////////////////////////////////////////// 
+    #undef   c ///////////////////////////////////////////////// 
+    #undef   d ///////////////////////////////////////////////// 
+    #undef   e ///////////////////////////////////////////////// 
+
+#undef  lib ////////////////////////////////////////////: 01 ://
+#undef  LIB ////////////////////////////////////////////: 02 ://
+#undef  GM1 ////////////////////////////////////////////: 03 ://
+#undef  GM2 ////////////////////////////////////////////: 04 ://
+#undef  K_1 ////////////////////////////////////////////: 05 ://
+#undef  K_2 ////////////////////////////////////////////: 06 ://                                   
+#undef  MAK ////////////////////////////////////////////: 07 ://   
+#undef  TYP ////////////////////////////////////////////: 08 ://   
+#undef  INS ////////////////////////////////////////////: 09 ://   
+#undef  FUN ////////////////////////////////////////////: 10 ://
+#undef  EXA ////////////////////////////////////////////: 11 ://
+#undef  VAR ////////////////////////////////////////////: 12 ://
+
+#define lib MACRO_project_prefix_HIDDEN  //: Private  //: 01 ://
+#define LIB MACRO_project_prefix_VISIBLE //: Public   //: 02 ://
+#define GM1( a , b )      a## _ ##b      //: GLUEMAC  //: 03 ://
+#define GM2( a , b ) GM1( a   ,   b )    //: GLUEMAC  //: 04 ://
+#define K_1( a,b,c )      a## _ ##b## _ ##c  //:KIND  //: 05 ://
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )//:KIND  //: 06 ://                                   
+#define MAK(  nam  ) K_2( LIB ,MAK, nam )//:MAK:MACRO //: 07 ://   
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )//:TYP:TYPE  //: 08 ://   
+#define INS(  nam  ) K_2( LIB ,INS, nam )//:INS:INST  //: 09 ://   
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )//:FUN:FUNC  //: 10 :// 
+#define fun(  nam  ) K_2( LIB ,fun, nam )//:FUN:FUNC  //: 11 :// 
+#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 12 :// 
+#define EII(  nam  ) K_2( LIB, EII, nam )//:INIT_FUNC //: 13 ://
+#define ARG(  nam  ) GM2( ARG   ,   nam )//:Argument  //: 14 ://
+#define VAR(  nam  ) GM2( VAR   ,   nam )//:Local_Var //: 15 ://
+#define RET(  nam  ) GM2( RET   ,   nam )//:RET___Var //: 16 ://
+#define NIL  ((void*)0)                               //: 17 ://
+
+    #define SRC_NATIVE_CALLWRAP_GETPROCADDRESS ( 434 )
+
+
+//:INSTANCES: //////////////////////////////////////////////////
+
+    void* INS( dll_k32 ) = NIL; //:Kernel32.dll pointer
+    void* INS( dll_u32 ) = NIL; //:User32.dll   pointer
+
+//:TYPEDEFS: ///////////////////////////////////////////////////
+
+    typedef void (* TYP(Func) )(void); //:Function pointer.
+    typedef void*   TYP(Data)        ; //:Data     pointer.
+    typedef const char* TYP(Str)     ; //:String   pointer.
+
+    //:TYPEDEF_FARPROC / DLLL_FUNC / DFUN
+    //:DFUN=="DLL Function"
+    typedef
+        unsigned long long               //:RETURNS
+        ( __stdcall  *TYP(DFUN)       )  //:NAME
+        ( /**NOT_SPECIFIED != void**/ ); //:PARAMS
+
+
+
+//:FORWARD_DECLARATIONS: ///////////////////////////////////////
+
+    void EII( SRC_NATIVE_CALLWRAP_getprocaddress )( void );
+
+    TYP(Data) fun(LoadLibrary)( TYP(Str) dll_nam );
+
+    TYP(Func) 
+    FUN(GetProcAddress)(
+        TYP(Str) dll_nam
+    ,   TYP(Str) fun_nam
+    );
+
+    TYP(Func)
+    fun(GetProcAddress)(
+        TYP(Data) dll_ptr
+    ,   TYP(Str)  fun_nam
+    );
+
+//:FUNCTIONS: //////////////////////////////////////////////////
+
+    //:Initializer code for this file:
+    //:EII: Existance_Is_Initialization
+    void EII( SRC_NATIVE_CALLWRAP_getprocaddress )( void ){
+
+        printf("[EII:SRC_NATIVE_CALLWRAP_getprocaddress]\n");
+
+        fun( LoadLibrary )( "dll_k32" );
+
+        //:GPA Test:
+        ////////////////////////////////////////////////////////
+        printf("[GPA_TEST...]\n\n\n");
+
+        TYP(Func) VAR(CreateWindowExW)=
+        FUN(GetProcAddress)("dll_u32","CreateWindowExW");
+        
+        if( NIL == VAR(CreateWindowExW) ){
+            printf("[FILE:GetProcAddress:FAIL:GPA_CWEXW]");
+            fflush(stdout);exit(4);
+        };;
+        ////////////////////////////////////////////////////////
+    }
+
+    TYP(Data) fun(LoadLibrary)(
+        TYP(Str) ARG(dll_nam)
+    ){
+
+        printf("[dll_nam]:%s\n", ARG(dll_nam));
+
+        TYP(Data) 
+        VAR(Data)=NIL;
+        if( VAR(Data) ){ /** NOOP **/ };
+
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_k32"
+        &&  ARG(dll_nam)[4] == 'k' 
+        &&  ARG(dll_nam)[5] == '3' 
+        &&  ARG(dll_nam)[6] == '2' 
+        ){
+                    printf("[RESOLVES_TO:kernel32.dll]\n");
+            VAR(Data)=DLLL_LoadLibraryA("kernel32.dll");
+
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_u32"
+        &&  ARG(dll_nam)[4] == 'u' 
+        &&  ARG(dll_nam)[5] == '3' 
+        &&  ARG(dll_nam)[6] == '2' 
+        ){
+                    printf("[RESOLVES_TO:user32.dll]\n");
+            VAR(Data)=DLLL_LoadLibraryA("user32.dll");
+
+        }else{
+            //:If dll_name is not a shorthand name,
+            //:load it as is.
+
+            printf("[CHECK:DoesDLLNameLookCorrect?]%s\n"
+            , ARG(dll_nam) );fflush( stdout );
+
+            VAR(Data)=DLLL_LoadLibraryA( ARG(dll_nam) );
+        };;
+
+        if( NIL == VAR(Data) ){
+            printf("[NullLoadedLibrary]");
+            fflush(stdout); exit(4);
+        };;
+
+        return(   VAR(Data) );
+    }
+
+    TYP(Func) 
+    FUN(GetProcAddress)(
+        TYP(Str)  ARG(dll_nam)
+    ,   TYP(Str)  ARG(fun_nam)
+    ){
+        TYP(Data)   VAR(dll_ptr) =NIL;
+
+        //:Make sure dll is loaded:
+        ////////////////////////////////////////////////////////
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_k32"
+        &&  ARG(dll_nam)[4] == 'k' 
+        &&  ARG(dll_nam)[5] == '3' 
+        &&  ARG(dll_nam)[6] == '2' 
+        ){
+
+            //:If library not loaded, load now:
+            if( NIL == INS( dll_k32 ) ){
+
+                INS(dll_k32)= 
+                fun( LoadLibrary )( "kernel32.dll" );
+
+            };;
+
+            assert(      INS(dll_k32) );
+            VAR(dll_ptr)=INS(dll_k32);
+                
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_u32"
+        &&  ARG(dll_nam)[4] == 'u' 
+        &&  ARG(dll_nam)[5] == '3' 
+        &&  ARG(dll_nam)[6] == '2' 
+        ){
+
+            //:If library not loaded, load now:
+            if( NIL == INS( dll_u32 ) ){
+
+                INS(dll_u32)= 
+                fun( LoadLibrary )( "user32.dll" );
+
+            };;
+
+            assert(      INS(dll_u32) );
+            VAR(dll_ptr)=INS(dll_u32);
+                
+        }else{
+            printf("[UnknownValueOf:dll_nam]:%s\n"
+            , ARG(dll_nam));;
+
+            fflush(stdout);
+            exit(4);
+        };;
+        ////////////////////////////////////////////////////////
+
+        //:Assert DLL pointer is not null:
+        if( NIL==VAR(dll_ptr) ){
+            printf("[DLL_PTR_NULL]\n");
+            fflush(stdout);
+            exit(4);
+        };;
+
+        //:Get function address from dll:
+        ////////////////////////////////////////////////////////
+        TYP(Func)
+        VAR(GetProcAddress)=
+        fun(GetProcAddress)(
+            VAR(dll_ptr)
+        ,   ARG(fun_nam)
+        );;
+        ////////////////////////////////////////////////////////
+
+        return( VAR(GetProcAddress) );
+
+    }
+
+    //:Prviate version of "GetProcAddress" wrapper:
+    TYP(Func)
+    fun(GetProcAddress)(
+        TYP(Data) ARG(dll_ptr)
+    ,   TYP(Str)  ARG(fun_nam)
+    ){
+        TYP(DFUN) 
+        VAR(DFUN)=DLLL_GetProcAddress( 
+            ARG(dll_ptr)
+        ,   ARG(fun_nam) 
+        );;
+        
+        //:Cast dll function to generic function pointer:
+        TYP(Func) RET(DFUN)=(
+            (TYP(Func)) VAR(DFUN)
+        );;
+
+        //:Output/return:
+        return( RET(DFUN) );
+    }
+
+
+
+#undef  lib ////////////////////////////////////////////: 01 ://
+#undef  LIB ////////////////////////////////////////////: 02 ://
+#undef  GM1 ////////////////////////////////////////////: 03 ://
+#undef  GM2 ////////////////////////////////////////////: 04 ://
+#undef  K_1 ////////////////////////////////////////////: 05 ://
+#undef  K_2 ////////////////////////////////////////////: 06 ://                                   
+#undef  MAK ////////////////////////////////////////////: 07 ://   
+#undef  TYP ////////////////////////////////////////////: 08 ://   
+#undef  INS ////////////////////////////////////////////: 09 ://   
+#undef  FUN ////////////////////////////////////////////: 10 ://
+#undef  fun ////////////////////////////////////////////: 11 ://
+#undef  EXA ////////////////////////////////////////////: 12 ://
+#undef  EII ////////////////////////////////////////////: 13 ://
+#undef  ARG ////////////////////////////////////////////: 14 ://
+#undef  VAR ////////////////////////////////////////////: 15 ://
+#undef  RET ////////////////////////////////////////////: 16 ://
+#undef  NIL ////////////////////////////////////////////: 17 ://
+
+
+
+#define lib MACRO_project_prefix_HIDDEN  //:Private   //: 01 ://
+#define LIB MACRO_project_prefix_VISIBLE //:Public    //: 02 ://
+#define GM1( a , b )      a## _ ##b      //:GLUEMAC_01//: 03 ://
+#define GM2( a , b ) GM1( a   ,   b )    //:GLUEMAC_02//: 04 ://
+#define K_1( a,b,c )      a## _ ##b## _ ##c  //:KIND  //: 05 ://
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )//:KIND  //: 06 ://                                   
+#define MAK(  nam  ) K_2( LIB ,MAK, nam )//:MAK:MACRO //: 07 ://   
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )//:TYP:TYPE  //: 08 ://   
+#define INS(  nam  ) K_2( LIB ,INS, nam )//:INS:INST  //: 09 ://   
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )//:FUN:FUNC  //: 10 :// 
+#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 11 :// 
+
+    #define SRC_NATIVE_PING ( 1 )
+
+    int FUN( SRC_NATIVE_ping )( void ){
+
+        printf("[SRC_NATIVE_ping]\n");
+
+        return( 0 );
+    }
+
+
+#undef  lib ////////////////////////////////////////////: 01 ://
+#undef  LIB ////////////////////////////////////////////: 02 ://
+#undef  GM1 ////////////////////////////////////////////: 03 ://
+#undef  GM2 ////////////////////////////////////////////: 04 ://
+#undef  K_1 ////////////////////////////////////////////: 05 ://
+#undef  K_2 ////////////////////////////////////////////: 06 ://                                   
+#undef  MAK ////////////////////////////////////////////: 07 ://   
+#undef  TYP ////////////////////////////////////////////: 08 ://   
+#undef  INS ////////////////////////////////////////////: 09 ://   
+#undef  FUN ////////////////////////////////////////////: 10 ://
+#undef  EXA ////////////////////////////////////////////: 11 ://
+
+
+#define lib MACRO_project_prefix_HIDDEN  //:Private   //: 01 ://
+#define LIB MACRO_project_prefix_VISIBLE //:Public    //: 02 ://
+#define GM1( a , b )      a## _ ##b      //:GLUEMAC_01//: 03 ://
+#define GM2( a , b ) GM1( a   ,   b )    //:GLUEMAC_02//: 04 ://
+#define K_1( a,b,c )      a## _ ##b## _ ##c  //:KIND  //: 05 ://
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )//:KIND  //: 06 ://                                   
+#define MAK(  nam  ) K_2( LIB ,MAK, nam )//:MAK:MACRO //: 07 ://   
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )//:TYP:TYPE  //: 08 ://   
+#define INS(  nam  ) K_2( LIB ,INS, nam )//:INS:INST  //: 09 ://   
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )//:FUN:FUNC  //: 10 :// 
+#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 11 :// 
+#define VAR(  nam  ) GM2( VAR   ,   nam )//:Local_Var //: 12 ://
+                                                      //: -- ://
+//:Effectively private via obfuscation:               //: -- ://
+#define fun(  nam  ) GM2( f_2020_04_22_657AM , nam )  //: 13 :// 
+#define  H    fun( Halt )                             //: 14 ://
+#define  D    fun( DebugPrint )                       //: 15 ://
+                                                      //: -- ://
+#define NIL ((void*)0)                                //: 16 ://
+
+    //:path to this file:
+    #define  SRC_NATIVE_WINDOW_CREATION ( 1 )
+
+//:forwa
+
+
+//:TYPEDEFS: TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT://
+
+    //:Generic function pointer type:
+    ////////////////////////////////////////////////////////////
+
+    //:Did not expect something like TYP(FUN) to expanded
+    //:correctly. But maybe we should avoid that?
+
+    typedef 
+        void (* TYP(FUN) )(void);
+
+    typedef
+        int TYP(TYP);
+    ////////////////////////////////////////////////////////////
+
+    //:Generic function pointer type:
+    typedef void (* TYP(Func) )(void); //:Function pointer.
+    typedef void*   TYP(Data)        ; //:Data     pointer.
+
+    // ------------------------------------------------------ //
+    typedef 
+        __int64
+        (__stdcall *TYP(WNDPROC) )(
+            void*             //: HWND
+        ,   unsigned   int    //: UINT
+        ,   unsigned __int64  //: WPARAM
+        ,            __int64  //: LPARAM
+        );
+    // ------------------------------------------------------ //
+    struct TYP(WNDCLASSEXW) {
+                    unsigned int   cbSize       ;
+                    unsigned int   style        ;
+                    TYP(WNDPROC)   lpfnWndProc  ;
+                             int   cbClsExtra   ;
+                             int   cbWndExtra   ;
+                            void*  hInstance    ;
+                            void*  hIcon        ;
+                            void*  hCursor      ;
+                            void*  hbrBackground;
+            const unsigned short*  lpszMenuName ;
+            const unsigned short*  lpszClassName;
+                            void*  hIconSm      ;
+    };
+    // ------------------------------------------------------ //
+
+//:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT: TYPEDEFS://
+//:INSTANCES: IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII://
+
+    struct TYP(WNDCLASSEXW) INS(WNDCLASSEXW)={0};
+    void*  INS(exe_han)=(NIL); //:AKA:handle_to_exe
+
+    //:FUNCTION_POINTERS:  FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP://
+            
+    TYP(FUN)    INS(CreateWindowExW  )=( NIL );
+    TYP(FUN)    INS(GetDesktopWindow )=( NIL );
+    TYP(FUN)    INS(RegisterClassExW )=( NIL );
+    TYP(FUN)    INS(LoadIconA        )=( NIL );
+    TYP(FUN)    INS(LoadCursorA      )=( NIL );
+    TYP(FUN)    INS(GetModuleHandleW )=( NIL );
+    TYP(FUN)    INS(DefWindowProcW   )=( NIL );
+    TYP(FUN)    INS(DestroyWindow    )=( NIL );
+    TYP(FUN)    INS(PostQuitMessage  )=( NIL );
+
+    //:FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP  :FUNCTION_POINTERS://
+
+//:IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII: INSTANCES://
+
+//:FORWARD_DECLARATIONS::FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF://
+    __stdcall
+    __int64 //:LRESULT
+    fun(WinMsgHanWndPoc)(
+    /**/           void*    han_win   //:HWND
+    ,   unsigned   int      Msg       //:...?...
+    ,   unsigned __int64    wParam    //:WPARAM
+    ,            __int64    lParam    //:LPARAM
+    );
+
+    char*
+    fun(MakeIntResourceA)( int i );
+//:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF::FORWARD_DECLARATIONS://
+
+
+
+
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+//[H:Halt: The_First_Function_Is_Always_Halt                 ]//
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//                                               
+/*-//[*/                                                /*]//-*/
+/*-//[*/    static void                                 /*]//-*/
+/*-//[*/    fun(Halt)( const char* msg ){               /*]//-*/
+/*-//[*/        printf(                                 /*]//-*/
+/*-//[*/            "[2020_04_08:Halt]:%s\n"            /*]//-*/
+/*-//[*/        ,   msg                                 /*]//-*/
+/*-//[*/        );;                                     /*]//-*/
+/*-//[*/        fflush(stdout); exit(64);               /*]//-*/
+/*-//[*/    }                                           /*]//-*/
+/*-//[*/                                                /*]//-*/
+//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
+
+    static void
+    fun( DebugPrint )( const char* msg ){
+        printf("[2020_04_22:DebugPrint:MSG]:%s\n",msg);
+        fflush( stdout );
+    }
+
+
+
+
+
+
+int FUN( SRC_NATIVE_WINDOW_creation )( void ){
+printf("[SRC_NATIVE_WINDOW_creation]\n");
+
+    TYP(TYP)     int_a = 5;
+    VG04_TYP_TYP int_b = 6;
+    printf("[int_a]:%d\n", int_a);
+    printf("[int_b]:%d\n", int_b);
+
+    ////////////////////////////////////////////////////////////
+    INS(CreateWindowExW)=
+    FUN(GetProcAddress)("dll_u32","CreateWindowExW");
+
+    INS(GetDesktopWindow)=
+    FUN(GetProcAddress)("dll_u32","GetDesktopWindow");
+
+    INS(RegisterClassExW)=
+    FUN(GetProcAddress)("dll_u32","RegisterClassExW");
+
+    INS(LoadIconA)=
+    FUN(GetProcAddress)("dll_u32","LoadIconA");
+
+    INS(LoadCursorA)=
+    FUN(GetProcAddress)("dll_u32","LoadCursorA");
+
+    INS(GetModuleHandleW)=
+    FUN(GetProcAddress)("dll_k32","GetModuleHandleW");
+
+    INS(DefWindowProcW)=
+    FUN(GetProcAddress)("dll_u32","DefWindowProcW");
+
+    INS(DestroyWindow)=
+    FUN(GetProcAddress)("dll_u32","DestroyWindow");
+
+    INS(PostQuitMessage)=
+    FUN(GetProcAddress)("dll_u32","PostQuitMessage");
+
+
+    ////////////////////////////////////////////////////////////
+    if( ((void*)0) != INS(CreateWindowExW) ){
+        D("[SUCCESS:CreateWindowExW]");
+    }else{
+        H("[FAILURE:CreateWindowExW]");
+    };;
+    if( ((void*)0) != INS(GetDesktopWindow) ){
+        D("[SUCCESS:GetDesktopWindow]");
+    }else{
+        H("[FAILURE:GetDesktopWindow]");
+    };;
+    if( ((void*)0) != INS(RegisterClassExW) ){
+        D("[SUCCESS:RegisterClassExW]");
+    }else{
+        H("[FAILURE:RegisterClassExW]");
+    };;
+    if( ((void*)0) != INS(LoadIconA) ){
+        D("[SUCCESS:LoadIconA]");
+    }else{
+        H("[FAILURE:LoadIconA]");
+    };;
+    if( ((void*)0) != INS(LoadCursorA) ){
+        D("[SUCCESS:LoadCursorA]");
+    }else{
+        H("[FAILURE:LoadCursorA]");
+    };;
+    if( ((void*)0) != INS(GetModuleHandleW) ){
+        D("[SUCCESS:GetModuleHandleW]");
+    }else{
+        H("[FAILURE:GetModuleHandleW]");
+    };;
+    if( ((void*)0) != INS(DefWindowProcW) ){
+        D("[SUCCESS:DefWindowProcW]");
+    }else{
+        H("[FAILURE:DefWindowProcW]");
+    };;
+    if( ((void*)0) != INS(DestroyWindow) ){
+        D("[SUCCESS:DestroyWindow]");
+    }else{
+        H("[FAILURE:DestroyWindow]");
+    };;
+    if( ((void*)0) != INS(PostQuitMessage) ){
+        D("[SUCCESS:PostQuitMessage]");
+    }else{
+        H("[FAILURE:PostQuitMessage]");
+    };;
+    ////////////////////////////////////////////////////////////
+
+    INS(exe_han)=((TYP(F_01))INS(GetModuleHandleW))( NIL );
+    if( NIL== INS(exe_han) ){ H("[NIL:exe_han]"); };
+
+
+    //:R:Register
+    //:RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR://
+    //:Before creating window, must register window class:
+    //:RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR://
+    
+    
+    //:SmokeTest:
+    size_t struct_size =( sizeof( struct TYP(WNDCLASSEXW) ) );
+    if( struct_size != 80 ){ H("[BadStructSize]"); };
+    
+    
+    ////////////////////////////////////////////////////////////
+    
+    //| Winuser.h ClassStyles(CS_) |//
+    #define T unsigned int  //////////
+            T  cs_hredraw = 0x0002 ;//
+            T  cs_vredraw = 0x0001 ;//
+            T  cs_owndc   = 0x0020 ;//
+    #undef  T ////////////////////////
+    
+    INS(WNDCLASSEXW).cbSize=sizeof( struct TYP(WNDCLASSEXW) );
+    INS(WNDCLASSEXW).style=(
+        cs_hredraw | //| Copied from glfw's:   |//
+        cs_vredraw | //| win32_window.c        |//
+        cs_owndc   | //| _gflwRegisterWindow   |//
+                    //| ...ClassWin32         |//
+    0);;
+    INS(WNDCLASSEXW).lpfnWndProc=fun(WinMsgHanWndPoc);
+    INS(WNDCLASSEXW).cbClsExtra=0;
+    INS(WNDCLASSEXW).cbWndExtra=0;
+    INS(WNDCLASSEXW).hInstance =( INS( exe_han ) );
+    
+    char* idi_application = fun(MakeIntResourceA)( 32512 );
+    char* idc_arrow       = fun(MakeIntResourceA)( 32512 );
+    
+    #define F2 TYP(F_02) ///////////////////////////////////////
+    
+        INS(WNDCLASSEXW).hIcon  =((F2)INS(LoadIconA))(  
+            NULL
+        ,   idi_application
+        );;
+        INS(WNDCLASSEXW).hCursor=((F2)INS(LoadCursorA))(  
+            NULL
+        ,   idc_arrow
+        );;
+    
+    #undef  F2 /////////////////////////////////////////////////
+    #define XX /////////////////////////////////////////////////
+    
+    //:SEE[ HBR_BACKGROUND_CAN_BE_NULL_FOR_VULKAN_WINDOW ]
+    //:AKA[ HBC_BNF_VW ]
+    INS(WNDCLASSEXW).hbrBackground=NULL;
+    INS(WNDCLASSEXW).lpszMenuName=NULL;
+    INS(WNDCLASSEXW).lpszClassName=unique_window_name;
+    
+    #undef  XX /////////////////////////////////////////////////
+    #define F2 TYP(F_02) ///////////////////////////////////////
+    
+    INS(WNDCLASSEXW).hIconSm=(
+        ((F2)INS(LoadIconA))(
+            NULL
+        ,   idi_application
+        )
+    );;
+    
+    #undef  F2 /////////////////////////////////////////////////
+    #define F3 TYP(F_03) ///////////////////////////////////////
+    
+    //:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+    //|If you forget to register your window class,the       |//
+    //|observable effect is the window never opening,and the |//
+    //|wait loop exiting immediately.                        |//
+    //|
+    //|RegisterClassExW:(MSDN_DOCS):
+    //|Registers a window class for subsequent use in calls  |//
+    //|to the CreateWindow or CreateWindowEx function.       |//
+    //:______________________________________________________://
+    int VAR( bool )=(
+        (int)(unsigned long long)
+        ((F3)VAR(RegisterClassExW))(
+            &( INS(WNDCLASSEXW) )
+        )
+    );;
+    if( VAR( bool ) <= 0 ){
+        H("[REGWINCLASS:FAIL]");
+    }else{
+        D("[REGWINCLASS:PASS]");
+    };;
+    
+    #undef  F3 /////////////////////////////////////////////////
+    //:RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR://
+
+
+ //  void* han_win=
+ //  VAR(CreateWindowExW)
+ //  (
+ //  
+ //  /**/0x00000008L           /** ws_ex_topmost **/
+ //  ,   L"2020_4_22:UNIQUE_WINDOW_NAME"      //:win_nam
+ //  ,   L"[SEE_FILE[ F.08 ]]((╯°□°）╯︵ ┻━┻))"  //:tib_tex
+ //  
+ //  , 
+ //      (0
+ //      |  0x00CF0000 /** ws_overlappedwindow **/ 
+ //      |      0x0020 /** CS_OWNDC (2B/32b)  **/
+ //      |
+ //      0)
+ //  
+ //      //:X,Y,WID,HIG
+ //  ,   22,22,1024,512
+ //  
+ //  ,   the_desktop_window //:-- hWndParent ---://
+ //  ,   NULL   //:-------------- hMenu      ---://
+ //  ,   f09_handle_to_exe  //:-- hInstance  ---://        
+ //  ,   NULL   //:-------------- lpParam    ---://  
+ //  );//[e]//
+ //  
+ //  if(han_win==NULL){
+ //      H("[F09:WindowCreateFail]");
+ //      return 0;
+ //  };;//[f]//
+ //
+
+
+
+
+
+
+
+
+
+
+
+
+    return( 0 );
+}
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+//  unsigned __int64 //:WPARAM
+//  F09_OpenWindowAndLoopForever(
+//      //:UNICODE_STRING
+//      const unsigned short *  //:LPCWSTR (Technically_LPCTSTR)
+//      unique_window_name      
+//      ,
+//      const unsigned short *  //:LPCWSTR (Technically_LPCTSTR)
+//      window_titlebar_text
+//
+//      //:#Technically_LPCTSTR#://
+//      //: Technically LPCTSTR, not LPCWSTR,
+//      //: But using extended (ex) function and unicode/wide
+//      //: characters where I can. Thus resolved type is LPCWSTR.
+//  ){
+//       
+//      //: void* /**HMODULE**/ hin=(
+//      //:     ((F03_01)F02_GetModuleHandleW)(
+//      //:         NULL
+//      //:     )
+//      //: );;//[a]//
+//
+//      /** HMODULE / HINSTANCE / Handle_To_Running_Exe_File **/
+//      if(NULL != f09_handle_to_exe ){
+//          H("[Expected_Null_exe_handle_to_start]");
+//      };;
+//      f09_handle_to_exe =(
+//           ((F03_01)F02_GetModuleHandleW)(
+//               NULL
+//           )
+//      );;
+//
+//      if(NULL==f09_handle_to_exe){
+//          H(
+//              "[FailedToGetModuleHandle]"
+//          );;
+//      };;//[b]//
+//
+//      /////////////////////////////////////
+//      void*                              //
+//      han_win = NULL;  //:HWND                //
+//                                         //
+//      struct F09_STRUCT_MSG              //
+//      Msg       ;   //:tagMSG (Struct)   //
+//      /////////////////////////////////////
+//
+//      if(0 >=
+//          F09_RegisterWindow(
+//              f09_handle_to_exe /** HINSTANCE/HMODULE **/
+//          ,   unique_window_name
+//          )
+//      ){ 
+//
+//          H( /** Originally: gleb_swin_Alert **/
+//              "[FailedToRegisterWindow]"
+//          );;
+//          return 0; 
+//
+//      };;//[c]//
+//
+//      int X   = f09_X   ; //:Initial_X_Position
+//      int Y   = f09_Y   ; //:Initial_Y_Position
+//      int WID = f09_WID ; //:Initial_WIDTH
+//      int HIG = f09_HIG ; //:Initial_HEIGHT
+//
+//      unsigned long ws_overlappedwindow=( 0
+//      |   0x00000000L  /** WS_OVERLAPPED  **/
+//      |   0x00C00000L  /** WS_CAPTION     **/
+//      |   0x00080000L  /** WS_SYSMENU     **/
+//      |   0x00040000L  /** WS_THICKFRAME  **/
+//      |   0x00020000L  /** WS_MINIMIZEBOX **/
+//      |   0x00010000L  /** WS_MAXIMIZEBOX **/
+//      );;//[d]//
+//
+//      unsigned long cs_owndc = 0x0020;
+//
+//      //:NOOP's so I can comment out call to CreateWindowExW:
+//      if( cs_owndc            ){ /** NOOP **/ };
+//      if( ws_overlappedwindow ){ /** NOOP **/ };
+//      if( X|Y|WID|HIG         ){ /** NOOP **/ };
+//      if( f09_handle_to_exe   ){ /** NOOP **/ };
+//
+//      void*
+//      the_desktop_window=((F03_00)F02_GetDesktopWindow)();
+//
+//      han_win=F08_CreateWindowExW
+//      (
+//
+//      /**/0x00000008L           /** ws_ex_topmost **/
+//      ,   unique_window_name    /** lpClassName   **/
+//      ,   window_titlebar_text  /** lpWindowName  **/      
+//    
+//      , 
+//          (0
+//          |  ws_overlappedwindow /** STYLE **/   
+//          |  cs_owndc            /** STYLE **/
+//          |
+//          0)
+//
+//      ,   X,Y,WID,HIG
+//
+//      ,   the_desktop_window //:-- hWndParent ---://
+//      ,   NULL   //:-------------- hMenu      ---://
+//      ,   f09_handle_to_exe  //:-- hInstance  ---://        
+//      ,   NULL   //:-------------- lpParam    ---://  
+//      );//[e]//
+//
+//      if(han_win==NULL){
+//          H("[F09:WindowCreateFail]");
+//          return 0;
+//      };;//[f]//
+//
+//      //:Store the handle to window in global state:
+//      f09_handle_to_window=han_win;
+//
+//      //:Modifications to make window opengl
+//      //:compatible:
+//      //////////////////////////////////////////////
+//      f09_MakeWindowCompatibleWith_GL(
+//          han_win
+//      );;//[g]//
+//
+//      //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯MC|//
+//      //!PUT AFTER device context has been     MC!//
+//      //!set, or your device context fetching  MC!//
+//      //!function waiting on this flag to be   MC!//
+//      //!set in this thread will end up        MC!//
+//      //!with a NULL device context.           MC!//
+//      //!Speaking Of:                          MC!//
+//      //!GLEB_SWIN_GetWindowDeviceContext();   MC!//
+//      f09_window_created=1;                 //|MC|//
+//      //|______________________________________MC|//
+//
+//      //////////////////////////////////////////////
+//
+//      Msg = f09_WindowLoop( han_win );
+//
+//      return Msg.wParam;
+//  } //[OPEN_WINDOW_LOOP_FOREVER]//
+
+//:MakeIntResourceA /////////////////////////////////////////://
+char*
+fun(MakeIntResourceA)( int i ){
+
+    #define MACRO_16BITS unsigned short
+    #define MACRO_64BITS unsigned long long
+   
+    MACRO_16BITS  wword = (MACRO_16BITS)i    ; //:TRUNCATE
+    MACRO_64BITS  qword = (MACRO_64BITS)wword; //:ZERO_EXTEND
+    char* ret_out=(char*)qword; //://////////////:CAST
+
+    #define T unsigned short     //:TRUNCATE
+    #define E unsigned __int64   //:ZERO_EXTEND
+    #define C char*              //:CAST
+
+    //: stackoverflow.com/questions/3610565
+    char* ret_chk=((C)((E)((T)(i))));
+
+    assert( ret_chk == ret_out );
+
+    return( ret_out );
+
+    #undef  MACRO_16BITS  //////////////////////////////////////
+    #undef  MACRO_32BITS  //////////////////////////////////////
+                          //////////////////////////////////////
+    #undef  C  /////////////////////////////////////////////////
+    #undef  E  /////////////////////////////////////////////////
+    #undef  T  /////////////////////////////////////////////////
+} //:////////////////////////////////////// MakeIntResourceA ://
+//:WinMsgHanWndPoc //////////////////////////////////////////://
+__stdcall
+__int64 //:LRESULT
+fun(WinMsgHanWndPoc)(
+/**/           void*    han_win   //:HWND
+,   unsigned   int      Msg       //:...?...
+,   unsigned __int64    wParam    //:WPARAM
+,            __int64    lParam    //:LPARAM
+){
+    //:An LRESULT tells us what we did
+    //:with the message. If handled it
+    //:should return zero.
+    __int64 return_this_result = 0; //:LRESULT
+    int ok = 0; //:BOOL
+
+    //|SOURCE:winuser.h |___________|//
+    //| wm_size    = 0x0005 ;       |//
+    //| wm_keydown = 0x0100 ;       |//
+    //| wm_keyup   = 0x0101 ;       |//
+    //| wm_close   = 0x0010 ;       |//
+    //| wm_destroy = 0x0002 ;       |//
+    //| wm_paint   = 0x000F ;       |//
+    //| vk_escape  = 0x001B ;       |//
+    //|_____________________________|//
+
+    switch(Msg){ //:- - - - - - - - - - - - - -://
+    case 0x0005/**wm_size**/:{
+
+        printf("[SRC/NATIVE/WINDOW/creation._:WM_SIZE]\n");
+        fflush(stdout);
+
+    }break;
+    case 0x0100 /**wm_keydown**/:{
+        if(wParam==0x001B /**vk_escape**/ ){
+
+            ok = (int)(unsigned long long)
+                 (( TYP(F_01) )(INS(DestroyWindow)))(han_win);
+
+            if(0==ok){ H("[0OK_1]");}
+
+        }else{
+            //:KEBO_DOWN_HandleVirtualKey( wParam );
+        };;
+
+    }break;
+
+    case 0x0101 /**wm_keyup**/:{
+        
+            //:KEBO_UPPP_HandleVirtualKey( wParam );
+
+    }break;
+
+    //:WM_CLOSE: The "[X]" button was clicked.
+    case 0x0010 /**wm_close**/:
+
+        ok = (int)(unsigned long long)
+            (( TYP(F_01) )(INS(DestroyWindow)))(han_win);
+
+        if(0==ok){ H("[0OK_2]");}
+
+    //:WM_DESTROY: ( DESTROYED|DESTROYING )
+    case 0x0002 /**wm_destroy**/:  
+        //: Send "WM_QUIT" to exit msg loop.
+        ((TYP(F_01))INS(PostQuitMessage))(0);
+
+    case 0x000F /**wm_paint**/:
+        
+        //:SEE[ WM_PAINT_COMMENTS_SECTION ]
+
+    //:Keep window responsive:
+    default: 
+        return_this_result=(
+            (__int64)
+            (   (TYP(F_04))   (INS(DefWindowProcW))   )(
+            /**/(void*)                han_win  
+            ,   (void*)(unsigned long long)Msg
+            ,   (void*)                 wParam
+            ,   (void*)                 lParam
+            )
+        );;
+    };;//:- - - - - - - - - - - - - - - - - - -://
+
+    return( return_this_result );
+} //://////////////////////////////////////// WinMsgHanWndPoc://
+
+#undef  lib ////////////////////////////////////////////: 01 ://
+#undef  LIB ////////////////////////////////////////////: 02 ://
+#undef  GM1 ////////////////////////////////////////////: 03 ://
+#undef  GM2 ////////////////////////////////////////////: 04 ://
+#undef  K_1 ////////////////////////////////////////////: 05 ://
+#undef  K_2 ////////////////////////////////////////////: 06 ://                                   
+#undef  MAK ////////////////////////////////////////////: 07 ://   
+#undef  TYP ////////////////////////////////////////////: 08 ://   
+#undef  INS ////////////////////////////////////////////: 09 ://   
+#undef  FUN ////////////////////////////////////////////: 10 ://
+#undef  EXA ////////////////////////////////////////////: 11 ://
+#undef  VAR ////////////////////////////////////////////: 12 ://
+#undef  fun ////////////////////////////////////////////: 13 ://
+#undef   H  ////////////////////////////////////////////: 14 ://
+#undef   D  ////////////////////////////////////////////: 15 ://
+
+
+//:Comments Section:                                         ://
+//:HBR_BACKGROUND_CAN_BE_NULL_FOR_VULKAN_WINDOW              ://
+//                                                            //
+//      //| Looking at:                            |//        //
+//      //| https://github.com/glfw/glfw/blob/     |//        //
+//      //| master/src/win32_window.c              |//        //
+//      //| does not look like background          |//        //
+//      //| brush color eneds to be set.           |//        //
+//      //|                                        |//        //
+//      //| Code here specifically says:           |//        //
+//      //| "No Background Required For GL"        |//        //
+//      //| http://nehe.gamedev.net/tutorial       |//        //
+//      //| /creating_an_opengl_window_(win32)     |//        //
+//      //| /13001/                                |//        //
+//      //- W.hbrBackground=(                      -//        //
+//      //-     /**/(HBRUSH)                       -//        //
+//      //-     /**/ FP->GDI32.GetStockObject(     -//        //
+//      //-     /**/     FP->GDI32.DATA.BRUSH.BLACK-//        //
+//      //-     /**/)                              -//        //
+//      //- );;                                    -//        //
+//                                                            //
+//      Comment originally taken from:                        //
+//      V:\VG\03\VG03.ALL                                     //
+//                                                            //
+//      And I ran it and got a window that vulkan liked,      //
+//      so I know this to be true.                            //
+//                                                            //
+//      DATE[ 2020_04_22 ]                                    //
+
+
+//:WM:WM_PAINT_COMMENTS_SECTION:
+//:WMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWM://
+////    //:[TODO]:Something to pace the updating            ////
+////    //:of graphics.                                     ////
+////                                                        ////
+////                                                        ////
+////    //+ DELETE THIS BLOCK +//                           ////
+////    //- //:I dont think this is needed:         -//     ////
+////    //- //: You may use the same HDC in both    -//     ////
+////    //- //: threads, but not at the same time.  -//     ////
+////    //- //: SEE[ gl-hdc-thread-quote ]          -//     ////
+////    //- if(GLEB_SWIN.render_tick_function_has){ -//     ////
+////    //-    GLEB_SWIN.render_tick_function();    -//     ////
+////    //- };;                                     -//     ////
+////                                                        ////
+////    //: This might be better done setting a flag        ////
+////    //: than using a callback. In order to prevent      ////
+////    //: drawing code from being invoked on the          ////
+////    //: wrong thread.                                   ////
+////                                                        ////
+////    //: With that said, setting a flag:                 ////
+////    //- ENGETHER.THREADING.InterlockedIncrement64( -//  ////
+////    //-     &( GLEB_SWIN.THREAD_SAFE_FLAGS.        -//  ////
+////    //-        redraw_message_count )              -//  ////
+////    //- );;                                        -//  ////
+////                                                        ////
+////                                                        ////
+////    //+ This call needs to be made from    +//          ////
+////    //+ the same thread as your OpenGL     +//          ////
+////    //+ calls.                             +//          ////
+////    //# DONT_HERE:GLEB_SWIN_SwapBuffers(); #//          ////
+//:WMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWM://
+
+
+//:Stupid needless optimization. You can spare 64bits
+//:to hold onto the function pointer for the duration
+//:of the program.
+///// int fun( DestroyWindow )( void* han_win ){
+///// 
+/////     //:Grab function pointer to: "DestroyWindow":
+/////     ////////////////////////////////////////////////////////////
+/////     TYP(FUN) VAR(DestroyWindow)=
+/////     FUN(GetProcAddress)("dll_u32","DestroyWindow");
+///// 
+/////     if( ((void*)0) != VAR(DestroyWindow) ){
+/////         D("[SUCCESS:GOT_FUNC_PTR:DestroyWindow]");
+/////     }else{
+/////         H("[FAILURE:GOT_FUNC_PTR:DestroyWindow]");
+/////     };;
+/////     ////////////////////////////////////////////////////////////
+///// 
+/////     int RET( DestroyWindow )=((int)
+/////     ((TYP(F_01))VAR(DestroyWindow))(
+/////         han_win
+/////     ));;
+///// 
+/////     return( RET( DestroyWindow ) );
+///// };;
+
+    ////////////////////////////////////////////////////////////
+    //- DONT DO THIS:                                        -//
+    //- 1: Synonymous ways of referring to the same thing    -//
+    //-    in code is BAD. (harder to find all references)   -//
+    //-                                                      -//
+    //- 2: The original reason you were about to do this     -//
+    //-    was you saw TYP(LoadIconA) when it should have    -//
+    //-    been:       INS(LoadIconA).                       -//
+    //-                                                      -//
+    //-    Adding synonym would make bug harder to spot.     -//
+    //-                                                      -//
+    //:In case you want to refer to function pointer's
+    //:type as the name of the function pointer:
+    //: typedef     TYP(CreateWindowExW  ) TYP(FUN);
+    //: typedef     TYP(GetDesktopWindow ) TYP(FUN);
+    //: typedef     TYP(RegisterClassExW ) TYP(FUN);
+    //: typedef     TYP(LoadIconA        ) TYP(FUN);
+    //: typedef     TYP(LoadCursorA      ) TYP(FUN);
+    //: typedef     TYP(GetModuleHandleW ) TYP(FUN);
+    //: typedef     TYP(DefWindowProcW   ) TYP(FUN);
+    //: typedef     TYP(DestroyWindow    ) TYP(FUN);
+    //: typedef     TYP(PostQuitMessage  ) TYP(FUN);    
+    ////////////////////////////////////////////////////////////
+
+#define lib MACRO_project_prefix_HIDDEN  //: Private  //: 01 ://
+#define LIB MACRO_project_prefix_VISIBLE //: Public   //: 02 ://
+#define GM1( a , b )      a## _ ##b      //: GLUEMAC  //: 03 ://
+#define GM2( a , b ) GM1( a   ,   b )    //: GLUEMAC  //: 04 ://
+#define K_1( a,b,c )      a## _ ##b## _ ##c  //:KIND  //: 05 ://
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )//:KIND  //: 06 ://                                   
+#define MAK(  nam  ) K_2( LIB ,MAK, nam )//:MAK:MACRO //: 07 ://   
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )//:TYP:TYPE  //: 08 ://   
+#define INS(  nam  ) K_2( LIB ,INS, nam )//:INS:INST  //: 09 ://   
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )//:FUN:FUNC  //: 10 :// 
+#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 11 :// 
+#define EII(  nam  ) K_2( LIB ,EII, nam )//:INIT_FUNC //: 12 :// 
+#define ASS   assert 
+
+////////////////////////////////////////////////////////////////
+int  INS(        AT_END_OF_CHAIN ) = ( 0 );
+////////////////////////////////////////////////////////////////
+
+int main( void ){
+
+    printf("[HELLO_WORLD]\n");
+
+    ////////////////////////////////////////////////////////////
+
+    #if( SRC_NATIVE_CALLWRAP_GETPROCADDRESS >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        EII(SRC_NATIVE_CALLWRAP_getprocaddress)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+
+    ////////////////////////////////////////////////////////////
+    
+    #if(    SRC_NATIVE_PING  >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        FUN(SRC_NATIVE_ping)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+    
+    ////////////////////////////////////////////////////////////
+    
+    #if(    SRC_NATIVE_WINDOW_CREATION  >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        FUN(SRC_NATIVE_WINDOW_creation)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+    
+    ////////////////////////////////////////////////////////////
+
+}
+
+
+#undef  lib ////////////////////////////////////////////: 01 ://
+#undef  LIB ////////////////////////////////////////////: 02 ://
+#undef  GM1 ////////////////////////////////////////////: 03 ://
+#undef  GM2 ////////////////////////////////////////////: 04 ://
+#undef  K_1 ////////////////////////////////////////////: 05 ://
+#undef  K_2 ////////////////////////////////////////////: 06 ://                                   
+#undef  MAK ////////////////////////////////////////////: 07 ://   
+#undef  TYP ////////////////////////////////////////////: 08 ://   
+#undef  INS ////////////////////////////////////////////: 09 ://   
+#undef  FUN ////////////////////////////////////////////: 10 ://
+#undef  EXA ////////////////////////////////////////////: 11 ://
+#undef  EII ////////////////////////////////////////////: 12 ://
+#undef  ASS
+
+
+
+    //:Undefine Chain Files:
+    //:There is no "CHAIN_FILE.DEFINE._"
+    //:File because those macros are added when
+    //:different files are concatted together in the
+    //:building bash script.
+
+    #undef SRC_NATIVE_WINDOW_CREATION
+
+#undef  MACRO_project_prefix_HIDDEN   
+#undef  MACRO_project_prefix_VISIBLE  
+
+

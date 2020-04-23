@@ -1,0 +1,63 @@
+#define lib MACRO_project_prefix_HIDDEN  //:Private   //: 01 ://
+#define LIB MACRO_project_prefix_VISIBLE //:Public    //: 02 ://
+#define GM1( a , b )      a## _ ##b      //:GLUEMAC_01//: 03 ://
+#define GM2( a , b ) GM1( a   ,   b )    //:GLUEMAC_02//: 04 ://
+#define K_1( a,b,c )      a## _ ##b## _ ##c  //:KIND  //: 05 ://
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )//:KIND  //: 06 ://                                   
+#define MAK(  nam  ) K_2( LIB ,MAK, nam )//:MAK:MACRO //: 07 ://   
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )//:TYP:TYPE  //: 08 ://   
+#define INS(  nam  ) K_2( LIB ,INS, nam )//:INS:INST  //: 09 ://   
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )//:FUN:FUNC  //: 10 :// 
+#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 11 :// 
+#define VAR(  nam  ) GM2( VAR   ,   nam )//:Local_Var //: 12 ://
+
+    #define  T typedef ///////////////////////////////////////// 
+    #define  V void* /////////////////////////////////////////// 
+    #define  a void* /////////////////////////////////////////// 
+    #define  b void* /////////////////////////////////////////// 
+    #define  c void* /////////////////////////////////////////// 
+    #define  d void* /////////////////////////////////////////// 
+    #define  e void* /////////////////////////////////////////// 
+
+    T V (*TYP(F_00) )( void );
+    T V (*TYP(F_01) )( a                                      );
+    T V (*TYP(F_02) )( a,a                                    );
+    T V (*TYP(F_03) )( a,a,a                                  );
+    T V (*TYP(F_04) )( a,a,a,a                                );
+    T V (*TYP(F_05) )( a,a,a,a,b                              );
+    T V (*TYP(F_06) )( a,a,a,a,b,b                            );
+    T V (*TYP(F_07) )( a,a,a,a,b,b,b                          );
+    T V (*TYP(F_08) )( a,a,a,a,b,b,b,b                        );
+    T V (*TYP(F_09) )( a,a,a,a,b,b,b,b,c                      );
+    T V (*TYP(F_10) )( a,a,a,a,b,b,b,b,c,c                    );
+    T V (*TYP(F_11) )( a,a,a,a,b,b,b,b,c,c,c                  );
+    T V (*TYP(F_12) )( a,a,a,a,b,b,b,b,c,c,c,c                );
+    T V (*TYP(F_13) )( a,a,a,a,b,b,b,b,c,c,c,c,d              );
+    T V (*TYP(F_14) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d            );
+    T V (*TYP(F_15) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d          );
+    T V (*TYP(F_16) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d        );
+    T V (*TYP(F_17) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e      );
+    T V (*TYP(F_18) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e    );
+    T V (*TYP(F_19) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e  );
+    T V (*TYP(F_20) )( a,a,a,a,b,b,b,b,c,c,c,c,d,d,d,d,e,e,e,e);
+
+    #undef   T ///////////////////////////////////////////////// 
+    #undef   V ///////////////////////////////////////////////// 
+    #undef   a ///////////////////////////////////////////////// 
+    #undef   b ///////////////////////////////////////////////// 
+    #undef   c ///////////////////////////////////////////////// 
+    #undef   d ///////////////////////////////////////////////// 
+    #undef   e ///////////////////////////////////////////////// 
+
+#undef  lib ////////////////////////////////////////////: 01 ://
+#undef  LIB ////////////////////////////////////////////: 02 ://
+#undef  GM1 ////////////////////////////////////////////: 03 ://
+#undef  GM2 ////////////////////////////////////////////: 04 ://
+#undef  K_1 ////////////////////////////////////////////: 05 ://
+#undef  K_2 ////////////////////////////////////////////: 06 ://                                   
+#undef  MAK ////////////////////////////////////////////: 07 ://   
+#undef  TYP ////////////////////////////////////////////: 08 ://   
+#undef  INS ////////////////////////////////////////////: 09 ://   
+#undef  FUN ////////////////////////////////////////////: 10 ://
+#undef  EXA ////////////////////////////////////////////: 11 ://
+#undef  VAR ////////////////////////////////////////////: 12 ://

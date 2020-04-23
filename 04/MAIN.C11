@@ -1,0 +1,67 @@
+#define lib MACRO_project_prefix_HIDDEN  //: Private  //: 01 ://
+#define LIB MACRO_project_prefix_VISIBLE //: Public   //: 02 ://
+#define GM1( a , b )      a## _ ##b      //: GLUEMAC  //: 03 ://
+#define GM2( a , b ) GM1( a   ,   b )    //: GLUEMAC  //: 04 ://
+#define K_1( a,b,c )      a## _ ##b## _ ##c  //:KIND  //: 05 ://
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )//:KIND  //: 06 ://                                   
+#define MAK(  nam  ) K_2( LIB ,MAK, nam )//:MAK:MACRO //: 07 ://   
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )//:TYP:TYPE  //: 08 ://   
+#define INS(  nam  ) K_2( LIB ,INS, nam )//:INS:INST  //: 09 ://   
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )//:FUN:FUNC  //: 10 :// 
+#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 11 :// 
+#define EII(  nam  ) K_2( LIB ,EII, nam )//:INIT_FUNC //: 12 :// 
+#define ASS   assert 
+
+////////////////////////////////////////////////////////////////
+int  INS(        AT_END_OF_CHAIN ) = ( 0 );
+////////////////////////////////////////////////////////////////
+
+int main( void ){
+
+    printf("[HELLO_WORLD]\n");
+
+    ////////////////////////////////////////////////////////////
+
+    #if( SRC_NATIVE_CALLWRAP_GETPROCADDRESS >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        EII(SRC_NATIVE_CALLWRAP_getprocaddress)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+
+    ////////////////////////////////////////////////////////////
+    
+    #if(    SRC_NATIVE_PING  >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        FUN(SRC_NATIVE_ping)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+    
+    ////////////////////////////////////////////////////////////
+    
+    #if(    SRC_NATIVE_WINDOW_CREATION  >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        FUN(SRC_NATIVE_WINDOW_creation)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+    
+    ////////////////////////////////////////////////////////////
+
+}
+
+
+#undef  lib ////////////////////////////////////////////: 01 ://
+#undef  LIB ////////////////////////////////////////////: 02 ://
+#undef  GM1 ////////////////////////////////////////////: 03 ://
+#undef  GM2 ////////////////////////////////////////////: 04 ://
+#undef  K_1 ////////////////////////////////////////////: 05 ://
+#undef  K_2 ////////////////////////////////////////////: 06 ://                                   
+#undef  MAK ////////////////////////////////////////////: 07 ://   
+#undef  TYP ////////////////////////////////////////////: 08 ://   
+#undef  INS ////////////////////////////////////////////: 09 ://   
+#undef  FUN ////////////////////////////////////////////: 10 ://
+#undef  EXA ////////////////////////////////////////////: 11 ://
+#undef  EII ////////////////////////////////////////////: 12 ://
+#undef  ASS
