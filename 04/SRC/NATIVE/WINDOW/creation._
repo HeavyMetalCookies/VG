@@ -12,18 +12,63 @@
 #define VAR(  nam  ) GM2( VAR   ,   nam )//:Local_Var //: 12 ://
                                                       //: -- ://
 //:Effectively private via obfuscation:               //: -- ://
-#define fun(  nam  ) GM2( f_2020_04_22_657AM , nam )  //: 13 :// 
+#define fun(  nam  ) GM2( f_2020_04_22_0657AM , nam ) //: 13 :// 
 #define  H    fun( Halt )                             //: 14 ://
 #define  D    fun( DebugPrint )                       //: 15 ://
                                                       //: -- ://
 #define NIL ((void*)0)                                //: 16 ://
+#define ins(  nam  ) GM2( i_2020_04_22_1047PM , nam ) //: 17 ://
+//:CHAINFILE_MACRO: CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
 
     //:path to this file:
     #define  SRC_NATIVE_WINDOW_CREATION ( 1 )
 
-//:forwa
+//:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM :CHAINFILE_MACRO://
+//:STRUCTS: SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS://
 
+    //[  SEE[ VG03.ALL's F09_STRUCT_PIXELFORMATDESCRIPTOR ]  ]//
+    //[  docs.microsoft.com/en-us/windows/win32/api/wingdi   ]//
+    //[  /ns-wingdi-pixelformatdescriptor                    ]//
+    #define B_04 unsigned long  /**DWORD **/  //:////////////://
+    #define B_02 unsigned short /** WORD **/  //:////////////://
+    #define B_01 unsigned char  /** BYTE **/  //:////////////://
+    struct TYP(PIXELFORMATDESCRIPTOR) {  
+    /**  01  **/    B_02  nSize;             
+    /**  02  **/    B_02  nVersion;          
+    /**  --  **/                          
+    /**  03  **/    B_04  dwFlags;            
+    /**  --  **/                          
+    /**  04  **/    B_01  iPixelType;        
+    /**  05  **/    B_01  cColorBits;        
+    /**  06  **/    B_01  cRedBits;          
+    /**  07  **/    B_01  cRedShift;         
+    /**  08  **/    B_01  cGreenBits;        
+    /**  09  **/    B_01  cGreenShift;       
+    /**  10  **/    B_01  cBlueBits;         
+    /**  11  **/    B_01  cBlueShift;        
+    /**  12  **/    B_01  cAlphaBits;        
+    /**  13  **/    B_01  cAlphaShift;       
+    /**  14  **/    B_01  cAccumBits;        
+    /**  15  **/    B_01  cAccumRedBits;     
+    /**  16  **/    B_01  cAccumGreenBits;   
+    /**  17  **/    B_01  cAccumBlueBits;    
+    /**  18  **/    B_01  cAccumAlphaBits;   
+    /**  19  **/    B_01  cDepthBits;        
+    /**  20  **/    B_01  cStencilBits;      
+    /**  21  **/    B_01  cAuxBuffers;       
+    /**  22  **/    B_01  iLayerType;        
+    /**  23  **/    B_01  bReserved;         
+    /**  --  **/                          
+    /**  24  **/    B_04  dwLayerMask;        
+    /**  25  **/    B_04  dwVisibleMask;      
+    /**  26  **/    B_04  dwDamageMask;       
+    /**  --  **/
+    };//[struct]//
+    #undef  B_04 ////////////// /**DWORD **/  //:////////////://
+    #undef  B_02 ////////////// /** WORD **/  //:////////////://
+    #undef  B_01 ////////////// /** BYTE **/  //:////////////://
 
+//:SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS :STRUCTS://
 //:TYPEDEFS: TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT://
 
     //:Generic function pointer type:
@@ -70,33 +115,6 @@
     // ------------------------------------------------------ //
 
 //:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT: TYPEDEFS://
-//:INSTANCES: IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII://
-
-    struct TYP(WNDCLASSEXW) INS(WNDCLASSEXW)={0};
-    void*  INS(exe_han)=(NIL); //:AKA:handle_to_exe
-
-    const unsigned short*
-    INS(win_nam)=( L"2020_4_22:UNIQUE_WINDOW_NAME"     );
-
-    const unsigend shor*
-    INS(tib_tex)=( L"[SEE_FILE[ F.08 ]]((╯°□°）╯︵ ┻━┻))" );
-
-    //:FUNCTION_POINTERS:  FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP://
-            
-    TYP(FUN)    INS(CreateWindowExW  )=( NIL );
-    TYP(FUN)    INS(GetDesktopWindow )=( NIL );
-    TYP(FUN)    INS(RegisterClassExW )=( NIL );
-    TYP(FUN)    INS(LoadIconA        )=( NIL );
-    TYP(FUN)    INS(LoadCursorA      )=( NIL );
-    TYP(FUN)    INS(GetModuleHandleW )=( NIL );
-    TYP(FUN)    INS(DefWindowProcW   )=( NIL );
-    TYP(FUN)    INS(DestroyWindow    )=( NIL );
-    TYP(FUN)    INS(PostQuitMessage  )=( NIL );
-
-    //:FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP  :FUNCTION_POINTERS://
-
-//:IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII: INSTANCES://
-
 //:FORWARD_DECLARATIONS::FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF://
     __stdcall
     __int64 //:LRESULT
@@ -110,6 +128,48 @@
     char*
     fun(MakeIntResourceA)( int i );
 //:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF::FORWARD_DECLARATIONS://
+//:INSTANCES: IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII://
+
+    struct TYP(WNDCLASSEXW) INS(WNDCLASSEXW)={0};
+    void*  INS(han_exe)=(NIL); //:AKA:handle_to_exe
+    void*  INS(dek_win)=(NIL); //:AKA:the_desktop_window
+    void*  ins(han_win)=(NIL); //:AKA:handle_to_YOUR_window
+    void*  ins(con_win)=(NIL); //:AKA:window_device_context
+
+    #define NOT_UNICODE_I_SWEAR const unsigned short //://///://
+    //://////////////////////////////////////////////////////://
+
+    NOT_UNICODE_I_SWEAR*      //:AKA:unique_window_name
+    INS(win_nam)=( L"2020_4_22:UNIQUE_WINDOW_NAME"     );
+
+    NOT_UNICODE_I_SWEAR*      //:AKA:titlebar_text
+    INS(tib_tex)=( L"[SEE_FILE[ F.08 ]]((╯°□°）╯︵ ┻━┻))" );
+
+    //://////////////////////////////////////////////////////://
+    #undef  NOT_UNICODE_I_SWEAR //://////////////////////////://
+    
+    //:FUNCTION_POINTERS:  FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP://
+            
+    TYP(FUN)    INS(CreateWindowExW  )=( NIL );
+    TYP(FUN)    INS(GetDesktopWindow )=( NIL );
+    TYP(FUN)    INS(RegisterClassExW )=( NIL );
+    TYP(FUN)    INS(LoadIconA        )=( NIL );
+    TYP(FUN)    INS(LoadCursorA      )=( NIL );
+    TYP(FUN)    INS(GetModuleHandleW )=( NIL );
+    TYP(FUN)    INS(DefWindowProcW   )=( NIL );
+    TYP(FUN)    INS(DestroyWindow    )=( NIL );
+    TYP(FUN)    INS(PostQuitMessage  )=( NIL );
+    TYP(FUN)    INS(GetWindowDC      )=( NIL );
+    TYP(FUN)    INS(ChoosePixelFormat)=( NIL );
+
+    //:FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP  :FUNCTION_POINTERS://
+
+    struct TYP(PIXELFORMATDESCRIPTOR) INS(fod_pix)={0};
+    int    ins(fmt_num)=( 0 ); //:pixel_format_number
+
+//:IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII: INSTANCES://
+
+
 
 
 
@@ -143,10 +203,28 @@
 int FUN( SRC_NATIVE_WINDOW_creation )( void ){
 printf("[SRC_NATIVE_WINDOW_creation]\n");
 
+    //:STEPS: 
+    //: 1: EII: Existance_Is_Initialization
+    //:         Front load resources first and make sure
+    //:         they all are valid.
+    //:
+    //: 2: Register Your Window "Class".
+    //:
+    //: 3: .....todo...
+
     TYP(TYP)     int_a = 5;
     VG04_TYP_TYP int_b = 6;
     printf("[int_a]:%d\n", int_a);
     printf("[int_b]:%d\n", int_b);
+
+    //:EII:Existance_Is_Initialization:(BELOW):--------------://
+    //:EIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEII://
+
+    //: INS( variable_names ) : Public, Init immediately here.
+    //: ins( variable_names ) : Private,Init before func exits.
+    //: MORE_INFO[ SC[ EII_INS_INS_RULES ] ]
+
+    //:EIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEII://
 
     ////////////////////////////////////////////////////////////
     INS(CreateWindowExW)=
@@ -164,7 +242,7 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     INS(LoadCursorA)=
     FUN(GetProcAddress)("dll_u32","LoadCursorA");
 
-    INS(GetModuleHandleW)=
+    INS(GetModuleHandleW)= //: "kernel32.dll"
     FUN(GetProcAddress)("dll_k32","GetModuleHandleW");
 
     INS(DefWindowProcW)=
@@ -176,8 +254,13 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     INS(PostQuitMessage)=
     FUN(GetProcAddress)("dll_u32","PostQuitMessage");
 
+    INS(GetWindowDC)=
+    FUN(GetProcAddress)("dll_u32","GetWindowDC");
 
-    ////////////////////////////////////////////////////////////
+    INS(ChoosePixelFormat)= //: "gdi32.dll"
+    FUN(GetProcAddress)("dll_g32","ChoosePixelFormat");
+
+    //:eiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieii://
     if( ((void*)0) != INS(CreateWindowExW) ){
         D("[SUCCESS:CreateWindowExW]");
     }else{
@@ -223,13 +306,151 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     }else{
         H("[FAILURE:PostQuitMessage]");
     };;
-    ////////////////////////////////////////////////////////////
+    if( ((void*)0) != INS(GetWindowDC) ){
+        D("[SUCCESS:GetWindowDC]");
+    }else{
+        H("[FAILURE:GetWindowDC]");
+    };;
+    if( ((void*)0) != INS(ChoosePixelFormat) ){
+        D("[SUCCESS:ChoosePixelFormat]");
+    }else{
+        H("[FAILURE:ChoosePixelFormat]");
+    };;
+    //:eiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieii://
 
-    INS(exe_han)=((TYP(F_01))INS(GetModuleHandleW))( NIL );
-    if( NIL== INS(exe_han) ){ H("[NIL:exe_han]"); };
+    INS(han_exe)=((TYP(F_01))INS(GetModuleHandleW))( NIL );
+    INS(dek_win)=((TYP(F_00))INS(GetDesktopWindow))(     );
+
+    if( NIL== INS(han_exe) ){ H("[NIL:han_exe]"); };
+    if( NIL== INS(dek_win) ){ H("[NIL:dek_win]"); };
+    
+    //:eiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieii://
+
+    struct TYP(PIXELFORMATDESCRIPTOR)               
+    temp_pixel_format_descriptor_for_easy_init={  
+        
+        //[ nSize    ----------------------------------]////[]//
+        sizeof(struct TYP(PIXELFORMATDESCRIPTOR) ),       //[]//
+                                                          //[]//
+        1,                             //[ nVersion ---]////[]//                  
+                                                          //[]//
+            //[ dwFlags: %GCC%/[...]/wingdi.h ---------]////[]//
+            //[ What do you want to support?  ---------]////[]//
+       (0   //[-------------------------------]//         //[]//
+        |   0x00000004 /** PFD_DRAW_TO_WINDOW **/         //[]//
+        |   0x00000020 /** PFD_SUPPORT_OPENGL **/         //[]//
+        |   0x00000001 /** PFD_DOUBLEBUFFER   **/         //[]//
+        |   //[-------------------------------]//         //[]//
+        0)                                                //[]//
+                                                          //[]//
+        ,                                                 //[]//
+                                                          //[]//
+        //[ iPixelType: The kind of framebuffer. ------]////[]//
+        //[ RGBA or palette.                     ------]////[]//
+        //[ Request RGBA format (PFD_TYPE_RGBA)  ------]////[]//
+        0x0 /** PFD_TYPE_RGBA **/                         //[]//
+        ,                                                 //[]//
+                                                          //[]//
+        //[ cColorBits: Colordepth of the framebuffer. ]////[]//
+        //[ cColorBits=="count of color bits" I think. ]////[]//
+        32,                                               //[]//
+                                                          //[]//
+        0, 0, //[ cRedBits  , cRedShift  : IGNORED ----]////[]//
+        0, 0, //[ cGreenBits, cGreenShift: IGNORED ----]////[]//
+        0, 0, //[ cBlueBits , cBlueShift : IGNORED ----]////[]//
+                                                          //[]//
+        0,    //[ cAlphaBits : >= 0    ----------------]////[]//                        
+        0,    //[ cAlphaShift: IGNORED ----------------]////[]//
+                                                          //[]//
+        0,    //[ cAccumBits : >= 0    ----------------]////[]//
+                                                          //[]//
+                                                          //[]//
+        0,    //[ cAccumRedBits  : IGNORED ------------]////[]//
+        0,    //[ cAccumGreenBits: IGNORED ------------]////[]//
+        0,    //[ cAccumBlueBits : IGNORED ------------]////[]//
+        0,    //[ cAccumAlphaBits: IGNORED ------------]////[]//
+                                                          //[]//
+        //[ cDepthBits  : Number_Of_Bits: depthbuffer  ]////[]//
+        24,                                               //[]//
+                                                          //[]//
+        //[ cStencilBits: Number_Of_Bits: stencilbuffer]////[]//
+        8,                                                //[]//
+                                                          //[]//
+        //[ cAuxBuffers : >=0                          ]////[]//
+        //[ Number of Aux buffers in framebuffer.      ]////[]//
+        0,                                                //[]//
+                                                          //[]//
+        //[ iLayerType: ------------------------------ ]////[]//
+        0x0 /**PFD_MAIN_PLANE : Main Drawing Layer **/,   //[]//
+                                                          //[]//
+        //[ "byte reserved?" ---------]////[ --------- ]////[]//
+        0, //[ bReserved    : IGNORED.]////[ --------- ]////[]//
+                                         //[ --------- ]////[]//
+                                         //[ --------- ]////[]//
+        //[ MASKS: IGNORED ---------- ]////[ --------- ]////[]//
+        0, //[ dwLayerMask  : IGNORED ]////[ --------- ]////[]//
+        0, //[ dwVisibleMask: IGNORED ]////[ --------- ]////[]//
+        0  //[ dwDamageMask : IGNORED ]////[ --------- ]////[]//                            
+    };;    
+    //:eieieieieieieieieieieieieieieieieieieieieieieieieieiei://
+    #define PIX INS(fod_pix) ///////////////////////////////////
+    //: COPY_OVER + SMOKE_TEST : BELOW --------------------- ://
+
+        //:Copy over temp to file scope variable:
+        PIX=temp_pixel_format_descriptor_for_easy_init;
+
+        //:Smoke_Test:
+        ////////////////////////////////////////////////////////
+        if(      32!=PIX.cColorBits   ){
+            H( "[32!=PIX.cColorBits]" );
+        };;
+        if( 24 != PIX.cDepthBits  ){
+            printf( 
+                  "[PIX.cDepthBits]:%d\n"
+            ,       PIX.cDepthBits  
+            );;
+            H("[24!=PIX.cDepthBits]");
+        };;
+        if(      8!=PIX.cStencilBits ){
+           H( "[08!=PIX.cStencilBits]");
+        };;     
+    
+        #define COLT_40 40 /////////////////////////////////////
+ 
+        if( COLT_40 != 
+            sizeof( struct TYP(PIXELFORMATDESCRIPTOR) )
+        ){
+            H("[COLT_40:1]");
+        }else
+        if( 
+            COLT_40 != 
+            sizeof( temp_pixel_format_descriptor_for_easy_init)
+        ){
+            H("[COLT_40:2]");
+        }else
+        if( COLT_40 != sizeof( PIX ) ){
+            H("[COLT_40:3]");
+        }else
+        if( COLT_40 != sizeof( INS( fod_pix ) ) ){
+            H("[COLT_40:4]");
+        }else
+        if( COLT_40 != INS( fod_pix ).nSize ){
+            H("[COLT_40:5]");
+        }else{
+            D("[PIXELFORMATDESCRIPTOR:It_Checks_Out]");
+        };;
+
+        #undef  COLT_40  ///////////////////////////////////////
+
+        ////////////////////////////////////////////////////////
+             
+    //: COPY_OVER + SMOKE_TEST : ABOVE --------------------- ://
+    #undef  PIX ////////////////////////////////////////////////
+    //:EIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEIIEII://
+    //:EII:Existance_Is_Initialization:(ABOVE):______________://
 
 
-    //:R:Register
+    //:R:Register:(BELOW):-----------------------------------://
     //:RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR://
     //:Before creating window, must register window class:
     //:RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR://
@@ -259,7 +480,7 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     INS(WNDCLASSEXW).lpfnWndProc=fun(WinMsgHanWndPoc);
     INS(WNDCLASSEXW).cbClsExtra=0;
     INS(WNDCLASSEXW).cbWndExtra=0;
-    INS(WNDCLASSEXW).hInstance =( INS( exe_han ) );
+    INS(WNDCLASSEXW).hInstance =( INS( han_exe ) );
     
     char* idi_application = fun(MakeIntResourceA)( 32512 );
     char* idc_arrow       = fun(MakeIntResourceA)( 32512 );
@@ -282,7 +503,7 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     //:AKA[ HBC_BNF_VW ]
     INS(WNDCLASSEXW).hbrBackground=NULL;
     INS(WNDCLASSEXW).lpszMenuName=NULL;
-    INS(WNDCLASSEXW).lpszClassName=unique_window_name;
+    INS(WNDCLASSEXW).lpszClassName=INS(win_nam);
     
     #undef  XX /////////////////////////////////////////////////
     #define F2 TYP(F_02) ///////////////////////////////////////
@@ -308,7 +529,7 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     //:______________________________________________________://
     int VAR( bool )=(
         (int)(unsigned long long)
-        ((F3)VAR(RegisterClassExW))(
+        (  (TYP(F_01))  INS(RegisterClassExW)  )(  
             &( INS(WNDCLASSEXW) )
         )
     );;
@@ -320,43 +541,67 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     
     #undef  F3 /////////////////////////////////////////////////
     //:RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR://
+    //:R:Register:(ABOVE):-----------------------------------://
+    //:CREATE_WINDOW:::CWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCW://
+    #define NIHILISM NIL //://///////////|///////////////////://
+    #define V void       //://///////////|///////////////////://
+    #define U64 unsigned long long int //:///////////////////://
+    ins(han_win)=
+    ((TYP(F_12))INS(CreateWindowExW))//:---------------------://
+    (
+    ////
+        /**/(V*)0x00000008L  /** ws_ex_topmost **/
+        ,   (V*)INS(win_nam) /** Window___Name **/
+        ,   (V*)INS(tib_tex) /** Titlebar_Text **/
+    ////
+        , 
+        (V*)(U64)
+        (0
+        |  0x00CF0000 /** ws_overlappedwindow **/ 
+        |      0x0020 /** CS_OWNDC (2B/32b)  **/
+        |
+        0)
+    ////    X_Y_WID_HIG
+        ,   (V*)(U64) 22    //: _X_  -----------://
+        ,   (V*)(U64) 22    //: _Y_  -----------://
+        ,   (V*)(U64) 1024  //: WID  -----------://
+        ,   (V*)(U64) 512   //: HIG  -----------://
+    ////
+        ,   INS(dek_win)    //:-- hWndParent ---://
+        ,   ( NIHILISM )    //:-- hMenu      ---://
+        ,   INS(han_exe)    //:-- hInstance  ---://        
+        ,   ( NIHILISM )    //:-- lpParam    ---://  
+    ////
+    ); //:---------------------------------------------------://
+    
+    if(NIL==ins(han_win)){
+        H("[FAIL:VKG04_WindowCreateFail]");
+        return 0;
+    }else{
+        D("[PASS:VKG04_CreatedWindow:TODO:SetupWindowLoop]");
+    };;
+    #undef  U64      //://///////////////////////////////////://
+    #undef  V        //://///////////////////////////////////://
+    #undef  NIHILISM //://///////////////////////////////////://
+    //:CWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCWCW:::CREATE_WINDOW://
+    //:DEVICE_CONTEXT: DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC://
 
+    ins(con_win)=((TYP(F_01))INS(GetWindowDC))( ins(han_win) );
+    if( NIL==ins(con_win) ){
+        H("[FailedToGet:window_device_context/con_win]");
+    }else{
+        D("[PASS:con_win(window_device_context)]");
+    };;
 
- //  void* han_win=
- //  VAR(CreateWindowExW)
- //  (
- //  
- //  /**/0x00000008L           /** ws_ex_topmost **/
- //  ,   L"2020_4_22:UNIQUE_WINDOW_NAME"      //:win_nam
- //  ,   L"[SEE_FILE[ F.08 ]]((╯°□°）╯︵ ┻━┻))"  //:tib_tex
- //  
- //  , 
- //      (0
- //      |  0x00CF0000 /** ws_overlappedwindow **/ 
- //      |      0x0020 /** CS_OWNDC (2B/32b)  **/
- //      |
- //      0)
- //  
- //      //:X,Y,WID,HIG
- //  ,   22,22,1024,512
- //  
- //  ,   the_desktop_window //:-- hWndParent ---://
- //  ,   NULL   //:-------------- hMenu      ---://
- //  ,   f09_handle_to_exe  //:-- hInstance  ---://        
- //  ,   NULL   //:-------------- lpParam    ---://  
- //  );//[e]//
- //  
- //  if(han_win==NULL){
- //      H("[F09:WindowCreateFail]");
- //      return 0;
- //  };;//[f]//
- //
+    //:DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC :DEVICE_CONTEXT://
 
-
-
-
-
-
+  // ins(fmt_num)=( //:pixel_format_number
+  //     (int)(unsigned long long)
+  //     ((F03_02)F02_ChoosePixelFormat)( /**gdi32**/
+  //         window_device_context
+  //     , &( f09_pixel_format_descriptor )
+  //     )
+  // );;
 
 
 
@@ -647,6 +892,8 @@ fun(WinMsgHanWndPoc)(
 #undef  fun ////////////////////////////////////////////: 13 ://
 #undef   H  ////////////////////////////////////////////: 14 ://
 #undef   D  ////////////////////////////////////////////: 15 ://
+#undef  NIL ////////////////////////////////////////////: 16 ://
+#undef  ins ////////////////////////////////////////////: 17 ://
 
 
 //:Comments Section:                                         ://
@@ -761,3 +1008,15 @@ fun(WinMsgHanWndPoc)(
     //: typedef     TYP(DestroyWindow    ) TYP(FUN);
     //: typedef     TYP(PostQuitMessage  ) TYP(FUN);    
     ////////////////////////////////////////////////////////////
+
+    //:Problem with PFN(SomeFunction)
+    //:
+    //:1: Is it a TYPE or the actual pointer?
+    //:2: Since you do: FunctionsThisWay
+    //:   and variables_this_way
+    //:   Is there really any benifit since you can tell:
+    //:
+    //:  INS( SomeThing  )   <-- function pointer instance
+    //:  INS( some_thing )   <-- data instance
+    //:  TYP( FUN )          <-- A TYPE that is "function" (PFN)
+    //:  FUN( SomeThing  )   <-- A function name

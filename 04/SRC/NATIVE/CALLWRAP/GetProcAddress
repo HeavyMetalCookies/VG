@@ -8,23 +8,39 @@
 #define TYP(  nam  ) K_2( LIB ,TYP, nam )//:TYP:TYPE  //: 08 ://   
 #define INS(  nam  ) K_2( LIB ,INS, nam )//:INS:INST  //: 09 ://   
 #define FUN(  nam  ) K_2( LIB ,FUN, nam )//:FUN:FUNC  //: 10 :// 
-#define fun(  nam  ) K_2( LIB ,fun, nam )//:FUN:FUNC  //: 11 :// 
-#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 12 :// 
-#define EII(  nam  ) K_2( LIB, EII, nam )//:INIT_FUNC //: 13 ://
-#define ARG(  nam  ) GM2( ARG   ,   nam )//:Argument  //: 14 ://
-#define VAR(  nam  ) GM2( VAR   ,   nam )//:Local_Var //: 15 ://
-#define RET(  nam  ) GM2( RET   ,   nam )//:RET___Var //: 16 ://
+#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 11 :// 
+#define EII(  nam  ) K_2( LIB, EII, nam )//:INIT_FUNC //: 12 ://
+#define ARG(  nam  ) GM2( ARG   ,   nam )//:Argument  //: 13 ://
+#define VAR(  nam  ) GM2( VAR   ,   nam )//:Local_Var //: 14 ://
+#define RET(  nam  ) GM2( RET   ,   nam )//:RET___Var //: 15 ://
+#define fun(  nam  ) GM2( f_2020_04_23_0258AM, nam )  //: 16 :// 
 #define NIL  ((void*)0)                               //: 17 ://
+#define  H   fun(Halt)                                //: 18 ://
+#define  D   fun(Dmsg)                                //: 19 ://
+
+
 
     #define SRC_NATIVE_CALLWRAP_GETPROCADDRESS ( 434 )
+    
 
 
-//:INSTANCES: //////////////////////////////////////////////////
+//:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://                                      
+    static void fun(Halt)( const char* msg ){printf( //:- - -://                       
+    "[SRC/NATIVE/CALLWRAP/GetProcAddress:Halt]:%s\n"
+    , msg);;fflush(stdout);exit(0xF0);}//:- - - - - - - - - -://   
+    static void fun(Dmsg)( const char* msg ){printf(
+    "[SRC/NATIVE/CALLWRAP/GetProcAddress:Dmsg]:%s\n"
+    ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
+//:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG://
+
+
+//:INSTANCES: //:////////////////////////////////////////////://
 
     void* INS( dll_k32 ) = NIL; //:Kernel32.dll pointer
     void* INS( dll_u32 ) = NIL; //:User32.dll   pointer
+    void* INS( dll_g32 ) = NIL; //:Gdi32.dll    pointer
 
-//:TYPEDEFS: ///////////////////////////////////////////////////
+//:TYPEDEFS: ////////////////////////////////////////////////://
 
     typedef void (* TYP(Func) )(void); //:Function pointer.
     typedef void*   TYP(Data)        ; //:Data     pointer.
@@ -39,7 +55,7 @@
 
 
 
-//:FORWARD_DECLARATIONS: ///////////////////////////////////////
+//:FORWARD_DECLARATIONS: //://///////////////////////////////://
 
     void EII( SRC_NATIVE_CALLWRAP_getprocaddress )( void );
 
@@ -57,13 +73,12 @@
     ,   TYP(Str)  fun_nam
     );
 
-//:FUNCTIONS: //////////////////////////////////////////////////
+//:FUNCTIONS: //:////////////////////////////////////////////://
 
     //:Initializer code for this file:
     //:EII: Existance_Is_Initialization
     void EII( SRC_NATIVE_CALLWRAP_getprocaddress )( void ){
-
-        printf("[EII:SRC_NATIVE_CALLWRAP_getprocaddress]\n");
+        D("[EII:BEG]");
 
         fun( LoadLibrary )( "dll_k32" );
 
@@ -79,6 +94,38 @@
             fflush(stdout);exit(4);
         };;
         ////////////////////////////////////////////////////////
+
+        //:Make absolutely sure all public variables are
+        //:non-null before exiting "EII" function:
+        //:EIIEIIEIIEIIEIIEIIEIIEII//EIIEIIEIIEIIEIIEIIEIIEII://
+
+        fun( LoadLibrary )( "dll_k32" ); //:Kernel32.dll
+        fun( LoadLibrary )( "dll_u32" ); //:User32.dll
+        fun( LoadLibrary )( "dll_g32" ); //:Gdi32.dll
+
+        if( NIL == INS(dll_k32) ){ H("[NOLOAD:dll_k32]");};
+        if( NIL == INS(dll_u32) ){ H("[NOLOAD:dll_u32]");};
+        if( NIL == INS(dll_g32) ){ H("[NOLOAD:dll_g32]");};
+
+        //:make_sure_all_function_pointers_unique:
+        #define I1  INS(dll_k32) //://///////////////////////://
+        #define I2  INS(dll_u32) //://///////////////////////://
+        #define I3  INS(dll_g32) //://///////////////////////://
+        #define    L_E_N ( 3 )   //://///////////////////////://
+        void* arr[ L_E_N ]={ I1,I2,I3 };
+        for( int a = 0; a < L_E_N; a++ ){  //:- - - - - - - -://
+        for( int b = 0; b < L_E_N; b++ ){  //:- - - - - - - -://
+            if( a==b ){ continue; };
+            if( arr[a]==arr[b] ){ H("[FAIL:NOT_A_SET]");};
+        };;};;D("[PASS:YES_A_SET]");
+        #undef  L_E_N //:////////////////////////////////////://
+        #define I1  INS(dll_k32) //://///////////////////////://
+        #define I2  INS(dll_u32) //://///////////////////////://
+        #define I3  INS(dll_g32) //://///////////////////////://
+
+        //:EIIEIIEIIEIIEIIEIIEIIEII//EIIEIIEIIEIIEIIEIIEIIEII://
+
+        D("[EII:END]");
     }
 
     TYP(Data) fun(LoadLibrary)(
@@ -101,6 +148,7 @@
         ){
                     printf("[RESOLVES_TO:kernel32.dll]\n");
             VAR(Data)=DLLL_LoadLibraryA("kernel32.dll");
+            INS(dll_k32)=( VAR(Data) ); //:CACHE_YOUR_DLL
 
         }else
         if( ARG(dll_nam)[0] == 'd' 
@@ -113,8 +161,21 @@
         ){
                     printf("[RESOLVES_TO:user32.dll]\n");
             VAR(Data)=DLLL_LoadLibraryA("user32.dll");
-
-        }else{
+            INS(dll_u32)=( VAR(Data) ); //:CACHE_YOUR_DLL
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_g32"
+        &&  ARG(dll_nam)[4] == 'g' 
+        &&  ARG(dll_nam)[5] == '3' 
+        &&  ARG(dll_nam)[6] == '2' 
+        ){
+                    printf("[RESOLVES_TO:gdi32.dll]\n");
+            VAR(Data)=DLLL_LoadLibraryA("gdi32.dll");
+            INS(dll_g32)=( VAR(Data) ); //:CACHE_YOUR_DLL
+        }else
+        if( 1 ){
             //:If dll_name is not a shorthand name,
             //:load it as is.
 
@@ -149,15 +210,12 @@
         &&  ARG(dll_nam)[5] == '3' 
         &&  ARG(dll_nam)[6] == '2' 
         ){
-
-            //:If library not loaded, load now:
+            //:if_library_not_loaded____load_now:
             if( NIL == INS( dll_k32 ) ){
 
                 INS(dll_k32)= 
                 fun( LoadLibrary )( "kernel32.dll" );
-
             };;
-
             assert(      INS(dll_k32) );
             VAR(dll_ptr)=INS(dll_k32);
                 
@@ -170,17 +228,32 @@
         &&  ARG(dll_nam)[5] == '3' 
         &&  ARG(dll_nam)[6] == '2' 
         ){
-
-            //:If library not loaded, load now:
+            //:if_library_not_loaded____load_now:
             if( NIL == INS( dll_u32 ) ){
 
                 INS(dll_u32)= 
                 fun( LoadLibrary )( "user32.dll" );
-
             };;
-
             assert(      INS(dll_u32) );
             VAR(dll_ptr)=INS(dll_u32);
+
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_g32"
+        &&  ARG(dll_nam)[4] == 'g' 
+        &&  ARG(dll_nam)[5] == '3' 
+        &&  ARG(dll_nam)[6] == '2' 
+        ){
+            //:if_library_not_loaded____load_now:
+            if( NIL == INS( dll_g32 ) ){
+
+                INS(dll_g32)= 
+                fun( LoadLibrary )( "gdi32.dll" );
+            };;
+            assert(      INS(dll_g32) );
+            VAR(dll_ptr)=INS(dll_g32);
                 
         }else{
             printf("[UnknownValueOf:dll_nam]:%s\n"
@@ -235,21 +308,22 @@
 
 
 
-#undef  lib ////////////////////////////////////////////: 01 ://
-#undef  LIB ////////////////////////////////////////////: 02 ://
-#undef  GM1 ////////////////////////////////////////////: 03 ://
-#undef  GM2 ////////////////////////////////////////////: 04 ://
-#undef  K_1 ////////////////////////////////////////////: 05 ://
-#undef  K_2 ////////////////////////////////////////////: 06 ://                                   
-#undef  MAK ////////////////////////////////////////////: 07 ://   
-#undef  TYP ////////////////////////////////////////////: 08 ://   
-#undef  INS ////////////////////////////////////////////: 09 ://   
-#undef  FUN ////////////////////////////////////////////: 10 ://
-#undef  fun ////////////////////////////////////////////: 11 ://
-#undef  EXA ////////////////////////////////////////////: 12 ://
-#undef  EII ////////////////////////////////////////////: 13 ://
-#undef  ARG ////////////////////////////////////////////: 14 ://
-#undef  VAR ////////////////////////////////////////////: 15 ://
-#undef  RET ////////////////////////////////////////////: 16 ://
-#undef  NIL ////////////////////////////////////////////: 17 ://
-
+#undef  lib  ///////////////////////////////////////////: 01 ://
+#undef  LIB  ///////////////////////////////////////////: 02 ://
+#undef  GM1  ///////////////////////////////////////////: 03 ://
+#undef  GM2  ///////////////////////////////////////////: 04 ://
+#undef  K_1  ///////////////////////////////////////////: 05 ://
+#undef  K_2  ///////////////////////////////////////////: 06 ://                                   
+#undef  MAK  ///////////////////////////////////////////: 07 ://   
+#undef  TYP  ///////////////////////////////////////////: 08 ://   
+#undef  INS  ///////////////////////////////////////////: 09 ://   
+#undef  FUN  ///////////////////////////////////////////: 10 :// 
+#undef  EXA  ///////////////////////////////////////////: 11 :// 
+#undef  EII  ///////////////////////////////////////////: 12 ://
+#undef  ARG  ///////////////////////////////////////////: 13 ://
+#undef  VAR  ///////////////////////////////////////////: 14 ://
+#undef  RET  ///////////////////////////////////////////: 15 ://
+#undef  fun  ///////////////////////////////////////////: 16 :// 
+#undef  NIL  ///////////////////////////////////////////: 17 ://
+#undef   H   ///////////////////////////////////////////: 18 ://
+#undef   D   ///////////////////////////////////////////: 19 ://
