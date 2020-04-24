@@ -22,6 +22,25 @@ int main( void ){
 
     ////////////////////////////////////////////////////////////
 
+    #if( SRC_MAINLOOP_LOOPTABLE >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        EII(SRC_MAINLOOP_looptable)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+
+    ////////////////////////////////////////////////////////////
+
+    #if( SRC_NATIVE_CALLWRAP_LOADLIBRARY >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        //:No code for this, just a stub. All logic
+        //:is inside "GetProcAddress._"
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+
+    ////////////////////////////////////////////////////////////
+
     #if( SRC_NATIVE_CALLWRAP_GETPROCADDRESS >= 1 )
         ASS( INS( AT_END_OF_CHAIN ) <= 0 );
         EII(SRC_NATIVE_CALLWRAP_getprocaddress)();
@@ -48,6 +67,29 @@ int main( void ){
     #endif
     
     ////////////////////////////////////////////////////////////
+
+
+
+
+
+
+    //:ML:Main_Loop: (AKA: LOOPTABLE):
+    //:MLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLML://
+    #if( SRC_MAINLOOP_LOOPTABLE >= 1 )
+        
+        printf("\n\n\n");
+        printf("[Entering:MainLoop:USE[CTRL+V]TO[EXIT_EXE]]\n");
+        printf("\n\n\n");
+        fflush(stdout);
+        
+        //: Loop_Forever_Because_This_Is_The_Main_Game_Loop
+        //: SRC/MAINLOOP/looptable._ :: FUN(Loop):
+        FUN(Loop)(/**void**/);
+
+    #endif
+    //:MLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLML://
+
+
 
 }
 

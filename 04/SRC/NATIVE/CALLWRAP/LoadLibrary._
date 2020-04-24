@@ -1,0 +1,4 @@
+
+//:SEE: GetProcAddress
+
+#define SRC_NATIVE_CALLWRAP_LOADLIBRARY ( 1934 )

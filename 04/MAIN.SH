@@ -30,8 +30,12 @@ EXE_CAT "./SRC/FUNCTION_TYPEDEF_PYRAMID._"
 ##You can comment off as may sequential files from the tip,
 ##And the project should still compile.
 
-   EXE_CAT "./SRC/NATIVE/CALLWRAP/GetProcAddress"
+   EXE_CAT "./SRC/MAINLOOP/looptable._"
+
+   EXE_CAT "./SRC/NATIVE/CALLWRAP/LoadLibrary._"
+   EXE_CAT "./SRC/NATIVE/CALLWRAP/GetProcAddress._"
    EXE_CAT "./SRC/NATIVE/ping"
+
    EXE_CAT "./SRC/NATIVE/WINDOW/creation._"
 
 

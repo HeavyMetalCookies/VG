@@ -99,6 +99,238 @@
 #undef  EXA ////////////////////////////////////////////: 11 ://
 #undef  VAR ////////////////////////////////////////////: 12 ://
 
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
+#define lib MACRO_project_prefix_HIDDEN  // Private   //| 01 |//
+#define LIB MACRO_project_prefix_VISIBLE // Public    //| 02 |//
+#define GM1( a , b )      a## _ ##b      // GLUEMAC_01//| 03 |//
+#define GM2( a , b ) GM1( a   ,   b )    // GLUEMAC_02//| 04 |//
+#define K_1( a,b,c )      a## _ ##b## _ ##c  // KIND  //| 05 |//
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )// KIND  //| 06 |//                            
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )// TYP:TYPE  //| 07 |//   
+#define INS(  nam  ) K_2( LIB ,INS, nam )// INS:INST  //| 08 |//   
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )// FUN:FUNC  //| 09 |// 
+#define EII(  nam  ) K_2( LIB, EII, nam )// SEE[EII]  //| 10 |//
+#define MEM(  nam  ) K_2( LIB ,MEM, nam )// Member    //| 11 |//
+#define ARG(  nam  ) GM2( ARG   ,   nam )// Argument  //| 12 |//
+#define VAR(  nam  ) GM2( VAR   ,   nam )// Local_Var //| 13 |//
+#define RET(  nam  ) GM2( RET   ,   nam )// RET___Var //| 14 |//                                            
+#define fun(  nam  ) GM2( f_2020_04_24_0240AM , nam ) //| 15 |// 
+#define ins(  nam  ) GM2( i_2020_04_24_0240PM , nam ) //| 16 |//
+#define  H    fun( Halt )                             //| 17 |//
+#define  D    fun( Dmsg ) // DebugPrint/DebugMessage  //| 18 |//
+#define NIL ((void*)0)                                //| 19 |//
+//|__________________________________________________________|//
+//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
+
+    //:PATH_TO_THIS_FILE_AS_ALL_CAPITAL_MACRO:
+    #define  SRC_MAINLOOP_LOOPTABLE ( 6437 )
+
+//:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM  :CHAINFILE_MACRO://
+//:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://                                      
+    static void fun(Halt)( const char* msg ){printf( //:- - -://                       
+    "[SRC_MAINLOOP_LOOPTABLE:Halt]:%s\n"
+    , msg);;fflush(stdout);exit(0xF0);}//:- - - - - - - - - -://   
+    static void fun(Dmsg)( const char* msg ){printf(
+    "[SRC_MAINLOOP_LOOPTABLE:Dmsg]:%s\n"
+    ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
+//:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG://
+//:GLOBALS: GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG://
+
+    //:HACK:Private copy so stub functions can reference:
+    int ins(game_time_copy_for_stub_functions)=0;
+
+
+//:GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG :GLOBALS://
+//:STUB_FUNCTION:  SFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSF://
+
+    //:I don't want the STUB_FUNCTION to be completely
+    //:obfuscated as a private function. But use "hidden"
+    //:access to communicate it is not public.
+    #define STUB_FUNCTION( nam ) K_2(lib,STUB_FUNCTION,nam)
+    #define GAM_TIM ins( game_time_copy_for_stub_functions )
+       
+        static void 
+        STUB_FUNCTION(nat_win)( void ){
+            if( GAM_TIM < 3 ){
+                printf("[STUB_FUNCTION:nat_win]\n");
+            };;
+            if( GAM_TIM == 64){
+                printf("[RUNNING_WITHOUT_ECHOS_NOW:nat_win]\n");
+                fflush(stdout);
+            };;
+        }
+        static void 
+        STUB_FUNCTION(gam_obj)( void ){
+            if( ins( game_time_copy_for_stub_functions )< 3 ){
+                printf("[STUB_FUNCTION:gam_obj]\n");
+            };;
+            if( GAM_TIM == 64){
+                printf("[RUNNING_WITHOUT_ECHOS_NOW:gam_obj]\n");
+                fflush(stdout);
+            };;
+        }
+        static void 
+        STUB_FUNCTION(ren_log)( void ){
+            if( ins( game_time_copy_for_stub_functions )< 3 ){
+                printf("[STUB_FUNCTION:ren_log]\n");
+            };;
+            if( GAM_TIM == 64){
+                printf("[RUNNING_WITHOUT_ECHOS_NOW:ren_log]\n");
+                fflush(stdout);
+            };;
+        }
+
+    #undef  GAM_TIM       //:////////////////////////////////://
+    #undef  STUB_FUNCTION //:////////////////////////////////://
+//:SFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSFSF  :STUB_FUNCTION://
+//:STRUCTS: SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS://
+
+    typedef void (*TYP(FUN))(void); //:GenericFunctionPointer
+
+    struct TYP(looptable){
+
+        unsigned long MEM(str_typ);
+
+        int MEM(lop_tim); //:Loop_Times
+        int MEM(gam_tim); //:Game_Time
+
+        #define T TYP(FUN) //:///////////////////////////////://
+
+                //:Native_Window_Update_Logic:
+                //:native_window
+                T MEM(nat_win); 
+
+                //:Logic_Of_Game_Objects:
+                //:Game_Logic_Upate
+                //:game_objects
+                T MEM(gam_obj); 
+
+                //:Rendering_Engine_Logic
+                //:Rendering_Update
+                T MEM(ren_log);
+
+        #undef  T //:////////////////////////////////////////://
+    }INS(looptable)={
+        .MEM(str_typ)=( 0x0 | ( 'L'<<0|'O'<<8|'O'<<16|'P'<<24) )
+
+       ,.MEM(lop_tim)=(0)
+
+        //:Stub functions are to be overwritten:
+        #define STUB_FUNCTION( nam ) K_2(lib,STUB_FUNCTION,nam)
+
+       ,.MEM(nat_win)=STUB_FUNCTION(nat_win)
+       ,.MEM(gam_obj)=STUB_FUNCTION(gam_obj)
+       ,.MEM(ren_log)=STUB_FUNCTION(ren_log)
+
+        #undef STUB_FUNCTION ///////////////////////////////////
+    };
+
+
+//:SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS :STRUCTS://
+//:FUNCTIONS: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF://
+
+    void
+    EII(SRC_MAINLOOP_looptable)( void ){
+
+        //:Any initialization upon inclusion of file goes here.
+
+    }
+
+    //:Note: "Tick" and "Loop" functions are not namespaced
+    //:      out very well. But don't worry about that until
+    //:      a collision actually happens.
+
+    void FUN(Tick)( void ){
+
+        //:Not necessary to check for null, but probably
+        //:should anyways. Can remove these checks when
+        //:optimizing.
+        int problems=( 0 );
+        if( NIL == INS(looptable).MEM(nat_win) ){
+            D("[NIL_LOOPTABLE_FUNC:nat_win]");
+            problems++;
+        };;
+        if( NIL == INS(looptable).MEM(gam_obj) ){
+            D("[NIL_LOOPTABLE_FUNC:gam_obj]");
+            problems++;
+        };;
+        if( NIL == INS(looptable).MEM(ren_log) ){
+            D("[NIL_LOOPTABLE_FUNC:ren_log]");
+            problems++;
+        };;
+        if( problems > 0 ){
+            H("[WEVE_GOT_SOME_NULL_POINTER_PROBLEMS]");
+        };;
+
+        //:Because we set stub functions when intializing
+        //:the loop table, we never have to do nullchecks.
+        //:before calling.
+        INS(looptable).MEM(nat_win)();
+        INS(looptable).MEM(gam_obj)();
+        INS(looptable).MEM(ren_log)();
+
+        //:Track number of completed loops:
+        INS(looptable).MEM(lop_tim)++;
+
+        //:Game_Time: In the case that we would like
+        //:To pause game or slow down time, we can change
+        //:this value at a slower rate in future.
+        INS(looptable).MEM(gam_tim)++;
+    
+        //:Copy over game time variable so that stub
+        //:functions have access to it:
+        ins(game_time_copy_for_stub_functions)=(
+            INS(looptable).MEM(gam_tim)
+        );;
+    }
+
+    void FUN(Loop)( void ){ //:Loops forever, no exit
+
+        while( 1 ){
+
+            FUN(Tick)( /** NO_ARGUMENTS **/ );
+
+        };;
+    }
+
+//:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF :FUNCTIONS://
+
+
+
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
+#undef  lib  ///////////////////////////////////////////| 01 |//
+#undef  LIB  ///////////////////////////////////////////| 02 |//
+#undef  GM1  ///////////////////////////////////////////| 03 |//
+#undef  GM2  ///////////////////////////////////////////| 04 |//
+#undef  K_1  ///////////////////////////////////////////| 05 |//
+#undef  K_2  ///////////////////////////////////////////| 06 |//                                   
+#undef  TYP  ///////////////////////////////////////////| 07 |//   
+#undef  INS  ///////////////////////////////////////////| 08 |//   
+#undef  FUN  ///////////////////////////////////////////| 09 |// 
+#undef  EII  ///////////////////////////////////////////| 10 |//
+#undef  MEM  ///////////////////////////////////////////| 11 |//
+#undef  ARG  ///////////////////////////////////////////| 12 |//
+#undef  VAR  ///////////////////////////////////////////| 13 |//
+#undef  RET  ///////////////////////////////////////////| 14 |//                                            
+#undef  fun  ///////////////////////////////////////////| 15 |// 
+#undef  ins  ///////////////////////////////////////////| 16 |//
+#undef   H   ///////////////////////////////////////////| 17 |//
+#undef   D   ///////////////////////////////////////////| 18 |//
+#undef  NIL  ///////////////////////////////////////////| 19 |//
+//|__________________________________________________________|//
+
+
+//:Thoughts:
+    //: function: TitleCase
+    //: variable: snake_case
+    //:   struct: alllowercase ( matches file name )
+    //:           (Inspired by ID DOOM codebase)
+
+
+//:SEE: GetProcAddress
+
+#define SRC_NATIVE_CALLWRAP_LOADLIBRARY ( 1934 )
+
 #define lib MACRO_project_prefix_HIDDEN  //: Private  //: 01 ://
 #define LIB MACRO_project_prefix_VISIBLE //: Public   //: 02 ://
 #define GM1( a , b )      a## _ ##b      //: GLUEMAC  //: 03 ://
@@ -485,12 +717,12 @@
                                                       //: -- ://
 #define NIL ((void*)0)                                //: 16 ://
 #define ins(  nam  ) GM2( i_2020_04_22_1047PM , nam ) //: 17 ://
-//:CHAINFILE_MACRO: CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
+//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
 
     //:path to this file:
     #define  SRC_NATIVE_WINDOW_CREATION ( 1 )
 
-//:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM :CHAINFILE_MACRO://
+//:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM  :CHAINFILE_MACRO://
 //:STRUCTS: SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS://
 
     //[  SEE[ VG03.ALL's F09_STRUCT_PIXELFORMATDESCRIPTOR ]  ]//
@@ -1512,6 +1744,25 @@ int main( void ){
 
     ////////////////////////////////////////////////////////////
 
+    #if( SRC_MAINLOOP_LOOPTABLE >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        EII(SRC_MAINLOOP_looptable)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+
+    ////////////////////////////////////////////////////////////
+
+    #if( SRC_NATIVE_CALLWRAP_LOADLIBRARY >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        //:No code for this, just a stub. All logic
+        //:is inside "GetProcAddress._"
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+
+    ////////////////////////////////////////////////////////////
+
     #if( SRC_NATIVE_CALLWRAP_GETPROCADDRESS >= 1 )
         ASS( INS( AT_END_OF_CHAIN ) <= 0 );
         EII(SRC_NATIVE_CALLWRAP_getprocaddress)();
@@ -1539,6 +1790,29 @@ int main( void ){
     
     ////////////////////////////////////////////////////////////
 
+
+
+
+
+
+    //:ML:Main_Loop: (AKA: LOOPTABLE):
+    //:MLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLML://
+    #if( SRC_MAINLOOP_LOOPTABLE >= 1 )
+        
+        printf("\n\n\n");
+        printf("[Entering:MainLoop:USE[CTRL+V]TO[EXIT_EXE]]\n");
+        printf("\n\n\n");
+        fflush(stdout);
+        
+        //: Loop_Forever_Because_This_Is_The_Main_Game_Loop
+        //: SRC/MAINLOOP/looptable._ :: FUN(Loop):
+        FUN(Loop)(/**void**/);
+
+    #endif
+    //:MLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLML://
+
+
+
 }
 
 
@@ -1564,7 +1838,26 @@ int main( void ){
     //:different files are concatted together in the
     //:building bash script.
 
+    //:looptable._
+    #undef SRC_MAINLOOP_LOOPTABLE              
+
+   
+
+    //:LoadLibrary._
+    #undef SRC_NATIVE_CALLWRAP_LOADLIBRARY  
+
+    //:GetProcAddress._
+    #undef SRC_NATIVE_CALLWRAP_GETPROCADDRESS 
+
+    //:ping:
+    #undef SRC_NATIVE_PING
+
+    //:creation._
     #undef SRC_NATIVE_WINDOW_CREATION
+    
+
+
+   
 
 #undef  MACRO_project_prefix_HIDDEN   
 #undef  MACRO_project_prefix_VISIBLE  

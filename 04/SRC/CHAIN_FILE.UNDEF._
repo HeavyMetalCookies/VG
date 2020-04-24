@@ -6,4 +6,23 @@
     //:different files are concatted together in the
     //:building bash script.
 
+    //:looptable._
+    #undef SRC_MAINLOOP_LOOPTABLE              
+
+   
+
+    //:LoadLibrary._
+    #undef SRC_NATIVE_CALLWRAP_LOADLIBRARY  
+
+    //:GetProcAddress._
+    #undef SRC_NATIVE_CALLWRAP_GETPROCADDRESS 
+
+    //:ping:
+    #undef SRC_NATIVE_PING
+
+    //:creation._
     #undef SRC_NATIVE_WINDOW_CREATION
+    
+
+
+   
