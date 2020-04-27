@@ -164,6 +164,8 @@
 //:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF::FORWARD_DECLARATIONS://
 //:INSTANCES: IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII://
 
+    int ins(frames_without_window)=(0-1); //:negative==unset
+
     struct TYP(WNDCLASSEXW) INS(WNDCLASSEXW)={0};
     void*  INS(han_exe)=(NIL); //:AKA:handle_to_exe
     void*  INS(dek_win)=(NIL); //:AKA:the_desktop_window
@@ -970,13 +972,30 @@ void fun( WindowTick )( void )
 
         };;
 
+        ins(frames_without_window) = 0;
+
     }else{ //:///////////////////////////////////////////////://
 
-        //:TODO: Variables to let rendering system know
-        //:      that the window is closed. For now 
-        //:      a simple printf will do.
-        printf("[SRC/NATIVE/WINDOW/creation._:NOMOREWINDOW]\n");
-        fflush(stdout);
+        //:Notify console if the window is closed and the
+        //:program is still executing.
+        #define MSG_MAX_INDEX ( 5 ) //://////////////////////://
+            ins(frames_without_window)++;
+            char* no_more_window_message=(
+                "[SRC/NATIVE/WINDOW/creation._:NOMOREWINDOW]\n"
+            );;
+            if( ins(frames_without_window) < MSG_MAX_INDEX ){
+                //:TODO: Variables to let rendering system know
+                //:      that the window is closed. For now 
+                //:      a simple printf will do.
+                printf(no_more_window_message);
+                fflush(stdout);
+            }else
+            if( ins(frames_without_window) == MSG_MAX_INDEX ){
+                printf("[StillNoWindowButBeingQuietNow...]\n");
+                printf("[USE[CTRL+C]HERE_TO_EXIT_PROGRAM!]\n");
+                fflush(stdout);
+            };;
+        #undef MSG_MAX_INDEX //://///////////////////////////://
 
     };; //://////////////////////////////////////////////////://
 

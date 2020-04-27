@@ -458,31 +458,37 @@
         fun( LoadLibrary )( "dll_k32" ); //:Kernel32.dll
         fun( LoadLibrary )( "dll_u32" ); //:User32.dll
         fun( LoadLibrary )( "dll_g32" ); //:Gdi32.dll
+        fun( LoadLibrary )( "dll_vuk" ); //:vulkan-1.dll
 
         if( NIL == INS(dll_k32) ){ H("[NOLOAD:dll_k32]");};
         if( NIL == INS(dll_u32) ){ H("[NOLOAD:dll_u32]");};
         if( NIL == INS(dll_g32) ){ H("[NOLOAD:dll_g32]");};
+        if( NIL == INS(dll_vuk) ){ H("[NOLOAD:dll_vuk]");};
 
-        //:make_sure_all_function_pointers_unique:
-        #define I1  INS(dll_k32) //://///////////////////////://
-        #define I2  INS(dll_u32) //://///////////////////////://
-        #define I3  INS(dll_g32) //://///////////////////////://
-        #define    L_E_N ( 3 )   //://///////////////////////://
-        void* arr[ L_E_N ]={ I1,I2,I3 };
+        //:SC[VK4UP_SIMPLE]//////////////////////////////////://
+        //:make_sure_all_function_pointers_unique:ver__simple://
+        #define I1    INS(dll_k32) //:///////////////////////://
+        #define I2    INS(dll_u32) //:///////////////////////://
+        #define I3    INS(dll_g32) //:///////////////////////://
+        #define I4    INS(dll_vuk) //:///////////////////////://
+        #define    L_E_N ( 4 )     //:///////////////////////://
+        void* arr[ L_E_N ]={ I1,I2,I3,I4 };
         for( int a = 0; a < L_E_N; a++ ){  //:- - - - - - - -://
         for( int b = 0; b < L_E_N; b++ ){  //:- - - - - - - -://
             if( a==b ){ continue; };
             if( arr[a]==arr[b] ){ H("[FAIL:NOT_A_SET]");};
         };;};;D("[PASS:YES_A_SET]");
         #undef  L_E_N //:////////////////////////////////////://
-        #define I1  INS(dll_k32) //://///////////////////////://
-        #define I2  INS(dll_u32) //://///////////////////////://
-        #define I3  INS(dll_g32) //://///////////////////////://
+        #undef  I1    //: dll_k32) //~///////////////////////://
+        #undef  I2    //: dll_u32) //~///////////////////////://
+        #undef  I3    //: dll_g32) //~///////////////////////://
+        #undef  I4    //: dll_vuk) //~///////////////////////://
+        //:SC[VK4UP_SIMPLE]//////////////////////////////////://
 
         //:EIIEIIEIIEIIEIIEIIEIIEII//EIIEIIEIIEIIEIIEIIEIIEII://
 
         D("[EII:END]");
-    }
+    } //:END:EII[SRC_NATIVE_CALLWRAP_getprocaddress]/////////://
 
     TYP(Data) fun(LoadLibrary)(
         TYP(Str) ARG(dll_nam)
@@ -530,6 +536,18 @@
                     printf("[RESOLVES_TO:gdi32.dll]\n");
             VAR(Data)=DLLL_LoadLibraryA("gdi32.dll");
             INS(dll_g32)=( VAR(Data) ); //:CACHE_YOUR_DLL
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_vuk" (vulkan-1.dll)
+        &&  ARG(dll_nam)[4] == 'v' 
+        &&  ARG(dll_nam)[5] == 'u' 
+        &&  ARG(dll_nam)[6] == 'k' 
+        ){
+                    printf("[RESOLVES_TO:vulkan-1.dll]\n");
+            VAR(Data)=DLLL_LoadLibraryA("vulkan-1.dll");
+            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
         }else
         if( 1 ){
             //:If dll_name is not a shorthand name,
@@ -611,7 +629,23 @@
             assert(      INS(dll_g32) );
             VAR(dll_ptr)=INS(dll_g32);
                 
-        }else{
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_vuk"
+        &&  ARG(dll_nam)[4] == 'v' 
+        &&  ARG(dll_nam)[5] == 'u' 
+        &&  ARG(dll_nam)[6] == 'k' 
+        ){
+            //:if_library_not_loaded____load_now:
+            if( NIL ==   INS( dll_vuk ) ){
+                         INS( dll_vuk )=fun( LoadLibrary    )
+                     /** INS( dll_vuk ) **/( "vulkan-1.dll" );
+            };; assert(  INS( dll_vuk ) );
+            VAR(dll_ptr)=INS( dll_vuk );
+        }else
+        if( 1 ){
             printf("[UnknownValueOf:dll_nam]:%s\n"
             , ARG(dll_nam));;
 
@@ -885,6 +919,8 @@
 
 //:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF::FORWARD_DECLARATIONS://
 //:INSTANCES: IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII://
+
+    int ins(frames_without_window)=(0-1); //:negative==unset
 
     struct TYP(WNDCLASSEXW) INS(WNDCLASSEXW)={0};
     void*  INS(han_exe)=(NIL); //:AKA:handle_to_exe
@@ -1692,13 +1728,30 @@ void fun( WindowTick )( void )
 
         };;
 
+        ins(frames_without_window) = 0;
+
     }else{ //:///////////////////////////////////////////////://
 
-        //:TODO: Variables to let rendering system know
-        //:      that the window is closed. For now 
-        //:      a simple printf will do.
-        printf("[SRC/NATIVE/WINDOW/creation._:NOMOREWINDOW]\n");
-        fflush(stdout);
+        //:Notify console if the window is closed and the
+        //:program is still executing.
+        #define MSG_MAX_INDEX ( 5 ) //://////////////////////://
+            ins(frames_without_window)++;
+            char* no_more_window_message=(
+                "[SRC/NATIVE/WINDOW/creation._:NOMOREWINDOW]\n"
+            );;
+            if( ins(frames_without_window) < MSG_MAX_INDEX ){
+                //:TODO: Variables to let rendering system know
+                //:      that the window is closed. For now 
+                //:      a simple printf will do.
+                printf(no_more_window_message);
+                fflush(stdout);
+            }else
+            if( ins(frames_without_window) == MSG_MAX_INDEX ){
+                printf("[StillNoWindowButBeingQuietNow...]\n");
+                printf("[USE[CTRL+C]HERE_TO_EXIT_PROGRAM!]\n");
+                fflush(stdout);
+            };;
+        #undef MSG_MAX_INDEX //://///////////////////////////://
 
     };; //://////////////////////////////////////////////////://
 
@@ -2004,6 +2057,7 @@ fun(WinMsgHanWndPoc)(
 #define siz(   N   ) GM2( S_2020_04_25_1007PM ,  N  ) //| 31 |//
 #define num(   N   ) GM2( N_2020_04_25_1007PM ,  N  ) //| 32 |//
 #define arr(   N   ) GM2( A_2020_04_25_1007PM ,  N  ) //| 33 |//
+#define dex(   N   ) GM2( D_2020_04_24_1007PM ,  N  )
 #define  H    fun( Halt )                             //| 37 |//
 #define  D    fun( Dmsg ) // DebugPrint/DebugMessage  //| 38 |//
 #define NIL ((void*)0)                                //| 39 |//
@@ -2015,6 +2069,10 @@ fun(WinMsgHanWndPoc)(
 #define g_1(a      ) G_1( lib, a      ) //:FILE_SCOPE
 #define g_2(a,b    ) G_2( lib, a,b    ) //:FILE_SCOPE 
 #define g_3(a,b,c  ) G_3( lib, a,b,c  ) //:FILE_SCOPE 
+#define U32 unsigned           int
+#define I32 signed             int
+#define U64 unsigned long long int
+#define I64 signed   long long int
 //:USE: Getters or make it an INS(file_scope_var)     //| -- |//
 //:     If you want some type of public access.       //| -- |//
 //:NO:  SIZ(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
@@ -2027,6 +2085,7 @@ fun(WinMsgHanWndPoc)(
 //:NO:  f_#: Confused with: F_## types. USE: g_#      //| -- |//
 #define termin //:termin:TERMINAL member/variable     //| -- |//
 #define s ;    //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+#define S ;    //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
 #define _      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
 //|____________________________________________|V4_MEGAHEADER|//
 //:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
@@ -2046,7 +2105,10 @@ fun(WinMsgHanWndPoc)(
 //[1111111111111111111111111111111111111111111111111111111111]//
 
     //:Things I'd like you to notice first:
-    extern TYP(FUN) INS(vkCreateInstance);
+    #define E extern TYP(FUN) //:////////////////////////////://
+            E INS(vkCreateInstance);
+            E INS(vkEnumerateInstanceExtensionProperties);
+    #undef  E //:////////////////////////////////////////////://
 
 //[1111111111111111111111111111111111111111111111111111111111]//
 //:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://                                      
@@ -2059,7 +2121,12 @@ fun(WinMsgHanWndPoc)(
 //:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG://
 //:VULKAN_DLL_FUNCTION_POINTERS:////:////////////////////////://
 
-    TYP(FUN) INS(vkCreateInstance) =( NIL );
+    #define F TYP(FUN) //:///////////////////////////////////://
+    #define N =( NIL );//:///////////////////////////////////://
+            F INS(vkCreateInstance)                            N
+            F INS(vkEnumerateInstanceExtensionProperties)      N
+    #undef  N //:////////////////////////////////////////////://
+    #undef  F //:////////////////////////////////////////////://
 
 //:////////////////////////:////:VULKAN_DLL_FUNCTION_POINTERS://
 //:TYPEDEFS_NODEPS: :T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0://
@@ -2076,6 +2143,16 @@ fun(WinMsgHanWndPoc)(
         unsigned int      engineVersion;      //:unsigned int
         unsigned int      apiVersion;         //:unsigned int
     }E_S(app_inf)
+
+    //:VkExtensionProperties 
+    struct TYP(ext_pro){
+        //:ext_nam: extensionName
+        char MEM(ext_nam)[ 256 /*VK_MAX_EXTENSION_NAME_SIZE*/ ];
+
+        //:spe_ver: specVersion
+        U32 MEM(spe_ver); /** uint32_t **/  
+
+    }E_S(ext_pro)
 
 //:T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0: :TYPEDEFS_NODEPS://
 //:TYPEDEFS_01_DEP:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
@@ -2100,6 +2177,14 @@ fun(WinMsgHanWndPoc)(
         const char* const*   ppEnabledExtensionNames;
     }E_S(cre_inf_vuk_ins)
 //:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1:TYPEDEFS_01_DEP://
+//:FILESCOPE_GLOBALS::GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG://
+
+    //:Global variables used to setup our main Vulkan_Struct.
+    //:( Vulkan_Struct == struct typ(vuk_mai) == vulkan_main )
+    //:There should only be ONE reference to these used to
+    //:populate the struct, and then always use the struct
+    //:reference. Failure to do so will result in
+    //:spaghetti code.
 
     //:wanted_instance_extensions
     int   g_2(ext_ins,wan_num)=( 2 );  
@@ -2108,6 +2193,21 @@ fun(WinMsgHanWndPoc)(
     ,   "VK_KHR_win32_surface"
     };
 
+    //:WHAT_INSTANCE_EXTENSIONS_ARE_AVALIABLE:                 _
+    //:SEE[ VK_TUT_2018 ]BOOK_PAGE[ 49 ]                       _
+    //:NO_SUCH_TYPE:VkInstanceExtensionProperties:             _
+    //:THE_TYPE_IS :VkExtensionProperties                      _
+    #define E_P  struct TYP(ext_pro)                           _
+    #define CAP ( 4 ) /** Maximum_Capacity_Of_Array **/        _
+    #define NUM (0-1) /** Number_Of_Valid_Entries:  **/        _
+            int  g_2(ext_ins,pro_cap)=(CAP)                    S
+            int  g_2(ext_ins,pro_num)=(NUM)                    S
+            E_P  g_2(ext_ins,pro_arr)[ CAP ]={0}               S
+    #undef  E_P  ///                                           _
+    #undef  CAP  ///                                           _
+    #undef  NUM  ///                                           _
+
+//:GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG::FILESCOPE_GLOBALS://
 //:VULKAN_STRUCT:VSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVS://
     struct typ(vuk_mai){ //:vulkan_main.
  
@@ -2122,6 +2222,17 @@ fun(WinMsgHanWndPoc)(
         struct bra(ext_ins){//:extensions:INSTANCE
             int    mem(wan_num);//:wanted_instance_extensions
             char** mem(wan_arr);//:wanted_instance_extensions
+    
+            //:InstanceExtensionProperties  //~//////////////://
+            #define E_P struct TYP(ext_pro) //://////////////://
+                //:typ(vuk_mai).sub(ext_ins).mem(pro_cap);
+                //:typ(vuk_mai).sub(ext_ins).mem(pro_num);
+                //:typ(vuk_mai).sub(ext_ins).mem(pro_arr);
+                int    mem(pro_cap); //: properties_capacity
+                int    mem(pro_num); //: properties_numberof
+                E_P*   mem(pro_arr); //: properties_array
+            #undef E_P //:///////////////////////////////////://
+
         }sub(ext_ins);
         
         struct bra(cre_inf){ //:cre_(ate)_inf_(o)
@@ -2138,16 +2249,17 @@ fun(WinMsgHanWndPoc)(
     }E_S(vuk_mai)
 //:VSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVS:VULKAN_STRUCT://
 
-
     //://////////////////////////////////////////////////////://
     static unsigned int fun(MakVer)( //:VK_MAKE_VERSION://///://
         unsigned int major
     ,   unsigned int minor
     ,   unsigned int patch
     ){
-        unsigned int ret;
-        ret = (((major) << 22) | ((minor) << 12) | (patch));
-        return( ret );
+        unsigned int ret(mak_ver);
+        ret(mak_ver) =(
+            (((major) << 22) | ((minor) << 12) | (patch))
+        );;
+        return( ret(mak_ver) );
     }//://///////////////////////////////////////////////////://
 
 //[MAIN:(BELOW):---------------------------------------------]//
@@ -2163,11 +2275,17 @@ fun(WinMsgHanWndPoc)(
     //:     Modify it to recognize "vuk_dll" as shorthand
     //:     code for "vulkan-1.dll"
 
-    //# #error TODO: GetProcAddress needs to know about vuk_dll #// <<<<<<<<<<<<<<<<< NOTICE_ME_SENPAI
     INS(vkCreateInstance)=FUN(GetProcAddress)(
     /**/    "dll_vuk" //:vulkan-1.dll
     ,       "vkCreateInstance" );;
 
+    //:vkEnumerateInstanceExtensionProperties
+    
+    INS(vkEnumerateInstanceExtensionProperties)=
+    FUN(GetProcAddress)(
+    /**/ "dll_vuk"
+    ,    "vkEnumerateInstanceExtensionProperties"
+    );;
 
                    
     #define vkm ins(vuk_mai) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -2204,6 +2322,8 @@ fun(WinMsgHanWndPoc)(
         //:AIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAI://
         //:VkApplicationInfo:________________________________://
         //:VkInstanceCreateInfo:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
+        //:SEE[ VK_TUT_2018 ]BOOK_PAGE[ 48 ](BottomOfPage)   ://
         //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
         #define AI vkm.mem(app_inf)              _ _ _ _ _ _ _ _
         #define VI vkm.mem(vuk_ins)              _ _ _ _ _ _ _ _
@@ -2261,7 +2381,117 @@ fun(WinMsgHanWndPoc)(
         #undef  VI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
         #undef  AI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
         //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
+        //:SEE[ VK_TUT_2018 ]BOOK_PAGE[ 48 ](BottomOfPage)   ://
+        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
         //:CI:VkInstanceCreateInfo:__________________________://
+
+        //:SizeChecks:
+        ;;;if( sizeof(U32) != 4 ){ 
+            H("[FAIL:SIZECHECK:U32]"); 
+        };;if( sizeof( struct TYP(ext_pro)  ) != 260 ){
+            H("[FAIL:SIZECHECK:VkExtensionProperties]");
+        };;
+
+        //:EP:InstanceExtensionProperties:(BELOW):¯¯¯¯¯¯¯¯¯¯¯://
+        //:EPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEP://
+        #define VUK_FUN vkEnumerateInstanceExtensionProperties
+        { //:SCOPE
+            int res=(0-1);//:VkResult
+
+            //:SizeChecks:
+            if( sizeof(I32)!= 4 ){ H("[2020_04_27_0429AM-A]");}
+            if( sizeof(U64)!= 8 ){ H("[2020_04_27_0429AM-B]");}
+
+            int ava_num=(0-1); //:Available_Number(Amount)
+            res=( (I32)(U64)
+            (
+                ((TYP(F_03))INS( VUK_FUN ))
+                (
+                    NIL //:<--Optional:FilterByValidationLayer
+                ,   &( g_2(ext_ins,pro_num) ) //:extensionCount
+                ,   NIL
+                )
+            ));
+            if( res != 0 /**VK_SUCCESS**/ ){ 
+                H("[2020_04_27:0419AM]");
+            };;
+    
+            //:Do we have enough capacity to get everything?
+            //://////////////////////////////////////////////://
+            //:Keep it simple. We are not going to deal with
+            //:malloc unless absolutely necessary. We can
+            //:afford a bit of wasted space.
+            if( ava_num > g_2(ext_ins,pro_cap) ){
+                D("[WARN:CapacityNotLargeEnoughToGetAll]");
+                D("[EXPECT:VK_INCOMPLETE]");
+                g_2(ext_ins,pro_num) = g_2(ext_ins,pro_cap);
+            }else{
+                D("[OKAY:CapacityLargeEnoughToGetAll]");
+                D("[EXPECT:VK_SUCCESS]");
+                g_2(ext_ins,pro_num) = ava_num;
+            };;
+            //://////////////////////////////////////////////://
+
+            res=( (I32)(U64)
+            (
+                ((TYP(F_03))INS( VUK_FUN ))
+                (
+                    //:SEE[ VK_TUT_2018 ]BOOK_PAGE[ 49 ]
+                    //:"It takes an optional first parameter"
+                    //:"that allows us to filter extensions "
+                    //:"by a specific validation layer.     "
+                    NIL //:<--Optional:FilterByValidationLayer
+                ,   &( g_2(ext_ins,pro_num) ) //:extensionCount
+                ,   &( g_2(ext_ins,pro_arr) ) //:pProperties
+                )
+            ));
+
+            //:Did we get the expected success status?
+            if( ava_num > g_2(ext_ins,pro_cap) ){
+                if( res != 5 /**VK_INCOMPLETE**/ ){
+                    H("[2020_04_27:0421AM-A]");
+                };;
+            }else{
+                if( res != 0 /**VK_SUCCESS**/ ){
+                    H("[2020_04_27:0421AM-A]");
+                };;
+            };;
+
+            //:Copy over values to our main vulkan struct:
+            vkm.sub(ext_ins).mem(pro_cap)=g_2(ext_ins,pro_cap);
+            vkm.sub(ext_ins).mem(pro_num)=g_2(ext_ins,pro_num);
+            vkm.sub(ext_ins).mem(pro_arr)=g_2(ext_ins,pro_arr);
+            
+            //:Loop over instance extensions as sanity check:
+            #define E_P struct TYP(ext_pro) //://////////////://
+                
+                printf("\n[VkExtensionProperties:(BELOW)]\n");
+                int  num(ext) = vkm.sub(ext_ins).mem(pro_num);
+                E_P* arr(ext) = vkm.sub(ext_ins).mem(pro_arr);
+
+                int     dex(ext) = 0;
+                for(    
+                /**/    dex(ext)= 0 
+                ;       dex(ext) < num(ext) 
+                ;       dex(ext)++
+                ){
+                    //:VkExtensionProperties 
+                    printf("[extensionName]:%s\n"
+                    , ( arr(ext)[ dex(ext) ] ).MEM(ext_nam) 
+                    );;
+                };;
+                fflush(stdout);
+
+            #undef E_P //:///////////////////////////////////://
+
+        } //:SCOPE
+        #undef  VUK_FUN  //://///////////////////////////////://
+        //:EPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEP://
+        //:EP:InstanceExtensionProperties:(ABOVE):___________://
+
+        //:WHEN DONE WITH SETUP:
+        //:Do a check of entire struct to make sure every
+        //:member is valid
     
     //:------------------------------------------------------://
     #undef  vkm  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -2304,6 +2534,7 @@ fun(WinMsgHanWndPoc)(
 #undef  siz  //:-----------------------------------:////| 31 |//
 #undef  num  //:-----------------------------------:////| 32 |//
 #undef  arr  //:-----------------------------------:////| 33 |//
+#undef  dex
 #undef   H   //:-----------------------------------:////| 37 |//
 #undef   D   //:-----------------------------------:////| 38 |//
 #undef  NIL  //:-----------------------------------:////| 39 |//
@@ -2315,6 +2546,7 @@ fun(WinMsgHanWndPoc)(
 #undef  g_1  //:-----------------------------------://
 #undef  g_2  //:-----------------------------------://
 #undef  g_3  //:-----------------------------------://
+#undef  U32
 //:USE: Getters or make it an INS(file_scope_var)     //| -- |//
 //:     If you want some type of public access.       //| -- |//
 //:NO:  SIZ(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
@@ -2327,6 +2559,7 @@ fun(WinMsgHanWndPoc)(
 //:NO:  f_#: Confused with: F_## types. USE: g_#      //| -- |//
 #undef  termin //:termin:TERMINAL member/variable     //| -- |//
 #undef  s      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+#undef  S      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
 #undef  _      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
 //|____________________________________________|V4_MEGAHEADER|//
 
@@ -2357,6 +2590,11 @@ fun(WinMsgHanWndPoc)(
 //| fix your program.                                        |//
 //| www.kernel.org/doc/html/v4.10/process/coding-style.html  |//
 
+
+//:VK_TUT_2018:
+//:     A PDF version of "vulkan-tutorial.com/"
+//:     VK_TUT_2018 is my shortcut name that opens the
+//:     tutorial on my computer.
 
 #define lib MACRO_project_prefix_HIDDEN  //: Private  //: 01 ://
 #define LIB MACRO_project_prefix_VISIBLE //: Public   //: 02 ://

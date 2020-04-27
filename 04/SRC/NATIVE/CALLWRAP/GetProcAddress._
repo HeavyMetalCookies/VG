@@ -103,31 +103,37 @@
         fun( LoadLibrary )( "dll_k32" ); //:Kernel32.dll
         fun( LoadLibrary )( "dll_u32" ); //:User32.dll
         fun( LoadLibrary )( "dll_g32" ); //:Gdi32.dll
+        fun( LoadLibrary )( "dll_vuk" ); //:vulkan-1.dll
 
         if( NIL == INS(dll_k32) ){ H("[NOLOAD:dll_k32]");};
         if( NIL == INS(dll_u32) ){ H("[NOLOAD:dll_u32]");};
         if( NIL == INS(dll_g32) ){ H("[NOLOAD:dll_g32]");};
+        if( NIL == INS(dll_vuk) ){ H("[NOLOAD:dll_vuk]");};
 
-        //:make_sure_all_function_pointers_unique:
-        #define I1  INS(dll_k32) //://///////////////////////://
-        #define I2  INS(dll_u32) //://///////////////////////://
-        #define I3  INS(dll_g32) //://///////////////////////://
-        #define    L_E_N ( 3 )   //://///////////////////////://
-        void* arr[ L_E_N ]={ I1,I2,I3 };
+        //:SC[VK4UP_SIMPLE]//////////////////////////////////://
+        //:make_sure_all_function_pointers_unique:ver__simple://
+        #define I1    INS(dll_k32) //:///////////////////////://
+        #define I2    INS(dll_u32) //:///////////////////////://
+        #define I3    INS(dll_g32) //:///////////////////////://
+        #define I4    INS(dll_vuk) //:///////////////////////://
+        #define    L_E_N ( 4 )     //:///////////////////////://
+        void* arr[ L_E_N ]={ I1,I2,I3,I4 };
         for( int a = 0; a < L_E_N; a++ ){  //:- - - - - - - -://
         for( int b = 0; b < L_E_N; b++ ){  //:- - - - - - - -://
             if( a==b ){ continue; };
             if( arr[a]==arr[b] ){ H("[FAIL:NOT_A_SET]");};
         };;};;D("[PASS:YES_A_SET]");
         #undef  L_E_N //:////////////////////////////////////://
-        #define I1  INS(dll_k32) //://///////////////////////://
-        #define I2  INS(dll_u32) //://///////////////////////://
-        #define I3  INS(dll_g32) //://///////////////////////://
+        #undef  I1    //: dll_k32) //~///////////////////////://
+        #undef  I2    //: dll_u32) //~///////////////////////://
+        #undef  I3    //: dll_g32) //~///////////////////////://
+        #undef  I4    //: dll_vuk) //~///////////////////////://
+        //:SC[VK4UP_SIMPLE]//////////////////////////////////://
 
         //:EIIEIIEIIEIIEIIEIIEIIEII//EIIEIIEIIEIIEIIEIIEIIEII://
 
         D("[EII:END]");
-    }
+    } //:END:EII[SRC_NATIVE_CALLWRAP_getprocaddress]/////////://
 
     TYP(Data) fun(LoadLibrary)(
         TYP(Str) ARG(dll_nam)
@@ -175,6 +181,18 @@
                     printf("[RESOLVES_TO:gdi32.dll]\n");
             VAR(Data)=DLLL_LoadLibraryA("gdi32.dll");
             INS(dll_g32)=( VAR(Data) ); //:CACHE_YOUR_DLL
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_vuk" (vulkan-1.dll)
+        &&  ARG(dll_nam)[4] == 'v' 
+        &&  ARG(dll_nam)[5] == 'u' 
+        &&  ARG(dll_nam)[6] == 'k' 
+        ){
+                    printf("[RESOLVES_TO:vulkan-1.dll]\n");
+            VAR(Data)=DLLL_LoadLibraryA("vulkan-1.dll");
+            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
         }else
         if( 1 ){
             //:If dll_name is not a shorthand name,
@@ -256,7 +274,23 @@
             assert(      INS(dll_g32) );
             VAR(dll_ptr)=INS(dll_g32);
                 
-        }else{
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_vuk"
+        &&  ARG(dll_nam)[4] == 'v' 
+        &&  ARG(dll_nam)[5] == 'u' 
+        &&  ARG(dll_nam)[6] == 'k' 
+        ){
+            //:if_library_not_loaded____load_now:
+            if( NIL ==   INS( dll_vuk ) ){
+                         INS( dll_vuk )=fun( LoadLibrary    )
+                     /** INS( dll_vuk ) **/( "vulkan-1.dll" );
+            };; assert(  INS( dll_vuk ) );
+            VAR(dll_ptr)=INS( dll_vuk );
+        }else
+        if( 1 ){
             printf("[UnknownValueOf:dll_nam]:%s\n"
             , ARG(dll_nam));;
 
