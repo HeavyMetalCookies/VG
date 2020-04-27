@@ -39,6 +39,7 @@
     void* INS( dll_k32 ) = NIL; //:Kernel32.dll pointer
     void* INS( dll_u32 ) = NIL; //:User32.dll   pointer
     void* INS( dll_g32 ) = NIL; //:Gdi32.dll    pointer
+    void* INS( dll_vuk ) = NIL; //:vulkan-1.dll pointer
 
 //:TYPEDEFS: ////////////////////////////////////////////////://
 

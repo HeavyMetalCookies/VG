@@ -67,6 +67,15 @@ int main( void ){
     #endif
     
     ////////////////////////////////////////////////////////////
+    
+    #if(    SRC_VULKAN_SETUP_MAIN  >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        EII(SRC_VULKAN_SETUP_main)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+    
+    ////////////////////////////////////////////////////////////
 
 
 

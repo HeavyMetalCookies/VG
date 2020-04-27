@@ -1,0 +1,384 @@
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+#define lib MACRO_project_prefix_HIDDEN  //~Private~  //| 01 |//
+#define LIB MACRO_project_prefix_VISIBLE //~Public~~  //| 02 |//
+#define GM1( a , b )      a## _ ##b          // GLUE  //| 03 |//
+#define GM2( a , b ) GM1( a   ,   b )        // GLUE  //| 04 |//
+#define K_1( a,b,c )      a## _ ##b## _ ##c  // GLUE  //| 05 |//
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )// GLUE  //| 06 |// 
+#define VAR(  nam  ) GM2( VAR   ,   nam )// Local_Var //| 07 |//
+#define EII(  nam  ) K_2( LIB, EII, nam )// SEE[EII]  //| 08 |//     
+#define MEM(  nam  ) K_2( LIB ,MEM, nam )// Member    //| 09 |//
+#define INS(  nam  ) K_2( LIB ,INS, nam )// INS:INST  //| 10 |// 
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )// FUN:FUNC  //| 11 |//                       
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )// TYP:TYPE  //| 12 |//   
+#define ARG(  nam  ) GM2(      ARG, nam )// Argument  //| 13 |//
+#define RET(  nam  ) GM2(      RET, nam )// RET___Var //| 14 |//      
+#define BRA(  nam  ) K_2( lib, bra, nam )// BranchTyp //| 15 |//      
+#define SUB(  nam  ) K_2( lib, sub, nam )// SubInstan //| 16 |//          
+#define var(  nam  ) GM2( v_2020_04_25_1007PM , nam ) //| 19 |//
+#define eii(  nam  ) GM2( e_2020_04_25_1007PM , nam ) //| 20 |//     
+#define mem(  nam  ) GM2( m_2020_04_25_1007PM , nam ) //| 21 |//       
+#define ins(  nam  ) GM2( i_2020_04_25_1007PM , nam ) //| 22 |//                  
+#define fun(  nam  ) GM2( f_2020_04_25_1007PM , nam ) //| 23 |// 
+#define typ(  nam  ) GM2( t_2020_04_25_1007PM , nam ) //| 24 |//
+#define arg(  nam  ) GM2( a_2020_04_25_1007PM , nam ) //| 25 |//
+#define ret(  nam  ) GM2( r_2020_04_25_1007PM , nam ) //| 26 |//  
+#define bra(  nam  ) GM2( b_2020_04_25_1007PM , nam ) //| 27 |//  
+#define sub(  nam  ) GM2( s_2020_04_25_1007PM , nam ) //| 28 |// 
+#define obj(  nam  ) GM2( o_2020_04_25_1007PM , nam ) //| 29 |// 
+#define poi(  nam  ) GM2( p_2020_04_25_1007PM , nam ) //| 30 |// 
+#define siz(   N   ) GM2( S_2020_04_25_1007PM ,  N  ) //| 31 |//
+#define num(   N   ) GM2( N_2020_04_25_1007PM ,  N  ) //| 32 |//
+#define arr(   N   ) GM2( A_2020_04_25_1007PM ,  N  ) //| 33 |//
+#define  H    fun( Halt )                             //| 37 |//
+#define  D    fun( Dmsg ) // DebugPrint/DebugMessage  //| 38 |//
+#define NIL ((void*)0)                                //| 39 |//
+#define E_S(  end  )   ;  // END_STRUCT               //| 40 |//
+#define E_F(  end  )      // END_FUNCTION             //| 41 |//
+#define G_1(G,a    ) G ##_## a
+#define G_2(G,a,b  ) G ##_## a ##_## b
+#define G_3(G,a,b,c) G ##_## a ##_## b ##_## c
+#define g_1(a      ) G_1( lib, a      ) //:FILE_SCOPE
+#define g_2(a,b    ) G_2( lib, a,b    ) //:FILE_SCOPE 
+#define g_3(a,b,c  ) G_3( lib, a,b,c  ) //:FILE_SCOPE 
+//:USE: Getters or make it an INS(file_scope_var)     //| -- |//
+//:     If you want some type of public access.       //| -- |//
+//:NO:  SIZ(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  NUM(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  ARR(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  OBJ(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//      
+//:NO:  POI(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//  
+//:NO:  g_4: SEE[ NESTING_RULE_NO_DEEPER_THAN_3 ]     //| -- |//
+//:NO:  v_#: Confused as local var.     USE: g_#      //| -- |//
+//:NO:  f_#: Confused with: F_## types. USE: g_#      //| -- |//
+#define termin //:termin:TERMINAL member/variable     //| -- |//
+#define s ;    //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+#define _      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+//|____________________________________________|V4_MEGAHEADER|//
+//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
+
+    //[[////////////////////////////////////////////////////]]//
+    //[]////#   Experiment:                            #////[]//
+    //[]////#   Instead of trying to make something    #////[]//
+    //[]////#   pronouncable, abbreviation rules will  #////[]//
+    //[]////#   be the first three letters of word.    #////[]//
+    //[]////#   All variables 2 words long.            #////[]//
+    //[[////////////////////////////////////////////////////]]//
+
+    //:PATH_TO_THIS_FILE_AS_ALL_CAPITAL_MACRO:
+    #define  SRC_VULKAN_SETUP_MAIN ( 7623 )
+
+//:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM  :CHAINFILE_MACRO://
+//[1111111111111111111111111111111111111111111111111111111111]//
+
+    //:Things I'd like you to notice first:
+    extern TYP(FUN) INS(vkCreateInstance);
+
+//[1111111111111111111111111111111111111111111111111111111111]//
+//:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://                                      
+    static void fun(Halt)( const char* msg ){printf( //:- - -://                       
+    "[SRC_VULKAN_SETUP_MAIN:Halt]:%s\n"
+    , msg);;fflush(stdout);exit(0xF0);}//:- - - - - - - - - -://   
+    static void fun(Dmsg)( const char* msg ){printf(
+    "[SRC_VULKAN_SETUP_MAIN:Dmsg]:%s\n"
+    ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
+//:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG://
+//:VULKAN_DLL_FUNCTION_POINTERS:////:////////////////////////://
+
+    TYP(FUN) INS(vkCreateInstance) =( NIL );
+
+//:////////////////////////:////:VULKAN_DLL_FUNCTION_POINTERS://
+//:TYPEDEFS_NODEPS: :T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0://
+
+    //:Typedefs that do not rely on struct definitions.
+    typedef void* typ(        vuk_ins) ;//:VkInstance
+ 
+    struct typ(app_inf) {          //:VkApplicationInfo
+        unsigned int      sType;   //:VkStructureType
+        const void*       pNext;
+        const char*       pApplicationName;
+        unsigned int      applicationVersion; //:uint32_t
+        const char*       pEngineName;
+        unsigned int      engineVersion;      //:unsigned int
+        unsigned int      apiVersion;         //:unsigned int
+    }E_S(app_inf)
+
+//:T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0: :TYPEDEFS_NODEPS://
+//:TYPEDEFS_01_DEP:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
+    //:-------:cre_inf.vuk_ins:------------------------------://
+    struct typ(cre_inf_vuk_ins) {   //:VkInstanceCreateInfo
+        unsigned int         sType; //:VkStructureType
+        const   void*        pNext;
+        unsigned int         flags;
+
+                             //:AKA:pApplicationInfo 
+        const struct         //:AKA:VkApplicationInfo*
+                             typ(app_inf)* 
+                             poi(app_inf);
+                             
+        unsigned      int    enabledLayerCount;
+        const char* const*   ppEnabledLayerNames;
+
+        //:Is "const char**" same as "const char* const*" ?
+        //:In fact.. Both are "char**" with extra constraints.
+
+        unsigned     int     enabledExtensionCount;
+        const char* const*   ppEnabledExtensionNames;
+    }E_S(cre_inf_vuk_ins)
+//:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1:TYPEDEFS_01_DEP://
+
+    //:wanted_instance_extensions
+    int   g_2(ext_ins,wan_num)=( 2 );  
+    char* g_2(ext_ins,wan_arr)[  2 ]={
+        "VK_KHR_surface"
+    ,   "VK_KHR_win32_surface"
+    };
+
+//:VULKAN_STRUCT:VSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVS://
+    struct typ(vuk_mai){ //:vulkan_main.
+ 
+        struct
+        typ(app_inf)   //:VkApplicationInfo
+        mem(app_inf);  //:VkApplicationInfo
+
+        termin
+        typ(vuk_ins)   //:VkInstance/VulkanInstance
+        mem(vuk_ins);  //:VkInstance/VulkanInstance
+
+        struct bra(ext_ins){//:extensions:INSTANCE
+            int    mem(wan_num);//:wanted_instance_extensions
+            char** mem(wan_arr);//:wanted_instance_extensions
+        }sub(ext_ins);
+        
+        struct bra(cre_inf){ //:cre_(ate)_inf_(o)
+ 
+            struct //:ins(vuk_mai).sub(cre_inf).mem(vuk_ins);
+            typ(cre_inf_vuk_ins)   //:VkInstanceCreateInfo
+            mem(        vuk_ins);  //:VkInstanceCreateInfo
+
+        }sub(cre_inf); //:///////////////////////////////////:// 
+
+
+    }ins(vuk_mai)={
+        0
+    }E_S(vuk_mai)
+//:VSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVS:VULKAN_STRUCT://
+
+
+    //://////////////////////////////////////////////////////://
+    static unsigned int fun(MakVer)( //:VK_MAKE_VERSION://///://
+        unsigned int major
+    ,   unsigned int minor
+    ,   unsigned int patch
+    ){
+        unsigned int ret;
+        ret = (((major) << 22) | ((minor) << 12) | (patch));
+        return( ret );
+    }//://///////////////////////////////////////////////////://
+
+//[MAIN:(BELOW):---------------------------------------------]//
+//[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
+    
+    void EII(SRC_VULKAN_SETUP_main)( void )  //://///////////://
+    {                     
+
+    //:Before doing any vulkan setup, front load any needed
+    //:function pointers from vulkan-1.dll:
+
+    //:Use: "GetProcAddress" code for this.
+    //:     Modify it to recognize "vuk_dll" as shorthand
+    //:     code for "vulkan-1.dll"
+
+    //# #error TODO: GetProcAddress needs to know about vuk_dll #// <<<<<<<<<<<<<<<<< NOTICE_ME_SENPAI
+    INS(vkCreateInstance)=FUN(GetProcAddress)(
+    /**/    "dll_vuk" //:vulkan-1.dll
+    ,       "vkCreateInstance" );;
+
+
+                   
+    #define vkm ins(vuk_mai) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    //:------------------------------------------------------://
+
+        //:W:WantedInstanceExtensions:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+        //:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW://
+
+        //: Loading: wanted_instance_extensions from
+        //:          private file-scope variable into
+        //:          our private struct.
+
+        //:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW://
+        #define NUM vkm.sub(ext_ins).mem(wan_num)  _ _ _ _ _ _ _
+        #define ARR vkm.sub(ext_ins).mem(wan_arr)  _ _ _ _ _ _ _
+                NUM  =  g_2(ext_ins     ,wan_num)              s
+                ARR  =  g_2(ext_ins     ,wan_arr)              s
+        #undef  ARR  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        #undef  NUM  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        //:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW://
+        //:V:WantedInstanceExtensions:_______________________://
+        //:VkApplicationInfo:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+        //:AIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAI://
+        #define MV fun(MakVer)         _ _ _ _ _ _ _ _ _ _ _ _ _
+        #define AI vkm.mem(app_inf)    _ _ _ _ _ _ _ _ _ _ _ _ _
+                AI.sType /**app_inf**/ =(0 /**app_inf**/ )     s
+                AI.pApplicationName    = "HELLO_TRIANGLE"      s
+                AI.applicationVersion  = MV(1,0,0)             s
+                AI.pEngineName         = "No_Engine"           s
+                AI.engineVersion       = MV(1,0,0)             s
+                AI.apiVersion          = MV(1,0,0)             s
+        #undef  AI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        #undef  MV /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        //:AIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAI://
+        //:VkApplicationInfo:________________________________://
+        //:VkInstanceCreateInfo:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
+        #define AI vkm.mem(app_inf)              _ _ _ _ _ _ _ _
+        #define VI vkm.mem(vuk_ins)              _ _ _ _ _ _ _ _
+        #define CI vkm.sub(cre_inf).mem(vuk_ins) _ _ _ _ _ _ _ _
+                                                               _
+                CI.sType = 1 /**1==INSTANCE_CREATE_INFO**/     s
+                CI.poi(app_inf) = &( AI )                      s
+                                                               _
+            //:NUM:wanted_instance_extensions_count            _
+            //:ARR:wanted_instance_extensions                  _
+            #define NUM vkm.sub(ext_ins).mem(wan_num)  _ _ _ _ _
+            #define ARR vkm.sub(ext_ins).mem(wan_arr)  _ _ _ _ _
+            #define READONLY (const char* const*)      _ _ _ _ _
+                                                               _
+                CI.enabledExtensionCount  =  (           NUM ) s
+                CI.ppEnabledExtensionNames=  ( READONLY  ARR ) s
+                                                               _
+                //:not going to use the "use_validation_layers"_
+                //:switch like in VG03.ALL. Look how crazy     _
+                //:this code is. You've obviously decided      _
+                //:to play with the safteys off.               _
+                CI.enabledLayerCount  = 0                      s
+                CI.ppEnabledLayerNames=NIL                     s
+                                                               _
+            #undef  READONLY /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+            #undef  ARR      /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+            #undef  NUM      /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+            if( NIL == INS(vkCreateInstance) ){
+                D("[NIL_FUNCTION_PTR:vkCreateInstance!]");
+                H("[DID_YOU_FORGET_TO_LOAD_VULKAN_PTR?]");
+            };;
+            
+            unsigned int res=(
+                //:CAST:
+                (unsigned int)(unsigned long long)
+
+                //:FUNC:
+                ( (TYP(F_03)) INS(vkCreateInstance)  )
+
+                //:ARGS:
+                (
+                    &(CI) //:VkInstanceCreateInfo
+                ,  ( NIL )
+                ,   &(VI) //:VkInstance
+                )
+            );;
+            if( 0 != res ){
+                H( "[FAIL:vkCreateInstance]");
+            }else{
+                D( "[PASS:vkCreateInstance]");
+            };;
+
+        #undef  CI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        #undef  VI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        #undef  AI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
+        //:CI:VkInstanceCreateInfo:__________________________://
+    
+    //:------------------------------------------------------://
+    #undef  vkm  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    }E_F(SRC_VULKAN_SETUP_main)//:///////////////////////////://
+    //://////////////////////////////////////////////////////://
+
+//[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
+//[MAIN:(ABOVE):---------------------------------------------]//
+
+
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+#undef  lib  //:-----------------------------------:////| 01 |//
+#undef  LIB  //:-----------------------------------:////| 02 |//
+#undef  GM1  //:-----------------------------------:////| 03 |//
+#undef  GM2  //:-----------------------------------:////| 04 |//
+#undef  K_1  //:-----------------------------------:////| 05 |//
+#undef  K_2  //:-----------------------------------:////| 06 |// 
+#undef  VAR  //:-----------------------------------:////| 07 |//
+#undef  EII  //:-----------------------------------:////| 08 |//     
+#undef  MEM  //:-----------------------------------:////| 09 |//
+#undef  INS  //:-----------------------------------:////| 10 |// 
+#undef  FUN  //:-----------------------------------:////| 11 |//                       
+#undef  TYP  //:-----------------------------------:////| 12 |//   
+#undef  ARG  //:-----------------------------------:////| 13 |//
+#undef  RET  //:-----------------------------------:////| 14 |//      
+#undef  BRA  //:-----------------------------------:////| 15 |//      
+#undef  SUB  //:-----------------------------------:////| 16 |//          
+#undef  var  //:-----------------------------------:////| 19 |//
+#undef  eii  //:-----------------------------------:////| 20 |//     
+#undef  mem  //:-----------------------------------:////| 21 |//       
+#undef  ins  //:-----------------------------------:////| 22 |//                  
+#undef  fun  //:-----------------------------------:////| 23 |// 
+#undef  typ  //:-----------------------------------:////| 24 |//
+#undef  arg  //:-----------------------------------:////| 25 |//
+#undef  ret  //:-----------------------------------:////| 26 |//  
+#undef  bra  //:-----------------------------------:////| 27 |//  
+#undef  sub  //:-----------------------------------:////| 28 |// 
+#undef  obj  //:-----------------------------------:////| 29 |// 
+#undef  poi  //:-----------------------------------:////| 30 |// 
+#undef  siz  //:-----------------------------------:////| 31 |//
+#undef  num  //:-----------------------------------:////| 32 |//
+#undef  arr  //:-----------------------------------:////| 33 |//
+#undef   H   //:-----------------------------------:////| 37 |//
+#undef   D   //:-----------------------------------:////| 38 |//
+#undef  NIL  //:-----------------------------------:////| 39 |//
+#undef  E_S  //:-----------------------------------:////| 40 |//
+#undef  E_F  //:-----------------------------------:////| 41 |//
+#undef  G_1  //:-----------------------------------://
+#undef  G_2  //:-----------------------------------://
+#undef  G_3  //:-----------------------------------://
+#undef  g_1  //:-----------------------------------://
+#undef  g_2  //:-----------------------------------://
+#undef  g_3  //:-----------------------------------://
+//:USE: Getters or make it an INS(file_scope_var)     //| -- |//
+//:     If you want some type of public access.       //| -- |//
+//:NO:  SIZ(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  NUM(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  ARR(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  OBJ(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//      
+//:NO:  POI(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//  
+//:NO:  g_4: SEE[ NESTING_RULE_NO_DEEPER_THAN_3 ]     //| -- |//
+//:NO:  v_#: Confused as local var.     USE: g_#      //| -- |//
+//:NO:  f_#: Confused with: F_## types. USE: g_#      //| -- |//
+#undef  termin //:termin:TERMINAL member/variable     //| -- |//
+#undef  s      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+#undef  _      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+//|____________________________________________|V4_MEGAHEADER|//
+
+
+//:BATSIN: 
+//:     bat: Branching_Type:
+//:     sin: Sub___Instance:
+
+//: ACTUAL: ARR_SIZ_NUM_RULES:
+//:   TYPO: ARR_SIZ_NAM_RULES:
+//:     "siz,num,arr" may also be built into the
+//:     name of the variable instead of added as
+//:     a "kind". Use whatever combination allows
+//:     you to keep the base-name of the variable
+//:     as xxx_xxx. 
+//:         EX: siz(tik_tok)  arr(tik_tok)
+//:         OR:     siz_tok       arr_tok
+//:
+//:     siz,num,arr are all local.
+//:     They are not qualified with the library name
+//:     or obfuscated because they are local variables.
+//: 
+//:     Do NOT make them file scope.
+
+//: NESTING:
+//| The answer to that is that if you need more than 3       |//
+//| levels of indentation,you’re screwed anyway,and should   |//
+//| fix your program.                                        |//
+//| www.kernel.org/doc/html/v4.10/process/coding-style.html  |//

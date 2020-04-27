@@ -1,15 +1,12 @@
 
 
-exe_SRC="exe.SRC"
+exe_SRC="exe._" ## 
 EXE_CAT () {
     echo "[INPUTS:1&2]:" $1 $2
     cat $1     >> $exe_SRC
     echo $'\n' >> $exe_SRC
 }
-
-
-
->  "exe.SRC" ##ERASE_OLD_FILE_CONTENTS
+>  $exe_SRC ##ERASE_OLD_FILE_CONTENTS
 
 ## Dependencies before any our our library global macros
 ## so that we don't risk our macros fucking up any library
@@ -30,14 +27,14 @@ EXE_CAT "./SRC/FUNCTION_TYPEDEF_PYRAMID._"
 ##You can comment off as may sequential files from the tip,
 ##And the project should still compile.
 
-   EXE_CAT "./SRC/MAINLOOP/looptable._"
+    ## ORDER_MATTERS_HERE!
 
-   EXE_CAT "./SRC/NATIVE/CALLWRAP/LoadLibrary._"
-   EXE_CAT "./SRC/NATIVE/CALLWRAP/GetProcAddress._"
-   EXE_CAT "./SRC/NATIVE/ping"
-
-   EXE_CAT "./SRC/NATIVE/WINDOW/creation._"
-
+    EXE_CAT "./SRC/MAINLOOP/looptable._"
+    EXE_CAT "./SRC/NATIVE/CALLWRAP/LoadLibrary._"
+    EXE_CAT "./SRC/NATIVE/CALLWRAP/GetProcAddress._"
+    EXE_CAT "./SRC/NATIVE/ping"
+    EXE_CAT "./SRC/NATIVE/WINDOW/creation._"
+    EXE_CAT "./SRC/VULKAN/SETUP/main._"
 
 
 ################################################################
@@ -55,11 +52,11 @@ EXE_CAT "./SRC/PROJECT_PREFIX.UNDEF._"
     ############################################################
     gcc                                                        \
         -x c                                                   \
-        -c "exe.SRC"                                           \
+        -c $exe_SRC                                            \
         -o  exe.OBJ                                            \
                                                                \
             -Werror                                            \
-            -Wfatal-errors                                     \
+            -fmax-errors=3                                     \
             -Wpedantic                                         \
             -Wall                                              \
             -Wextra                                            \

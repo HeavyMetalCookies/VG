@@ -326,6 +326,28 @@
     //:   struct: alllowercase ( matches file name )
     //:           (Inspired by ID DOOM codebase)
 
+//:Goal of this class: (The looptable class)
+//:
+//:   To maintain the chainfile concept with minimal
+//:   disruption. Before I tried solving the problem
+//:   using threads. But multi-threading leads to weird
+//:   things happening. So really shouldn't multi-thread
+//:   until you've got something basic working.
+//:
+//:   Basically, when new code that needs to be executed
+//:   every game tick is added, it can register itself
+//:   with the looptable.
+//:
+//:   This way we can still keep the whole idea of:
+//:   "I can remove any number of files from the end"
+//:   "of the list of files to compile and the project"
+//:   "still compiles and runs".
+//:
+//:   This... "Build at any layer" "chainfile" concept is
+//:   my way of making sure when shit goes really wrong
+//:   somewhere I can divide and conquere to see what
+//:   source code is probably responsible.
+
 
 //:SEE: GetProcAddress
 
@@ -372,6 +394,7 @@
     void* INS( dll_k32 ) = NIL; //:Kernel32.dll pointer
     void* INS( dll_u32 ) = NIL; //:User32.dll   pointer
     void* INS( dll_g32 ) = NIL; //:Gdi32.dll    pointer
+    void* INS( dll_vuk ) = NIL; //:vulkan-1.dll pointer
 
 //:TYPEDEFS: ////////////////////////////////////////////////://
 
@@ -717,6 +740,7 @@
                                                       //: -- ://
 #define NIL ((void*)0)                                //: 16 ://
 #define ins(  nam  ) GM2( i_2020_04_22_1047PM , nam ) //: 17 ://
+#define MEM(  nam  ) K_2( LIB ,MEM, nam )// Member    //| 18 |//
 //:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
 
     //:path to this file:
@@ -766,6 +790,33 @@
     #undef  B_04 ////////////// /**DWORD **/  //:////////////://
     #undef  B_02 ////////////// /** WORD **/  //:////////////://
     #undef  B_01 ////////////// /** BYTE **/  //:////////////://
+
+    //:winuser.h
+    struct TYP(WIN32POINT){
+
+        long x;         //:TAKEN_FROM:VGK03.ALL:
+        long y;         //:F09_STRUCT_POINT && F09_STRUCT_MSG
+
+    }ins(win32point)={
+        0
+    };
+
+    //:winuser.h
+    struct TYP(WINMSG){  //:WINDOW's "MSG" type:
+
+        void*                    hwnd    ;  //: HWND    ://
+        unsigned   int           message ;  //: UINT    ://
+        unsigned __int64         wParam  ;  //: WPARAM  ://
+
+                 __int64         lParam  ;  //: LPARAM  ://
+        unsigned    long         time    ;  //: DWORD   ://
+
+        struct  TYP(WIN32POINT)  pt      ;  //: POINT   ://
+        unsigned    long         lPrivate;  //: DWORD   ://
+
+    }ins(winmsg)={
+        0
+    };
 
 //:SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS :STRUCTS://
 //:TYPEDEFS: TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT://
@@ -826,6 +877,12 @@
 
     char*
     fun(MakeIntResourceA)( int i );
+
+    //:This function is registered with the main game loop.
+    //:It does NOT need to be public, since this file
+    //:does the registering, not the game loop file.
+    void fun( WindowTick )( void );
+
 //:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF::FORWARD_DECLARATIONS://
 //:INSTANCES: IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII://
 
@@ -842,7 +899,7 @@
     INS(win_nam)=( L"2020_4_22:UNIQUE_WINDOW_NAME"     );
 
     NOT_UNICODE_I_SWEAR*      //:AKA:titlebar_text
-    INS(tib_tex)=( L"[SEE_FILE[ F.08 ]]((╯°□°）╯︵ ┻━┻))" );
+    INS(tib_tex)=( L"[FLIP_THE_FUCKING_TABLE!]((╯°□°）╯︵ ┻━┻))" );
 
     //://////////////////////////////////////////////////////://
     #undef  NOT_UNICODE_I_SWEAR //://////////////////////////://
@@ -860,6 +917,13 @@
     TYP(FUN)    INS(PostQuitMessage  )=( NIL );
     TYP(FUN)    INS(GetWindowDC      )=( NIL );
     TYP(FUN)    INS(ChoosePixelFormat)=( NIL );
+    TYP(FUN)    INS(SetPixelFormat   )=( NIL );
+    TYP(FUN)    INS(ShowWindow       )=( NIL );
+    TYP(FUN)    INS(UpdateWindow     )=( NIL );
+    TYP(FUN)    INS(SetFocus         )=( NIL );
+    TYP(FUN)    INS(PeekMessageW     )=( NIL );
+    TYP(FUN)    INS(TranslateMessage )=( NIL );
+    TYP(FUN)    INS(DispatchMessageW )=( NIL );
 
     //:FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP  :FUNCTION_POINTERS://
 
@@ -959,6 +1023,29 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     INS(ChoosePixelFormat)= //: "gdi32.dll"
     FUN(GetProcAddress)("dll_g32","ChoosePixelFormat");
 
+    INS(SetPixelFormat)= //: "gdi32.dll"
+    FUN(GetProcAddress)("dll_g32","SetPixelFormat");
+
+    INS(ShowWindow)=
+    FUN(GetProcAddress)("dll_u32","ShowWindow");
+
+    INS(UpdateWindow)=
+    FUN(GetProcAddress)("dll_u32","UpdateWindow");
+
+    INS(SetFocus)=
+    FUN(GetProcAddress)("dll_u32","SetFocus");
+
+    INS(PeekMessageW)=
+    FUN(GetProcAddress)("dll_u32","PeekMessageW");
+
+    INS(TranslateMessage)=
+    FUN(GetProcAddress)("dll_u32","TranslateMessage");
+
+    INS(DispatchMessageW)=
+    FUN(GetProcAddress)("dll_u32","DispatchMessageW");
+
+
+
     //:eiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieii://
     if( ((void*)0) != INS(CreateWindowExW) ){
         D("[SUCCESS:CreateWindowExW]");
@@ -1015,6 +1102,99 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     }else{
         H("[FAILURE:ChoosePixelFormat]");
     };;
+    if( ((void*)0) != INS(SetPixelFormat) ){
+        D("[SUCCESS:SetPixelFormat]");
+    }else{
+        H("[FAILURE:SetPixelFormat]");
+    };;
+    if( ((void*)0) != INS(ShowWindow) ){
+        D("[SUCCESS:ShowWindow]");
+    }else{
+        H("[FAILURE:ShowWindow]");
+    };;
+    if( ((void*)0) != INS(UpdateWindow) ){
+        D("[SUCCESS:UpdateWindow]");
+    }else{
+        H("[FAILURE:UpdateWindow]");
+    };;
+    if( ((void*)0) != INS(SetFocus) ){
+        D("[SUCCESS:SetFocus]");
+    }else{
+        H("[FAILURE:SetFocus]");
+    };;
+    if( ((void*)0) != INS(PeekMessageW) ){
+        D("[SUCCESS:PeekMessageW]");
+    }else{
+        H("[FAILURE:PeekMessageW]");
+    };;
+    if( ((void*)0) != INS(TranslateMessage) ){
+        D("[SUCCESS:TranslateMessage]");
+    }else{
+        H("[FAILURE:TranslateMessage]");
+    };;
+    if( ((void*)0) != INS(DispatchMessageW) ){
+        D("[SUCCESS:DispatchMessageW]");
+    }else{
+        H("[FAILURE:DispatchMessageW]");
+    };;
+
+    //:eiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieii://
+    //[SC[MSA_FPU_CXX](BELOW)////////////////////////////////]//
+    //:make_sure_all_function_pointers_unique:      //|  --  |//
+    #define       L_E_N (         18+1)  //://///////////////://
+    TYP(FUN) arr[ L_E_N ]={     0x00                //|  --  |//
+    ,INS(CreateWindowExW   ) /**  01  **/           //|  01  |//
+    ,INS(GetDesktopWindow  ) /**  02  **/           //|  02  |//
+    ,INS(RegisterClassExW  ) /**  03  **/           //|  03  |//
+    ,INS(LoadIconA         ) /**  04  **/           //|  04  |//
+    ,INS(LoadCursorA       ) /**  05  **/           //|  05  |//
+    ,INS(GetModuleHandleW  ) /**  06  **/           //|  06  |//
+    ,INS(DefWindowProcW    ) /**  07  **/           //|  07  |//
+    ,INS(DestroyWindow     ) /**  08  **/           //|  08  |//
+    ,INS(PostQuitMessage   ) /**  09  **/           //|  09  |//
+    ,INS(GetWindowDC       ) /**  10  **/           //|  10  |//
+    ,INS(ChoosePixelFormat ) /**  11  **/           //|  11  |//
+    ,INS(SetPixelFormat    ) /**  12  **/           //|  12  |//
+    ,INS(ShowWindow        ) /**  13  **/           //|  13  |//
+    ,INS(UpdateWindow      ) /**  14  **/           //|  14  |//
+    ,INS(SetFocus          ) /**  15  **/           //|  15  |//
+    ,INS(PeekMessageW      ) /**  16  **/           //|  16  |//
+    ,INS(TranslateMessage  ) /**  17  **/           //|  17  |//
+    ,INS(DispatchMessageW  ) /**  18  **/           //|  18  |//
+    #define  L_E_N_DOUBLECHECK   (18+1) //:///////////:  --  ://
+//: ,INS(function_pointer_name_here)                //|  19  |//
+//: ,INS(function_pointer_name_here)                //|  20  |//
+//: ,INS(function_pointer_name_here)                //|  31  |//
+//: ,INS(function_pointer_name_here)                //|  32  |//
+//: ,INS(function_pointer_name_here)                //|  33  |//
+//: ,INS(function_pointer_name_here)                //|  34  |//
+//: ,INS(function_pointer_name_here)                //|  35  |//
+//: ,INS(function_pointer_name_here)                //|  36  |//
+//: ,INS(function_pointer_name_here)                //|  37  |//
+//: ,INS(function_pointer_name_here)                //|  38  |//
+//: ,INS(function_pointer_name_here)                //|  39  |//
+//: ,INS(function_pointer_name_here)                //|  40  |//
+//: ,INS(function_pointer_name_here)                //|  41  |//
+//: ,INS(function_pointer_name_here)                //|  42  |//
+//: ,INS(function_pointer_name_here)                //|  43  |//
+//: ,INS(function_pointer_name_here)                //|  44  |//
+//: ,INS(function_pointer_name_here)                //|  45  |//
+//: ,INS(function_pointer_name_here)                //|  46  |//
+//: ,INS(function_pointer_name_here)                //|  47  |//
+//: ,INS(function_pointer_name_here)                //|  48  |//
+//: ,INS(function_pointer_name_here)                //|  49  |//
+//: ,INS(function_pointer_name_here)                //|  50  |//
+    };;//:////////////////////////////////////////////:  --  ://
+    if( L_E_N != L_E_N_DOUBLECHECK ){
+        H("[FAIL:MACRO_SETUP_FAIL:L_E_N_DOUBLECHECK]");
+    };;
+    for( int a = 0; a < L_E_N; a++ ){  //:- - - - - - - - - -://
+    for( int b = 0; b < L_E_N; b++ ){  //:- - - - - - - - - -://
+        if( a==b ){ continue; };
+        if( arr[a]==arr[b] ){ H("[FAIL:NOTASET:2020_04_25]");};
+    };;};;                    D("[PASS:YESASET:2020_04_25]");
+    #undef  L_E_N //:////////////////////////////////////////://
+    //[SC[MSA_FPU_CXX](ABOVE)////////////////////////////////]//
     //:eiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieii://
 
     INS(han_exe)=((TYP(F_01))INS(GetModuleHandleW))( NIL );
@@ -1025,6 +1205,8 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     
     //:eiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieiieii://
 
+    //: LATER_IN_FUNCTION: 
+    //: INS(fod_pix)==temp_pixel_format_descriptor_for_easy_init
     struct TYP(PIXELFORMATDESCRIPTOR)               
     temp_pixel_format_descriptor_for_easy_init={  
         
@@ -1096,7 +1278,8 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
     //: COPY_OVER + SMOKE_TEST : BELOW --------------------- ://
 
         //:Copy over temp to file scope variable:
-        PIX=temp_pixel_format_descriptor_for_easy_init;
+        //:fod_pix==temp_pixel_format_descriptor_for_easy_init
+                PIX=temp_pixel_format_descriptor_for_easy_init;
 
         //:Smoke_Test:
         ////////////////////////////////////////////////////////
@@ -1294,173 +1477,241 @@ printf("[SRC_NATIVE_WINDOW_creation]\n");
 
     //:DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC :DEVICE_CONTEXT://
 
-  // ins(fmt_num)=( //:pixel_format_number
-  //     (int)(unsigned long long)
-  //     ((F03_02)F02_ChoosePixelFormat)( /**gdi32**/
-  //         window_device_context
-  //     , &( f09_pixel_format_descriptor )
-  //     )
-  // );;
+    //:PFN:Pixel_Format_Number: GET: ins(fmt_num):
+    //::PFN:PFN:PFN:PFN:PFN:PFN::::::PFN:PFN:PFN:PFN:PFN:PFN:://
+    ins(fmt_num)=( //:pixel_format_number
+        //:CAST_RESULTS:
+        (int)(unsigned long long)
+
+        //:FUNCTION_CALL:
+        (  (TYP(F_02))INS(ChoosePixelFormat /**GDI32.DLL**/ ))
+
+        //:FUNCTION_PARAMETERS:
+        (  
+             ins(con_win)    /**window_device_context**/
+        , &( INS(fod_pix) )  /**PIXELFORMATDESCRIPTOR**/
+        )
+    );;
+
+    if( 0 == ins(fmt_num) ){
+        H("[FAIL:DEFINITELY_FAILED:ChoosePixelFormat]");
+    }else
+    if( 0  > ins(fmt_num) ){ //:NEGATIVE
+        //:Look more into documentation if this happens.
+        //:but pretty sure it should be a positive number.
+        //:Also watch out for errors due to sign extension.
+        H("[fail?PROBABLY_FAILED:::ChoosePixelFormat]");
+    }else
+    if( 0  < ins(fmt_num) ){ //:POSITIVE
+        D("[PASS:ALL_IS_GOOD_IN_THE_PIXELFORMAT_NEIGHBORHOOD]");
+    }else{ //:WHAT_THE_FUCK
+        H("[FAIL:WHAT_THE_FUCK:2020_04_25:0148PM]");
+    };;
+    //::PFN:PFN:PFN:PFN:PFN:PFN::::::PFN:PFN:PFN:PFN:PFN:PFN:://
+
+    //:VC:Vulkan_Compatible:
+    //:VCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVC://
+    //:VKG03.ALL:f09_MakeWindowCompatibleWith_GL
+    //:Make the window compatible with openGL & Vulkan:
+    //:VCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVC://
+    int /** BOOL **/ 
+    setting_pixel_format_worked=(
+        (int)(unsigned long long)
+        ((TYP(F_03))INS(SetPixelFormat))(
+        /**/
+        /**/        ins(con_win)  /** window_device_context **/
+        /**/    ,
+        /**/        (void*)(unsigned long long)
+        /**/        ins(fmt_num)  /** pixel_format_number   **/
+        /**/    ,
+        /**/     &( INS(fod_pix) )/** PIXELFORMATDESCRIPTOR **/
+        )
+    );;
+    if( setting_pixel_format_worked ){
+        D("[PASS:SET_PIXEL_FORMAT]");
+    }else{
+        H("[FAIL:SET_PIXEL_FORMAT]");
+    };;
+    //:VCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVCVC://
+
+    //:SEE:VG03.ALL:f09_WindowLoop
+
+    //:LG:Loosey_Goosey:
+    //:LGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLG://
+    //: Because we are playing loosy-goosy without including
+    //: any header files, we better check runtime size of
+    //: the structs we re-created against observed sizes
+    //: when compiling small project using <windows.h> header.
+    //:LGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLG://
+    if( 8 == sizeof( ins(win32point) ) ){
+        D("[PASS:SIZECHECK:win32point]");
+    }else{
+        H("[FAIL:SIZECHECK:win32point]");
+    };;
+    if(48 == sizeof( ins(winmsg)     ) ){
+        D("[PASS:SIZECHECK:winmsg]");
+    }else{
+        H("[FAIL:SIZECHECK:winmsg]");
+    };;
+
+    if( 8 == sizeof( struct TYP(WIN32POINT) ) ){
+        D("[PASS:SIZECHECK:WIN32POINT]");
+    }else{
+        H("[FAIL:SIZECHECK:WIN32POINT]");
+    };;
+    if(48 == sizeof( struct TYP(WINMSG)     ) ){
+        D("[PASS:SIZECHECK:WINMSG]");
+    }else{
+        H("[FAIL:SIZECHECK:WINMSG]");
+    };;
 
 
+    //:LGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLGLG://
+    //:TP:TickPrep: Prepwork before doing a WindowTick(...):
+    //:TPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTP://
+    //:                                                      ://
+    //:ALL_FUNCTIONS_FROM: "User32.dll"                      ://
+    //:                                                      ://
+    //: ShowWindow   :Set Visibility State Of Window:        ://
+    //: UpdateWindow :Force WM_PAINT to top of message queue.://
+    //: SetFocus     :Set keyboard focus to window:          ://
+    //:                                                      ://
+    //: han_win:-----: handle_to_a_window_instance           ://
+    //:                ( handle_to_window )                  ://
+    //:TPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTP://
+    int sw_show = 5; //:Active window..
+    void* show = (void*)(unsigned long long)sw_show;
 
+    ( (TYP(F_02)) INS(ShowWindow)   )(  ins(han_win), show  );
+    ( (TYP(F_01)) INS(UpdateWindow) )(  ins(han_win)        ); 
+    ( (TYP(F_01)) INS(SetFocus)     )(  ins(han_win)        );
 
+    //:TPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTPTP://
+
+    //:We are not going to enter a window loop here.
+    //:That would wreck the chain structure of our project
+    //:setup. Instead we will register WindowTick function
+    //:with the main game loop, and the game loop will 
+    //:call it for us.
+    INS(looptable).MEM(nat_win)=&( fun(WindowTick) );
 
 
     return( 0 );
 }
 
 
+int fun(TakeOrLookMessage)( //://////////////////////////////://
+
+    //:ins(winmsg) / LPMSG
+    struct TYP(WINMSG)* dont_prefix_message_with_and_symbol 
+    ,
+    int                 take_the_message
+){ //:///////////////////////////////////////////////////////://
+
+    unsigned int   look;
+    unsigned int   take;
+    unsigned int   look_or_take;
+
+    look = 0x0000 /** pm_noremove **/ ;
+    take = 0x0001 /** pm_remove   **/ ;
+    look_or_take =(777);
+
+    if( take_the_message > 0 ){
+        look_or_take = take;
+    }else
+    if( 0 == take_the_message ){
+        look_or_take = look;
+    }else{
+        H("[FAIL:EXPECTED:Pos|Or|Zero]");
+    };;
+
+    int ret =(
+        //:CAST_RETURN_DATA:
+        (int)(unsigned long long)
+
+        //:FUNCTION_TO_CALL:
+        (  (TYP(F_05)) INS(PeekMessageW)  )
+
+        //:ARGUMENTS_TO_FUNCTION:
+        (
+        /** -- **/    (void*)
+        /** 01 **/    dont_prefix_message_with_and_symbol
+        /** -- **/    ,
+        /** 02 **/    NULL //:hWnd:NullToProcessThreadMessages
+        /** -- **/    ,
+        /** 03 **/    0    //:wMsgFilterMin
+        /** -- **/    ,
+        /** 04 **/    0    //:wMsgFilterMax
+        /** -- **/    ,
+        /** -- **/    (void*)(unsigned long long)
+        /** 05 **/    look_or_take  //:wRemoveMsg
+        )
+    );;
+    return( ret );
+
+} //://////////////////////////////////////:TakeOrLookMessage://
+int /** BOOL **/ fun(LookMessage)( //:///////////////////////://
+    struct TYP(WINMSG)* msg //:LPMSG
+){
+    int ret;
+    const int look = 0;
+    ret=fun(TakeOrLookMessage)(msg,look);
+    return( ret );
+} //:////////////////////////////////////////////:LookMessage://
+int /** BOOL **/ fun(TakeMessage)( //:///////////////////////://
+    struct TYP(WINMSG)* msg //:LPMSG
+){
+    int ret;
+    const int take = 1;
+    ret=fun(TakeOrLookMessage)(msg,take);
+    return( ret );
+} //:////////////////////////////////////////////:TakeMessage://
+
+//:I thought this needed to be public. But then I realized
+//:it is this file's responsibility to register itself
+//:with the main game loop.
+void fun( WindowTick )( void )
+{
+    //:One tick of our window loop goes here.
+
+    //:######################################################://
+    #define M ins(winmsg) //:################################://
+
+    fun(LookMessage)( &M );
+    if( /** WHILE_CONVERTED_TO_AN_IF **/ //://///////////////://
+
+        M.message != 0x12 /** UINT:wm_quit **/
+
+    ){  //://////////////////////////////////////////////////://
+
+        if( fun(TakeMessage)(    &M )){
+
+            ( (TYP(F_01))INS(TranslateMessage) )( &M );
+
+            ( (TYP(F_01))INS(DispatchMessageW) )( &M );
+
+        };;
+
+    }else{ //:///////////////////////////////////////////////://
+
+        //:TODO: Variables to let rendering system know
+        //:      that the window is closed. For now 
+        //:      a simple printf will do.
+        printf("[SRC/NATIVE/WINDOW/creation._:NOMOREWINDOW]\n");
+        fflush(stdout);
+
+    };; //://////////////////////////////////////////////////://
+
+    #undef M //:#############################################://
+    //:######################################################://
+
+}
  
 
 
 
 
 
-
-
-
-
-
-
-//  unsigned __int64 //:WPARAM
-//  F09_OpenWindowAndLoopForever(
-//      //:UNICODE_STRING
-//      const unsigned short *  //:LPCWSTR (Technically_LPCTSTR)
-//      unique_window_name      
-//      ,
-//      const unsigned short *  //:LPCWSTR (Technically_LPCTSTR)
-//      window_titlebar_text
-//
-//      //:#Technically_LPCTSTR#://
-//      //: Technically LPCTSTR, not LPCWSTR,
-//      //: But using extended (ex) function and unicode/wide
-//      //: characters where I can. Thus resolved type is LPCWSTR.
-//  ){
-//       
-//      //: void* /**HMODULE**/ hin=(
-//      //:     ((F03_01)F02_GetModuleHandleW)(
-//      //:         NULL
-//      //:     )
-//      //: );;//[a]//
-//
-//      /** HMODULE / HINSTANCE / Handle_To_Running_Exe_File **/
-//      if(NULL != f09_handle_to_exe ){
-//          H("[Expected_Null_exe_handle_to_start]");
-//      };;
-//      f09_handle_to_exe =(
-//           ((F03_01)F02_GetModuleHandleW)(
-//               NULL
-//           )
-//      );;
-//
-//      if(NULL==f09_handle_to_exe){
-//          H(
-//              "[FailedToGetModuleHandle]"
-//          );;
-//      };;//[b]//
-//
-//      /////////////////////////////////////
-//      void*                              //
-//      han_win = NULL;  //:HWND                //
-//                                         //
-//      struct F09_STRUCT_MSG              //
-//      Msg       ;   //:tagMSG (Struct)   //
-//      /////////////////////////////////////
-//
-//      if(0 >=
-//          F09_RegisterWindow(
-//              f09_handle_to_exe /** HINSTANCE/HMODULE **/
-//          ,   unique_window_name
-//          )
-//      ){ 
-//
-//          H( /** Originally: gleb_swin_Alert **/
-//              "[FailedToRegisterWindow]"
-//          );;
-//          return 0; 
-//
-//      };;//[c]//
-//
-//      int X   = f09_X   ; //:Initial_X_Position
-//      int Y   = f09_Y   ; //:Initial_Y_Position
-//      int WID = f09_WID ; //:Initial_WIDTH
-//      int HIG = f09_HIG ; //:Initial_HEIGHT
-//
-//      unsigned long ws_overlappedwindow=( 0
-//      |   0x00000000L  /** WS_OVERLAPPED  **/
-//      |   0x00C00000L  /** WS_CAPTION     **/
-//      |   0x00080000L  /** WS_SYSMENU     **/
-//      |   0x00040000L  /** WS_THICKFRAME  **/
-//      |   0x00020000L  /** WS_MINIMIZEBOX **/
-//      |   0x00010000L  /** WS_MAXIMIZEBOX **/
-//      );;//[d]//
-//
-//      unsigned long cs_owndc = 0x0020;
-//
-//      //:NOOP's so I can comment out call to CreateWindowExW:
-//      if( cs_owndc            ){ /** NOOP **/ };
-//      if( ws_overlappedwindow ){ /** NOOP **/ };
-//      if( X|Y|WID|HIG         ){ /** NOOP **/ };
-//      if( f09_handle_to_exe   ){ /** NOOP **/ };
-//
-//      void*
-//      the_desktop_window=((F03_00)F02_GetDesktopWindow)();
-//
-//      han_win=F08_CreateWindowExW
-//      (
-//
-//      /**/0x00000008L           /** ws_ex_topmost **/
-//      ,   unique_window_name    /** lpClassName   **/
-//      ,   window_titlebar_text  /** lpWindowName  **/      
-//    
-//      , 
-//          (0
-//          |  ws_overlappedwindow /** STYLE **/   
-//          |  cs_owndc            /** STYLE **/
-//          |
-//          0)
-//
-//      ,   X,Y,WID,HIG
-//
-//      ,   the_desktop_window //:-- hWndParent ---://
-//      ,   NULL   //:-------------- hMenu      ---://
-//      ,   f09_handle_to_exe  //:-- hInstance  ---://        
-//      ,   NULL   //:-------------- lpParam    ---://  
-//      );//[e]//
-//
-//      if(han_win==NULL){
-//          H("[F09:WindowCreateFail]");
-//          return 0;
-//      };;//[f]//
-//
-//      //:Store the handle to window in global state:
-//      f09_handle_to_window=han_win;
-//
-//      //:Modifications to make window opengl
-//      //:compatible:
-//      //////////////////////////////////////////////
-//      f09_MakeWindowCompatibleWith_GL(
-//          han_win
-//      );;//[g]//
-//
-//      //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯MC|//
-//      //!PUT AFTER device context has been     MC!//
-//      //!set, or your device context fetching  MC!//
-//      //!function waiting on this flag to be   MC!//
-//      //!set in this thread will end up        MC!//
-//      //!with a NULL device context.           MC!//
-//      //!Speaking Of:                          MC!//
-//      //!GLEB_SWIN_GetWindowDeviceContext();   MC!//
-//      f09_window_created=1;                 //|MC|//
-//      //|______________________________________MC|//
-//
-//      //////////////////////////////////////////////
-//
-//      Msg = f09_WindowLoop( han_win );
-//
-//      return Msg.wParam;
-//  } //[OPEN_WINDOW_LOOP_FOREVER]//
 
 //:MakeIntResourceA /////////////////////////////////////////://
 char*
@@ -1593,6 +1844,7 @@ fun(WinMsgHanWndPoc)(
 #undef   D  ////////////////////////////////////////////: 15 ://
 #undef  NIL ////////////////////////////////////////////: 16 ://
 #undef  ins ////////////////////////////////////////////: 17 ://
+#undef  MEM ////////////////////////////////////////////: 18 ://
 
 
 //:Comments Section:                                         ://
@@ -1720,6 +1972,392 @@ fun(WinMsgHanWndPoc)(
     //:  TYP( FUN )          <-- A TYPE that is "function" (PFN)
     //:  FUN( SomeThing  )   <-- A function name
 
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+#define lib MACRO_project_prefix_HIDDEN  //~Private~  //| 01 |//
+#define LIB MACRO_project_prefix_VISIBLE //~Public~~  //| 02 |//
+#define GM1( a , b )      a## _ ##b          // GLUE  //| 03 |//
+#define GM2( a , b ) GM1( a   ,   b )        // GLUE  //| 04 |//
+#define K_1( a,b,c )      a## _ ##b## _ ##c  // GLUE  //| 05 |//
+#define K_2( a,b,c ) K_1( a   ,   b   ,   c )// GLUE  //| 06 |// 
+#define VAR(  nam  ) GM2( VAR   ,   nam )// Local_Var //| 07 |//
+#define EII(  nam  ) K_2( LIB, EII, nam )// SEE[EII]  //| 08 |//     
+#define MEM(  nam  ) K_2( LIB ,MEM, nam )// Member    //| 09 |//
+#define INS(  nam  ) K_2( LIB ,INS, nam )// INS:INST  //| 10 |// 
+#define FUN(  nam  ) K_2( LIB ,FUN, nam )// FUN:FUNC  //| 11 |//                       
+#define TYP(  nam  ) K_2( LIB ,TYP, nam )// TYP:TYPE  //| 12 |//   
+#define ARG(  nam  ) GM2(      ARG, nam )// Argument  //| 13 |//
+#define RET(  nam  ) GM2(      RET, nam )// RET___Var //| 14 |//      
+#define BRA(  nam  ) K_2( lib, bra, nam )// BranchTyp //| 15 |//      
+#define SUB(  nam  ) K_2( lib, sub, nam )// SubInstan //| 16 |//          
+#define var(  nam  ) GM2( v_2020_04_25_1007PM , nam ) //| 19 |//
+#define eii(  nam  ) GM2( e_2020_04_25_1007PM , nam ) //| 20 |//     
+#define mem(  nam  ) GM2( m_2020_04_25_1007PM , nam ) //| 21 |//       
+#define ins(  nam  ) GM2( i_2020_04_25_1007PM , nam ) //| 22 |//                  
+#define fun(  nam  ) GM2( f_2020_04_25_1007PM , nam ) //| 23 |// 
+#define typ(  nam  ) GM2( t_2020_04_25_1007PM , nam ) //| 24 |//
+#define arg(  nam  ) GM2( a_2020_04_25_1007PM , nam ) //| 25 |//
+#define ret(  nam  ) GM2( r_2020_04_25_1007PM , nam ) //| 26 |//  
+#define bra(  nam  ) GM2( b_2020_04_25_1007PM , nam ) //| 27 |//  
+#define sub(  nam  ) GM2( s_2020_04_25_1007PM , nam ) //| 28 |// 
+#define obj(  nam  ) GM2( o_2020_04_25_1007PM , nam ) //| 29 |// 
+#define poi(  nam  ) GM2( p_2020_04_25_1007PM , nam ) //| 30 |// 
+#define siz(   N   ) GM2( S_2020_04_25_1007PM ,  N  ) //| 31 |//
+#define num(   N   ) GM2( N_2020_04_25_1007PM ,  N  ) //| 32 |//
+#define arr(   N   ) GM2( A_2020_04_25_1007PM ,  N  ) //| 33 |//
+#define  H    fun( Halt )                             //| 37 |//
+#define  D    fun( Dmsg ) // DebugPrint/DebugMessage  //| 38 |//
+#define NIL ((void*)0)                                //| 39 |//
+#define E_S(  end  )   ;  // END_STRUCT               //| 40 |//
+#define E_F(  end  )      // END_FUNCTION             //| 41 |//
+#define G_1(G,a    ) G ##_## a
+#define G_2(G,a,b  ) G ##_## a ##_## b
+#define G_3(G,a,b,c) G ##_## a ##_## b ##_## c
+#define g_1(a      ) G_1( lib, a      ) //:FILE_SCOPE
+#define g_2(a,b    ) G_2( lib, a,b    ) //:FILE_SCOPE 
+#define g_3(a,b,c  ) G_3( lib, a,b,c  ) //:FILE_SCOPE 
+//:USE: Getters or make it an INS(file_scope_var)     //| -- |//
+//:     If you want some type of public access.       //| -- |//
+//:NO:  SIZ(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  NUM(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  ARR(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  OBJ(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//      
+//:NO:  POI(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//  
+//:NO:  g_4: SEE[ NESTING_RULE_NO_DEEPER_THAN_3 ]     //| -- |//
+//:NO:  v_#: Confused as local var.     USE: g_#      //| -- |//
+//:NO:  f_#: Confused with: F_## types. USE: g_#      //| -- |//
+#define termin //:termin:TERMINAL member/variable     //| -- |//
+#define s ;    //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+#define _      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+//|____________________________________________|V4_MEGAHEADER|//
+//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
+
+    //[[////////////////////////////////////////////////////]]//
+    //[]////#   Experiment:                            #////[]//
+    //[]////#   Instead of trying to make something    #////[]//
+    //[]////#   pronouncable, abbreviation rules will  #////[]//
+    //[]////#   be the first three letters of word.    #////[]//
+    //[]////#   All variables 2 words long.            #////[]//
+    //[[////////////////////////////////////////////////////]]//
+
+    //:PATH_TO_THIS_FILE_AS_ALL_CAPITAL_MACRO:
+    #define  SRC_VULKAN_SETUP_MAIN ( 7623 )
+
+//:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM  :CHAINFILE_MACRO://
+//[1111111111111111111111111111111111111111111111111111111111]//
+
+    //:Things I'd like you to notice first:
+    extern TYP(FUN) INS(vkCreateInstance);
+
+//[1111111111111111111111111111111111111111111111111111111111]//
+//:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://                                      
+    static void fun(Halt)( const char* msg ){printf( //:- - -://                       
+    "[SRC_VULKAN_SETUP_MAIN:Halt]:%s\n"
+    , msg);;fflush(stdout);exit(0xF0);}//:- - - - - - - - - -://   
+    static void fun(Dmsg)( const char* msg ){printf(
+    "[SRC_VULKAN_SETUP_MAIN:Dmsg]:%s\n"
+    ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
+//:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG://
+//:VULKAN_DLL_FUNCTION_POINTERS:////:////////////////////////://
+
+    TYP(FUN) INS(vkCreateInstance) =( NIL );
+
+//:////////////////////////:////:VULKAN_DLL_FUNCTION_POINTERS://
+//:TYPEDEFS_NODEPS: :T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0://
+
+    //:Typedefs that do not rely on struct definitions.
+    typedef void* typ(        vuk_ins) ;//:VkInstance
+ 
+    struct typ(app_inf) {          //:VkApplicationInfo
+        unsigned int      sType;   //:VkStructureType
+        const void*       pNext;
+        const char*       pApplicationName;
+        unsigned int      applicationVersion; //:uint32_t
+        const char*       pEngineName;
+        unsigned int      engineVersion;      //:unsigned int
+        unsigned int      apiVersion;         //:unsigned int
+    }E_S(app_inf)
+
+//:T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0: :TYPEDEFS_NODEPS://
+//:TYPEDEFS_01_DEP:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
+    //:-------:cre_inf.vuk_ins:------------------------------://
+    struct typ(cre_inf_vuk_ins) {   //:VkInstanceCreateInfo
+        unsigned int         sType; //:VkStructureType
+        const   void*        pNext;
+        unsigned int         flags;
+
+                             //:AKA:pApplicationInfo 
+        const struct         //:AKA:VkApplicationInfo*
+                             typ(app_inf)* 
+                             poi(app_inf);
+                             
+        unsigned      int    enabledLayerCount;
+        const char* const*   ppEnabledLayerNames;
+
+        //:Is "const char**" same as "const char* const*" ?
+        //:In fact.. Both are "char**" with extra constraints.
+
+        unsigned     int     enabledExtensionCount;
+        const char* const*   ppEnabledExtensionNames;
+    }E_S(cre_inf_vuk_ins)
+//:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1:TYPEDEFS_01_DEP://
+
+    //:wanted_instance_extensions
+    int   g_2(ext_ins,wan_num)=( 2 );  
+    char* g_2(ext_ins,wan_arr)[  2 ]={
+        "VK_KHR_surface"
+    ,   "VK_KHR_win32_surface"
+    };
+
+//:VULKAN_STRUCT:VSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVS://
+    struct typ(vuk_mai){ //:vulkan_main.
+ 
+        struct
+        typ(app_inf)   //:VkApplicationInfo
+        mem(app_inf);  //:VkApplicationInfo
+
+        termin
+        typ(vuk_ins)   //:VkInstance/VulkanInstance
+        mem(vuk_ins);  //:VkInstance/VulkanInstance
+
+        struct bra(ext_ins){//:extensions:INSTANCE
+            int    mem(wan_num);//:wanted_instance_extensions
+            char** mem(wan_arr);//:wanted_instance_extensions
+        }sub(ext_ins);
+        
+        struct bra(cre_inf){ //:cre_(ate)_inf_(o)
+ 
+            struct //:ins(vuk_mai).sub(cre_inf).mem(vuk_ins);
+            typ(cre_inf_vuk_ins)   //:VkInstanceCreateInfo
+            mem(        vuk_ins);  //:VkInstanceCreateInfo
+
+        }sub(cre_inf); //:///////////////////////////////////:// 
+
+
+    }ins(vuk_mai)={
+        0
+    }E_S(vuk_mai)
+//:VSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVS:VULKAN_STRUCT://
+
+
+    //://////////////////////////////////////////////////////://
+    static unsigned int fun(MakVer)( //:VK_MAKE_VERSION://///://
+        unsigned int major
+    ,   unsigned int minor
+    ,   unsigned int patch
+    ){
+        unsigned int ret;
+        ret = (((major) << 22) | ((minor) << 12) | (patch));
+        return( ret );
+    }//://///////////////////////////////////////////////////://
+
+//[MAIN:(BELOW):---------------------------------------------]//
+//[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
+    
+    void EII(SRC_VULKAN_SETUP_main)( void )  //://///////////://
+    {                     
+
+    //:Before doing any vulkan setup, front load any needed
+    //:function pointers from vulkan-1.dll:
+
+    //:Use: "GetProcAddress" code for this.
+    //:     Modify it to recognize "vuk_dll" as shorthand
+    //:     code for "vulkan-1.dll"
+
+    //# #error TODO: GetProcAddress needs to know about vuk_dll #// <<<<<<<<<<<<<<<<< NOTICE_ME_SENPAI
+    INS(vkCreateInstance)=FUN(GetProcAddress)(
+    /**/    "dll_vuk" //:vulkan-1.dll
+    ,       "vkCreateInstance" );;
+
+
+                   
+    #define vkm ins(vuk_mai) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    //:------------------------------------------------------://
+
+        //:W:WantedInstanceExtensions:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+        //:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW://
+
+        //: Loading: wanted_instance_extensions from
+        //:          private file-scope variable into
+        //:          our private struct.
+
+        //:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW://
+        #define NUM vkm.sub(ext_ins).mem(wan_num)  _ _ _ _ _ _ _
+        #define ARR vkm.sub(ext_ins).mem(wan_arr)  _ _ _ _ _ _ _
+                NUM  =  g_2(ext_ins     ,wan_num)              s
+                ARR  =  g_2(ext_ins     ,wan_arr)              s
+        #undef  ARR  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        #undef  NUM  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        //:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW://
+        //:V:WantedInstanceExtensions:_______________________://
+        //:VkApplicationInfo:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+        //:AIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAI://
+        #define MV fun(MakVer)         _ _ _ _ _ _ _ _ _ _ _ _ _
+        #define AI vkm.mem(app_inf)    _ _ _ _ _ _ _ _ _ _ _ _ _
+                AI.sType /**app_inf**/ =(0 /**app_inf**/ )     s
+                AI.pApplicationName    = "HELLO_TRIANGLE"      s
+                AI.applicationVersion  = MV(1,0,0)             s
+                AI.pEngineName         = "No_Engine"           s
+                AI.engineVersion       = MV(1,0,0)             s
+                AI.apiVersion          = MV(1,0,0)             s
+        #undef  AI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        #undef  MV /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        //:AIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAI://
+        //:VkApplicationInfo:________________________________://
+        //:VkInstanceCreateInfo:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
+        #define AI vkm.mem(app_inf)              _ _ _ _ _ _ _ _
+        #define VI vkm.mem(vuk_ins)              _ _ _ _ _ _ _ _
+        #define CI vkm.sub(cre_inf).mem(vuk_ins) _ _ _ _ _ _ _ _
+                                                               _
+                CI.sType = 1 /**1==INSTANCE_CREATE_INFO**/     s
+                CI.poi(app_inf) = &( AI )                      s
+                                                               _
+            //:NUM:wanted_instance_extensions_count            _
+            //:ARR:wanted_instance_extensions                  _
+            #define NUM vkm.sub(ext_ins).mem(wan_num)  _ _ _ _ _
+            #define ARR vkm.sub(ext_ins).mem(wan_arr)  _ _ _ _ _
+            #define READONLY (const char* const*)      _ _ _ _ _
+                                                               _
+                CI.enabledExtensionCount  =  (           NUM ) s
+                CI.ppEnabledExtensionNames=  ( READONLY  ARR ) s
+                                                               _
+                //:not going to use the "use_validation_layers"_
+                //:switch like in VG03.ALL. Look how crazy     _
+                //:this code is. You've obviously decided      _
+                //:to play with the safteys off.               _
+                CI.enabledLayerCount  = 0                      s
+                CI.ppEnabledLayerNames=NIL                     s
+                                                               _
+            #undef  READONLY /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+            #undef  ARR      /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+            #undef  NUM      /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+            if( NIL == INS(vkCreateInstance) ){
+                D("[NIL_FUNCTION_PTR:vkCreateInstance!]");
+                H("[DID_YOU_FORGET_TO_LOAD_VULKAN_PTR?]");
+            };;
+            
+            unsigned int res=(
+                //:CAST:
+                (unsigned int)(unsigned long long)
+
+                //:FUNC:
+                ( (TYP(F_03)) INS(vkCreateInstance)  )
+
+                //:ARGS:
+                (
+                    &(CI) //:VkInstanceCreateInfo
+                ,  ( NIL )
+                ,   &(VI) //:VkInstance
+                )
+            );;
+            if( 0 != res ){
+                H( "[FAIL:vkCreateInstance]");
+            }else{
+                D( "[PASS:vkCreateInstance]");
+            };;
+
+        #undef  CI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        #undef  VI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        #undef  AI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
+        //:CI:VkInstanceCreateInfo:__________________________://
+    
+    //:------------------------------------------------------://
+    #undef  vkm  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    }E_F(SRC_VULKAN_SETUP_main)//:///////////////////////////://
+    //://////////////////////////////////////////////////////://
+
+//[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
+//[MAIN:(ABOVE):---------------------------------------------]//
+
+
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+#undef  lib  //:-----------------------------------:////| 01 |//
+#undef  LIB  //:-----------------------------------:////| 02 |//
+#undef  GM1  //:-----------------------------------:////| 03 |//
+#undef  GM2  //:-----------------------------------:////| 04 |//
+#undef  K_1  //:-----------------------------------:////| 05 |//
+#undef  K_2  //:-----------------------------------:////| 06 |// 
+#undef  VAR  //:-----------------------------------:////| 07 |//
+#undef  EII  //:-----------------------------------:////| 08 |//     
+#undef  MEM  //:-----------------------------------:////| 09 |//
+#undef  INS  //:-----------------------------------:////| 10 |// 
+#undef  FUN  //:-----------------------------------:////| 11 |//                       
+#undef  TYP  //:-----------------------------------:////| 12 |//   
+#undef  ARG  //:-----------------------------------:////| 13 |//
+#undef  RET  //:-----------------------------------:////| 14 |//      
+#undef  BRA  //:-----------------------------------:////| 15 |//      
+#undef  SUB  //:-----------------------------------:////| 16 |//          
+#undef  var  //:-----------------------------------:////| 19 |//
+#undef  eii  //:-----------------------------------:////| 20 |//     
+#undef  mem  //:-----------------------------------:////| 21 |//       
+#undef  ins  //:-----------------------------------:////| 22 |//                  
+#undef  fun  //:-----------------------------------:////| 23 |// 
+#undef  typ  //:-----------------------------------:////| 24 |//
+#undef  arg  //:-----------------------------------:////| 25 |//
+#undef  ret  //:-----------------------------------:////| 26 |//  
+#undef  bra  //:-----------------------------------:////| 27 |//  
+#undef  sub  //:-----------------------------------:////| 28 |// 
+#undef  obj  //:-----------------------------------:////| 29 |// 
+#undef  poi  //:-----------------------------------:////| 30 |// 
+#undef  siz  //:-----------------------------------:////| 31 |//
+#undef  num  //:-----------------------------------:////| 32 |//
+#undef  arr  //:-----------------------------------:////| 33 |//
+#undef   H   //:-----------------------------------:////| 37 |//
+#undef   D   //:-----------------------------------:////| 38 |//
+#undef  NIL  //:-----------------------------------:////| 39 |//
+#undef  E_S  //:-----------------------------------:////| 40 |//
+#undef  E_F  //:-----------------------------------:////| 41 |//
+#undef  G_1  //:-----------------------------------://
+#undef  G_2  //:-----------------------------------://
+#undef  G_3  //:-----------------------------------://
+#undef  g_1  //:-----------------------------------://
+#undef  g_2  //:-----------------------------------://
+#undef  g_3  //:-----------------------------------://
+//:USE: Getters or make it an INS(file_scope_var)     //| -- |//
+//:     If you want some type of public access.       //| -- |//
+//:NO:  SIZ(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  NUM(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  ARR(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
+//:NO:  OBJ(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//      
+//:NO:  POI(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//  
+//:NO:  g_4: SEE[ NESTING_RULE_NO_DEEPER_THAN_3 ]     //| -- |//
+//:NO:  v_#: Confused as local var.     USE: g_#      //| -- |//
+//:NO:  f_#: Confused with: F_## types. USE: g_#      //| -- |//
+#undef  termin //:termin:TERMINAL member/variable     //| -- |//
+#undef  s      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+#undef  _      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+//|____________________________________________|V4_MEGAHEADER|//
+
+
+//:BATSIN: 
+//:     bat: Branching_Type:
+//:     sin: Sub___Instance:
+
+//: ACTUAL: ARR_SIZ_NUM_RULES:
+//:   TYPO: ARR_SIZ_NAM_RULES:
+//:     "siz,num,arr" may also be built into the
+//:     name of the variable instead of added as
+//:     a "kind". Use whatever combination allows
+//:     you to keep the base-name of the variable
+//:     as xxx_xxx. 
+//:         EX: siz(tik_tok)  arr(tik_tok)
+//:         OR:     siz_tok       arr_tok
+//:
+//:     siz,num,arr are all local.
+//:     They are not qualified with the library name
+//:     or obfuscated because they are local variables.
+//: 
+//:     Do NOT make them file scope.
+
+//: NESTING:
+//| The answer to that is that if you need more than 3       |//
+//| levels of indentation,you’re screwed anyway,and should   |//
+//| fix your program.                                        |//
+//| www.kernel.org/doc/html/v4.10/process/coding-style.html  |//
+
+
 #define lib MACRO_project_prefix_HIDDEN  //: Private  //: 01 ://
 #define LIB MACRO_project_prefix_VISIBLE //: Public   //: 02 ://
 #define GM1( a , b )      a## _ ##b      //: GLUEMAC  //: 03 ://
@@ -1784,6 +2422,15 @@ int main( void ){
     #if(    SRC_NATIVE_WINDOW_CREATION  >= 1 )
         ASS( INS( AT_END_OF_CHAIN ) <= 0 );
         FUN(SRC_NATIVE_WINDOW_creation)();
+    #else
+        INS(AT_END_OF_CHAIN)++;
+    #endif
+    
+    ////////////////////////////////////////////////////////////
+    
+    #if(    SRC_VULKAN_SETUP_MAIN  >= 1 )
+        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+        EII(SRC_VULKAN_SETUP_main)();
     #else
         INS(AT_END_OF_CHAIN)++;
     #endif
