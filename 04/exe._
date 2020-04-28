@@ -396,6 +396,13 @@
     void* INS( dll_g32 ) = NIL; //:Gdi32.dll    pointer
     void* INS( dll_vuk ) = NIL; //:vulkan-1.dll pointer
 
+    //:If you have trouble getting pointers to OpenGL.dll
+    //:You may have to add your "OPEN_CL_SEARCH_PATHS.TXT"
+    //:and "OPEN_GL_SEARCH_PATHS.TXT" code to this project.
+    //:I have a feeling this MIGHT be the case for OpenCL.
+    void* INS( dll_gra ) = NIL; //:OpenGL.dll   pointer
+    void* INS( dll_com ) = NIL; //:OpenCL.dll   pointer
+
 //:TYPEDEFS: ////////////////////////////////////////////////://
 
     typedef void (* TYP(Func) )(void); //:Function pointer.
@@ -549,6 +556,31 @@
             VAR(Data)=DLLL_LoadLibraryA("vulkan-1.dll");
             INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
         }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l'  
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_gra"
+        &&  ARG(dll_nam)[4] == 'g'  //:(opengl32.dll)
+        &&  ARG(dll_nam)[5] == 'r' 
+        &&  ARG(dll_nam)[6] == 'a' 
+        ){          //[ C:\Windows\System32\opengl32.dll     ]//
+                    printf("[RESOLVES_TO:opengl32.dll]\n");
+            VAR(Data)=DLLL_LoadLibraryA("opengl32.dll");
+            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l'  
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_com"
+        &&  ARG(dll_nam)[4] == 'c'  //:(OpenCL64.dll)
+        &&  ARG(dll_nam)[5] == 'o' 
+        &&  ARG(dll_nam)[6] == 'm' 
+        ){  //[ C:/Program Files                             ]//
+            //[  /NVIDIA Corporation\OpenCL\OpenCL64.dll     ]//
+                    printf("[RESOLVES_TO:OpenCL64.dll]\n");
+            VAR(Data)=DLLL_LoadLibraryA("OpenCL64.dll");
+            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
+        }else
         if( 1 ){
             //:If dll_name is not a shorthand name,
             //:load it as is.
@@ -645,6 +677,36 @@
             };; assert(  INS( dll_vuk ) );
             VAR(dll_ptr)=INS( dll_vuk );
         }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_gra"
+        &&  ARG(dll_nam)[4] == 'g' 
+        &&  ARG(dll_nam)[5] == 'r' 
+        &&  ARG(dll_nam)[6] == 'a' 
+        ){
+            //:if_library_not_loaded____load_now:
+            if( NIL ==   INS( dll_gra ) ){
+                         INS( dll_gra )=fun( LoadLibrary    )
+                     /** INS( dll_gra ) **/( "opengl32.dll" );
+            };; assert(  INS( dll_gra ) );
+            VAR(dll_ptr)=INS( dll_gra );
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_com"
+        &&  ARG(dll_nam)[4] == 'c' 
+        &&  ARG(dll_nam)[5] == 'o' 
+        &&  ARG(dll_nam)[6] == 'm' 
+        ){
+            //:if_library_not_loaded____load_now:
+            if( NIL ==   INS( dll_com ) ){
+                         INS( dll_com )=fun( LoadLibrary    )
+                     /** INS( dll_com ) **/( "OpenCL64.dll" );
+            };; assert(  INS( dll_com ) );
+            VAR(dll_ptr)=INS( dll_com );
+        }else
         if( 1 ){
             printf("[UnknownValueOf:dll_nam]:%s\n"
             , ARG(dll_nam));;
@@ -673,6 +735,24 @@
 
         return( VAR(GetProcAddress) );
 
+    }
+
+    //:A wrapper function so when called from other files
+    //:you know where the function is comming from
+    TYP(Func)
+    FUN(SRC_NATIVE_CALLWRAP_GetProcAddress)(
+        TYP(Str)    ARG(dll_nam)
+    ,   TYP(Str)    ARG(fun_nam)
+    ){
+        TYP(Func) ret_pfn=((void*)0);
+        ret_pfn=(
+            FUN(GetProcAddress)(
+                    ARG(dll_nam)
+            ,       ARG(fun_nam)
+            )
+        );;
+        if( ((void*)0)==ret_pfn ){ H("[2020_04_28_0201AM]");};
+        return( ret_pfn );
     }
 
     //:Prviate version of "GetProcAddress" wrapper:
@@ -2026,67 +2106,90 @@ fun(WinMsgHanWndPoc)(
     //:  FUN( SomeThing  )   <-- A function name
 
 //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
-#define lib MACRO_project_prefix_HIDDEN  //~Private~  //| 01 |//
-#define LIB MACRO_project_prefix_VISIBLE //~Public~~  //| 02 |//
-#define GM1( a , b )      a## _ ##b          // GLUE  //| 03 |//
-#define GM2( a , b ) GM1( a   ,   b )        // GLUE  //| 04 |//
-#define K_1( a,b,c )      a## _ ##b## _ ##c  // GLUE  //| 05 |//
-#define K_2( a,b,c ) K_1( a   ,   b   ,   c )// GLUE  //| 06 |// 
-#define VAR(  nam  ) GM2( VAR   ,   nam )// Local_Var //| 07 |//
-#define EII(  nam  ) K_2( LIB, EII, nam )// SEE[EII]  //| 08 |//     
-#define MEM(  nam  ) K_2( LIB ,MEM, nam )// Member    //| 09 |//
-#define INS(  nam  ) K_2( LIB ,INS, nam )// INS:INST  //| 10 |// 
-#define FUN(  nam  ) K_2( LIB ,FUN, nam )// FUN:FUNC  //| 11 |//                       
-#define TYP(  nam  ) K_2( LIB ,TYP, nam )// TYP:TYPE  //| 12 |//   
-#define ARG(  nam  ) GM2(      ARG, nam )// Argument  //| 13 |//
-#define RET(  nam  ) GM2(      RET, nam )// RET___Var //| 14 |//      
-#define BRA(  nam  ) K_2( lib, bra, nam )// BranchTyp //| 15 |//      
-#define SUB(  nam  ) K_2( lib, sub, nam )// SubInstan //| 16 |//          
-#define var(  nam  ) GM2( v_2020_04_25_1007PM , nam ) //| 19 |//
-#define eii(  nam  ) GM2( e_2020_04_25_1007PM , nam ) //| 20 |//     
-#define mem(  nam  ) GM2( m_2020_04_25_1007PM , nam ) //| 21 |//       
-#define ins(  nam  ) GM2( i_2020_04_25_1007PM , nam ) //| 22 |//                  
-#define fun(  nam  ) GM2( f_2020_04_25_1007PM , nam ) //| 23 |// 
-#define typ(  nam  ) GM2( t_2020_04_25_1007PM , nam ) //| 24 |//
-#define arg(  nam  ) GM2( a_2020_04_25_1007PM , nam ) //| 25 |//
-#define ret(  nam  ) GM2( r_2020_04_25_1007PM , nam ) //| 26 |//  
-#define bra(  nam  ) GM2( b_2020_04_25_1007PM , nam ) //| 27 |//  
-#define sub(  nam  ) GM2( s_2020_04_25_1007PM , nam ) //| 28 |// 
-#define obj(  nam  ) GM2( o_2020_04_25_1007PM , nam ) //| 29 |// 
-#define poi(  nam  ) GM2( p_2020_04_25_1007PM , nam ) //| 30 |// 
-#define siz(   N   ) GM2( S_2020_04_25_1007PM ,  N  ) //| 31 |//
-#define num(   N   ) GM2( N_2020_04_25_1007PM ,  N  ) //| 32 |//
-#define arr(   N   ) GM2( A_2020_04_25_1007PM ,  N  ) //| 33 |//
-#define dex(   N   ) GM2( D_2020_04_24_1007PM ,  N  )
-#define  H    fun( Halt )                             //| 37 |//
-#define  D    fun( Dmsg ) // DebugPrint/DebugMessage  //| 38 |//
-#define NIL ((void*)0)                                //| 39 |//
-#define E_S(  end  )   ;  // END_STRUCT               //| 40 |//
-#define E_F(  end  )      // END_FUNCTION             //| 41 |//
-#define G_1(G,a    ) G ##_## a
-#define G_2(G,a,b  ) G ##_## a ##_## b
-#define G_3(G,a,b,c) G ##_## a ##_## b ##_## c
-#define g_1(a      ) G_1( lib, a      ) //:FILE_SCOPE
-#define g_2(a,b    ) G_2( lib, a,b    ) //:FILE_SCOPE 
-#define g_3(a,b,c  ) G_3( lib, a,b,c  ) //:FILE_SCOPE 
-#define U32 unsigned           int
-#define I32 signed             int
-#define U64 unsigned long long int
-#define I64 signed   long long int
-//:USE: Getters or make it an INS(file_scope_var)     //| -- |//
-//:     If you want some type of public access.       //| -- |//
-//:NO:  SIZ(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
-//:NO:  NUM(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
-//:NO:  ARR(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
-//:NO:  OBJ(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//      
-//:NO:  POI(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//  
-//:NO:  g_4: SEE[ NESTING_RULE_NO_DEEPER_THAN_3 ]     //| -- |//
-//:NO:  v_#: Confused as local var.     USE: g_#      //| -- |//
-//:NO:  f_#: Confused with: F_## types. USE: g_#      //| -- |//
-#define termin //:termin:TERMINAL member/variable     //| -- |//
-#define s ;    //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
-#define S ;    //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
-#define _      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+#define    lib MACRO_project_prefix_HIDDEN            //| 01 |//
+#define    LIB MACRO_project_prefix_VISIBLE           //| 02 |//
+#define    GM1( a , b )      a## _ ##b                //| 03 |//
+#define    GM2( a , b ) GM1( a   ,   b )              //| 04 |//
+#define    K_1( a,b,c )      a## _ ##b##   _ ##c      //| 05 |//
+#define    K_2( a,b,c ) K_1( a   ,   b     ,   c )    //| 06 |//
+#define    VAR( n ) GM2( VAR   ,               n )    //| 07 |//
+#define    EII( n ) K_2( LIB, EII,             n )    //| 08 |//
+#define    MEM( n ) K_2( LIB ,MEM,             n )    //| 09 |//
+#define    INS( n ) K_2( LIB ,INS,             n )    //| 10 |//
+#define    FUN( n ) K_2( LIB ,FUN,             n )    //| 11 |//
+#define    TYP( n ) K_2( LIB ,TYP,             n )    //| 12 |//
+#define    ARG( n ) GM2(      ARG,             n )    //| 13 |//
+#define    RET( n ) GM2(      RET,             n )    //| 14 |//
+#define    BRA( n ) K_2( lib, bra,             n )    //| 15 |//
+#define    SUB( n ) K_2( lib, sub,             n )    //| 16 |//
+#define    var( n ) GM2( v_2020_04_25_1007PM , n )    //| 17 |//
+#define    eii( n ) GM2( e_2020_04_25_1007PM , n )    //| 18 |//
+#define    mem( n ) GM2( m_2020_04_25_1007PM , n )    //| 19 |//
+#define    ins( n ) GM2( i_2020_04_25_1007PM , n )    //| 20 |//
+#define    fun( n ) GM2( f_2020_04_25_1007PM , n )    //| 21 |//
+#define    typ( n ) GM2( t_2020_04_25_1007PM , n )    //| 22 |//
+#define    arg( n ) GM2( a_2020_04_25_1007PM , n )    //| 23 |//
+#define    ret( n ) GM2( r_2020_04_25_1007PM , n )    //| 24 |//
+#define    bra( n ) GM2( b_2020_04_25_1007PM , n )    //| 25 |//
+#define    sub( n ) GM2( s_2020_04_25_1007PM , n )    //| 26 |//
+#define    obj( n ) GM2( o_2020_04_25_1007PM , n )    //| 27 |//
+#define    poi( n ) GM2( p_2020_04_25_1007PM , n )    //| 28 |//
+#define    NIL        ((void*)0)                      //| 29 |//
+#define    siz( n ) GM2( S_2020_04_25_1007PM , n )    //| 30 |//
+#define    num( n ) GM2( N_2020_04_25_1007PM , n )    //| 31 |//
+#define    arr( n ) GM2( A_2020_04_25_1007PM , n )    //| 32 |//
+#define    dex( n ) GM2( D_2020_04_24_1007PM , n )    //| 33 |//
+#define      H          fun( Halt )                   //| 34 |//
+#define      D          fun( Dmsg )                   //| 35 |//
+#define    E_S(  nam  )   ;  // END_STRUCT            //| 36 |//
+#define    E_F(  nam  )      // END_FUNCTION          //| 37 |//
+#define    G_1(G,a    ) G ##_## a                     //| 38 |//
+#define    G_2(G,a,b  ) G ##_## a ##_## b             //| 39 |//
+#define    G_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 40 |//
+#define    g_1(a      ) G_1( lib, a      )            //| 41 |//
+#define    g_2(a,b    ) G_2( lib, a,b    )            //| 42 |//
+#define    g_3(a,b,c  ) G_3( lib, a,b,c  )            //| 43 |//
+#define    U32 unsigned           int                 //| 44 |//
+#define    I32 signed             int                 //| 45 |//
+#define    U64 unsigned long long int                 //| 46 |//
+#define    I64 signed   long long int                 //| 47 |//
+#define termin //:TERMINAL_STRUCT_NODE://             //| 48 |//
+#define      s ;                                      //| 49 |//
+#define      S ;                                      //| 50 |//
+#define      _                                        //| 51 |//
+//:If the macro is banned, it means you'll have       //| -- |//
+//:to use the private (lowercase) version and         //| -- |//
+//:add getter code. OR you can be more generic        //| -- |//
+//:and make the value a MEM(member_name).             //| -- |//
+//:A bit rigid. But widdling down the ways things     //| -- |//
+//:are allowed to be done should have benifits.       //| -- |//
+#if defined( PTR ) || defined( ptr )                  //| -- |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
+#endif                                                //| -- |//
+#if defined( SIZ )                                    //| -- |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( NUM )                                    //| -- |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( ARR )                                    //| -- |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( OBJ )                                    //| -- |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( POI )                                    //| -- |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+//:V_* can be confused as a local variable.           //| -- |//
+//:F_* can be confused as function pyramid type.      //| -- |//
+//:g_ : private global. (File scope variable.)        //| -- |//
+#if defined( v_1 ) || defined( V_1 )                  //| -- |//
+    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
+#endif                                                //| -- |//
+#if defined( f_1 ) || defined( F_1 )                  //| -- |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
+#endif                                                //| -- |//
 //|____________________________________________|V4_MEGAHEADER|//
 //:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
 
@@ -2111,10 +2214,10 @@ fun(WinMsgHanWndPoc)(
     #undef  E //:////////////////////////////////////////////://
 
 //[1111111111111111111111111111111111111111111111111111111111]//
-//:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://                                      
-    static void fun(Halt)( const char* msg ){printf( //:- - -://                       
+//:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://
+    static void fun(Halt)( const char* msg ){printf( //:- - -://
     "[SRC_VULKAN_SETUP_MAIN:Halt]:%s\n"
-    , msg);;fflush(stdout);exit(0xF0);}//:- - - - - - - - - -://   
+    , msg);;fflush(stdout);exit(0xF0);}//:- - - - - - - - - -://
     static void fun(Dmsg)( const char* msg ){printf(
     "[SRC_VULKAN_SETUP_MAIN:Dmsg]:%s\n"
     ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
@@ -2133,7 +2236,7 @@ fun(WinMsgHanWndPoc)(
 
     //:Typedefs that do not rely on struct definitions.
     typedef void* typ(        vuk_ins) ;//:VkInstance
- 
+
     struct typ(app_inf) {          //:VkApplicationInfo
         unsigned int      sType;   //:VkStructureType
         const void*       pNext;
@@ -2144,13 +2247,13 @@ fun(WinMsgHanWndPoc)(
         unsigned int      apiVersion;         //:unsigned int
     }E_S(app_inf)
 
-    //:VkExtensionProperties 
+    //:VkExtensionProperties
     struct TYP(ext_pro){
         //:ext_nam: extensionName
         char MEM(ext_nam)[ 256 /*VK_MAX_EXTENSION_NAME_SIZE*/ ];
 
         //:spe_ver: specVersion
-        U32 MEM(spe_ver); /** uint32_t **/  
+        U32 MEM(spe_ver); /** uint32_t **/
 
     }E_S(ext_pro)
 
@@ -2162,11 +2265,11 @@ fun(WinMsgHanWndPoc)(
         const   void*        pNext;
         unsigned int         flags;
 
-                             //:AKA:pApplicationInfo 
+                             //:AKA:pApplicationInfo
         const struct         //:AKA:VkApplicationInfo*
-                             typ(app_inf)* 
+                             typ(app_inf)*
                              poi(app_inf);
-                             
+
         unsigned      int    enabledLayerCount;
         const char* const*   ppEnabledLayerNames;
 
@@ -2187,7 +2290,7 @@ fun(WinMsgHanWndPoc)(
     //:spaghetti code.
 
     //:wanted_instance_extensions
-    int   g_2(ext_ins,wan_num)=( 2 );  
+    int   g_2(ext_ins,wan_num)=( 2 );
     char* g_2(ext_ins,wan_arr)[  2 ]={
         "VK_KHR_surface"
     ,   "VK_KHR_win32_surface"
@@ -2210,7 +2313,7 @@ fun(WinMsgHanWndPoc)(
 //:GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG::FILESCOPE_GLOBALS://
 //:VULKAN_STRUCT:VSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVS://
     struct typ(vuk_mai){ //:vulkan_main.
- 
+
         struct
         typ(app_inf)   //:VkApplicationInfo
         mem(app_inf);  //:VkApplicationInfo
@@ -2222,7 +2325,7 @@ fun(WinMsgHanWndPoc)(
         struct bra(ext_ins){//:extensions:INSTANCE
             int    mem(wan_num);//:wanted_instance_extensions
             char** mem(wan_arr);//:wanted_instance_extensions
-    
+
             //:InstanceExtensionProperties  //~//////////////://
             #define E_P struct TYP(ext_pro) //://////////////://
                 //:typ(vuk_mai).sub(ext_ins).mem(pro_cap);
@@ -2234,14 +2337,14 @@ fun(WinMsgHanWndPoc)(
             #undef E_P //:///////////////////////////////////://
 
         }sub(ext_ins);
-        
+
         struct bra(cre_inf){ //:cre_(ate)_inf_(o)
- 
+
             struct //:ins(vuk_mai).sub(cre_inf).mem(vuk_ins);
             typ(cre_inf_vuk_ins)   //:VkInstanceCreateInfo
             mem(        vuk_ins);  //:VkInstanceCreateInfo
 
-        }sub(cre_inf); //:///////////////////////////////////:// 
+        }sub(cre_inf); //:///////////////////////////////////://
 
 
     }ins(vuk_mai)={
@@ -2264,9 +2367,9 @@ fun(WinMsgHanWndPoc)(
 
 //[MAIN:(BELOW):---------------------------------------------]//
 //[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
-    
+
     void EII(SRC_VULKAN_SETUP_main)( void )  //://///////////://
-    {                     
+    {
 
     //:Before doing any vulkan setup, front load any needed
     //:function pointers from vulkan-1.dll:
@@ -2280,14 +2383,14 @@ fun(WinMsgHanWndPoc)(
     ,       "vkCreateInstance" );;
 
     //:vkEnumerateInstanceExtensionProperties
-    
+
     INS(vkEnumerateInstanceExtensionProperties)=
     FUN(GetProcAddress)(
     /**/ "dll_vuk"
     ,    "vkEnumerateInstanceExtensionProperties"
     );;
 
-                   
+
     #define vkm ins(vuk_mai) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     //:------------------------------------------------------://
 
@@ -2356,7 +2459,7 @@ fun(WinMsgHanWndPoc)(
                 D("[NIL_FUNCTION_PTR:vkCreateInstance!]");
                 H("[DID_YOU_FORGET_TO_LOAD_VULKAN_PTR?]");
             };;
-            
+
             unsigned int res=(
                 //:CAST:
                 (unsigned int)(unsigned long long)
@@ -2386,8 +2489,8 @@ fun(WinMsgHanWndPoc)(
         //:CI:VkInstanceCreateInfo:__________________________://
 
         //:SizeChecks:
-        ;;;if( sizeof(U32) != 4 ){ 
-            H("[FAIL:SIZECHECK:U32]"); 
+        ;;;if( sizeof(U32) != 4 ){
+            H("[FAIL:SIZECHECK:U32]");
         };;if( sizeof( struct TYP(ext_pro)  ) != 260 ){
             H("[FAIL:SIZECHECK:VkExtensionProperties]");
         };;
@@ -2412,10 +2515,10 @@ fun(WinMsgHanWndPoc)(
                 ,   NIL
                 )
             ));
-            if( res != 0 /**VK_SUCCESS**/ ){ 
+            if( res != 0 /**VK_SUCCESS**/ ){
                 H("[2020_04_27:0419AM]");
             };;
-    
+
             //:Do we have enough capacity to get everything?
             //://////////////////////////////////////////////://
             //:Keep it simple. We are not going to deal with
@@ -2461,23 +2564,23 @@ fun(WinMsgHanWndPoc)(
             vkm.sub(ext_ins).mem(pro_cap)=g_2(ext_ins,pro_cap);
             vkm.sub(ext_ins).mem(pro_num)=g_2(ext_ins,pro_num);
             vkm.sub(ext_ins).mem(pro_arr)=g_2(ext_ins,pro_arr);
-            
+
             //:Loop over instance extensions as sanity check:
             #define E_P struct TYP(ext_pro) //://////////////://
-                
+
                 printf("\n[VkExtensionProperties:(BELOW)]\n");
                 int  num(ext) = vkm.sub(ext_ins).mem(pro_num);
                 E_P* arr(ext) = vkm.sub(ext_ins).mem(pro_arr);
 
                 int     dex(ext) = 0;
-                for(    
-                /**/    dex(ext)= 0 
-                ;       dex(ext) < num(ext) 
+                for(
+                /**/    dex(ext)= 0
+                ;       dex(ext) < num(ext)
                 ;       dex(ext)++
                 ){
-                    //:VkExtensionProperties 
+                    //:VkExtensionProperties
                     printf("[extensionName]:%s\n"
-                    , ( arr(ext)[ dex(ext) ] ).MEM(ext_nam) 
+                    , ( arr(ext)[ dex(ext) ] ).MEM(ext_nam)
                     );;
                 };;
                 fflush(stdout);
@@ -2492,7 +2595,7 @@ fun(WinMsgHanWndPoc)(
         //:WHEN DONE WITH SETUP:
         //:Do a check of entire struct to make sure every
         //:member is valid
-    
+
     //:------------------------------------------------------://
     #undef  vkm  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     }E_F(SRC_VULKAN_SETUP_main)//:///////////////////////////://
@@ -2503,68 +2606,95 @@ fun(WinMsgHanWndPoc)(
 
 
 //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
-#undef  lib  //:-----------------------------------:////| 01 |//
-#undef  LIB  //:-----------------------------------:////| 02 |//
-#undef  GM1  //:-----------------------------------:////| 03 |//
-#undef  GM2  //:-----------------------------------:////| 04 |//
-#undef  K_1  //:-----------------------------------:////| 05 |//
-#undef  K_2  //:-----------------------------------:////| 06 |// 
-#undef  VAR  //:-----------------------------------:////| 07 |//
-#undef  EII  //:-----------------------------------:////| 08 |//     
-#undef  MEM  //:-----------------------------------:////| 09 |//
-#undef  INS  //:-----------------------------------:////| 10 |// 
-#undef  FUN  //:-----------------------------------:////| 11 |//                       
-#undef  TYP  //:-----------------------------------:////| 12 |//   
-#undef  ARG  //:-----------------------------------:////| 13 |//
-#undef  RET  //:-----------------------------------:////| 14 |//      
-#undef  BRA  //:-----------------------------------:////| 15 |//      
-#undef  SUB  //:-----------------------------------:////| 16 |//          
-#undef  var  //:-----------------------------------:////| 19 |//
-#undef  eii  //:-----------------------------------:////| 20 |//     
-#undef  mem  //:-----------------------------------:////| 21 |//       
-#undef  ins  //:-----------------------------------:////| 22 |//                  
-#undef  fun  //:-----------------------------------:////| 23 |// 
-#undef  typ  //:-----------------------------------:////| 24 |//
-#undef  arg  //:-----------------------------------:////| 25 |//
-#undef  ret  //:-----------------------------------:////| 26 |//  
-#undef  bra  //:-----------------------------------:////| 27 |//  
-#undef  sub  //:-----------------------------------:////| 28 |// 
-#undef  obj  //:-----------------------------------:////| 29 |// 
-#undef  poi  //:-----------------------------------:////| 30 |// 
-#undef  siz  //:-----------------------------------:////| 31 |//
-#undef  num  //:-----------------------------------:////| 32 |//
-#undef  arr  //:-----------------------------------:////| 33 |//
-#undef  dex
-#undef   H   //:-----------------------------------:////| 37 |//
-#undef   D   //:-----------------------------------:////| 38 |//
-#undef  NIL  //:-----------------------------------:////| 39 |//
-#undef  E_S  //:-----------------------------------:////| 40 |//
-#undef  E_F  //:-----------------------------------:////| 41 |//
-#undef  G_1  //:-----------------------------------://
-#undef  G_2  //:-----------------------------------://
-#undef  G_3  //:-----------------------------------://
-#undef  g_1  //:-----------------------------------://
-#undef  g_2  //:-----------------------------------://
-#undef  g_3  //:-----------------------------------://
-#undef  U32
-//:USE: Getters or make it an INS(file_scope_var)     //| -- |//
-//:     If you want some type of public access.       //| -- |//
-//:NO:  SIZ(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
-//:NO:  NUM(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
-//:NO:  ARR(   N   ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//
-//:NO:  OBJ(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//      
-//:NO:  POI(  nam  ) <<<<<<<<<<< USED_AS_LOCAL_MACROS //| -- |//  
-//:NO:  g_4: SEE[ NESTING_RULE_NO_DEEPER_THAN_3 ]     //| -- |//
-//:NO:  v_#: Confused as local var.     USE: g_#      //| -- |//
-//:NO:  f_#: Confused with: F_## types. USE: g_#      //| -- |//
-#undef  termin //:termin:TERMINAL member/variable     //| -- |//
-#undef  s      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
-#undef  S      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
-#undef  _      //:END_OF_STATEMENT_OR_DEFINE_LINE     //| -- |//
+#undef     lib                                        //| 01 |//
+#undef     LIB                                        //| 02 |//
+#undef     GM1                                        //| 03 |//
+#undef     GM2                                        //| 04 |//
+#undef     K_1                                        //| 05 |//
+#undef     K_2                                        //| 06 |//
+#undef     VAR                                        //| 07 |//
+#undef     EII                                        //| 08 |//
+#undef     MEM                                        //| 09 |//
+#undef     INS                                        //| 10 |//
+#undef     FUN                                        //| 11 |//
+#undef     TYP                                        //| 12 |//
+#undef     ARG                                        //| 13 |//
+#undef     RET                                        //| 14 |//
+#undef     BRA                                        //| 15 |//
+#undef     SUB                                        //| 16 |//
+#undef     var                                        //| 17 |//
+#undef     eii                                        //| 18 |//
+#undef     mem                                        //| 19 |//
+#undef     ins                                        //| 20 |//
+#undef     fun                                        //| 21 |//
+#undef     typ                                        //| 22 |//
+#undef     arg                                        //| 23 |//
+#undef     ret                                        //| 24 |//
+#undef     bra                                        //| 25 |//
+#undef     sub                                        //| 26 |//
+#undef     obj                                        //| 27 |//
+#undef     poi                                        //| 28 |//
+#undef     NIL                                        //| 29 |//
+#undef     siz                                        //| 30 |//
+#undef     num                                        //| 31 |//
+#undef     arr                                        //| 32 |//
+#undef     dex                                        //| 33 |//
+#undef       H                                        //| 34 |//
+#undef       D                                        //| 35 |//
+#undef     E_S                                        //| 36 |//
+#undef     E_F                                        //| 37 |//
+#undef     G_1                                        //| 38 |//
+#undef     G_2                                        //| 39 |//
+#undef     G_3                                        //| 40 |//
+#undef     g_1                                        //| 41 |//
+#undef     g_2                                        //| 42 |//
+#undef     g_3                                        //| 43 |//
+#undef     U32                                        //| 44 |//
+#undef     I32                                        //| 45 |//
+#undef     U64                                        //| 46 |//
+#undef     I64                                        //| 47 |//
+#undef  termin                                        //| 48 |//
+#undef       s                                        //| 49 |//
+#undef       S                                        //| 50 |//
+#undef       _                                        //| 51 |//
+//:If the macro is banned, it means you'll have       //| -- |//
+//:to use the private (lowercase) version and         //| -- |//
+//:add getter code. OR you can be more generic        //| -- |//
+//:and make the value a MEM(member_name).             //| -- |//
+//:A bit rigid. But widdling down the ways things     //| -- |//
+//:are allowed to be done should have benifits.       //| -- |//
+#if defined( PTR ) || defined( ptr )                  //| -- |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
+#endif                                                //| -- |//
+#if defined( SIZ )                                    //| -- |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( NUM )                                    //| -- |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( ARR )                                    //| -- |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( OBJ )                                    //| -- |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( POI )                                    //| -- |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+//:V_* can be confused as a local variable.           //| -- |//
+//:F_* can be confused as function pyramid type.      //| -- |//
+//:g_ : private global. (File scope variable.)        //| -- |//
+#if defined( v_1 ) || defined( V_1 )                  //| -- |//
+    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
+#endif                                                //| -- |//
+#if defined( f_1 ) || defined( F_1 )                  //| -- |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
+#endif                                                //| -- |//
 //|____________________________________________|V4_MEGAHEADER|//
+//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
 
 
-//:BATSIN: 
+//:BATSIN:
 //:     bat: Branching_Type:
 //:     sin: Sub___Instance:
 
@@ -2574,14 +2704,14 @@ fun(WinMsgHanWndPoc)(
 //:     name of the variable instead of added as
 //:     a "kind". Use whatever combination allows
 //:     you to keep the base-name of the variable
-//:     as xxx_xxx. 
+//:     as xxx_xxx.
 //:         EX: siz(tik_tok)  arr(tik_tok)
 //:         OR:     siz_tok       arr_tok
 //:
 //:     siz,num,arr are all local.
 //:     They are not qualified with the library name
 //:     or obfuscated because they are local variables.
-//: 
+//:
 //:     Do NOT make them file scope.
 
 //: NESTING:
@@ -2595,6 +2725,323 @@ fun(WinMsgHanWndPoc)(
 //:     A PDF version of "vulkan-tutorial.com/"
 //:     VK_TUT_2018 is my shortcut name that opens the
 //:     tutorial on my computer.
+
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+#define    lib MACRO_project_prefix_HIDDEN            //| 01 |//
+#define    LIB MACRO_project_prefix_VISIBLE           //| 02 |//
+#define    GM1( a , b )      a## _ ##b                //| 03 |//
+#define    GM2( a , b ) GM1( a   ,   b )              //| 04 |//
+#define    K_1( a,b,c )      a## _ ##b##   _ ##c      //| 05 |//
+#define    K_2( a,b,c ) K_1( a   ,   b     ,   c )    //| 06 |//
+#define    VAR( n ) GM2( VAR   ,                  n ) //| 07 |//
+#define    EII( n ) K_2( LIB, EII,                n ) //| 08 |//
+#define    MEM( n ) K_2( LIB ,MEM,                n ) //| 09 |//
+#define    INS( n ) K_2( LIB ,INS,                n ) //| 10 |//
+#define    FUN( n ) K_2( LIB ,FUN,                n ) //| 11 |//
+#define    TYP( n ) K_2( LIB ,TYP,                n ) //| 12 |//
+#define    ARG( n ) GM2(      ARG,                n ) //| 13 |//
+#define    RET( n ) GM2(      RET,                n ) //| 14 |//
+#define    BRA( n ) K_2( lib, bra,                n ) //| 15 |//
+#define    SUB( n ) K_2( lib, sub,                n ) //| 16 |//
+#define    var( n ) GM2( v_2020_04_28_1248AM_GL , n ) //| 17 |//
+#define    eii( n ) GM2( e_2020_04_28_1248AM_GL , n ) //| 18 |//
+#define    mem( n ) GM2( m_2020_04_28_1248AM_GL , n ) //| 19 |//
+#define    ins( n ) GM2( i_2020_04_28_1248AM_GL , n ) //| 20 |//
+#define    fun( n ) GM2( f_2020_04_28_1248AM_GL , n ) //| 21 |//
+#define    typ( n ) GM2( t_2020_04_28_1248AM_GL , n ) //| 22 |//
+#define    arg( n ) GM2( a_2020_04_28_1248AM_GL , n ) //| 23 |//
+#define    ret( n ) GM2( r_2020_04_28_1248AM_GL , n ) //| 24 |//
+#define    bra( n ) GM2( b_2020_04_28_1248AM_GL , n ) //| 25 |//
+#define    sub( n ) GM2( s_2020_04_28_1248AM_GL , n ) //| 26 |//
+#define    obj( n ) GM2( o_2020_04_28_1248AM_GL , n ) //| 27 |//
+#define    poi( n ) GM2( p_2020_04_28_1248AM_GL , n ) //| 28 |//
+#define    NIL        ((void*)0)                      //| 29 |//
+#define    siz( n ) GM2( S_2020_04_28_1248AM_GL , n ) //| 30 |//
+#define    num( n ) GM2( N_2020_04_28_1248AM_GL , n ) //| 31 |//
+#define    arr( n ) GM2( A_2020_04_28_1248AM_GL , n ) //| 32 |//
+#define    dex( n ) GM2( D_2020_04_28_1248AM_GL , n ) //| 33 |//
+#define      H          fun( Halt )                   //| 34 |//
+#define      D          fun( Dmsg )                   //| 35 |//
+#define    E_S(  nam  )   ;  // END_STRUCT            //| 36 |//
+#define    E_F(  nam  )      // END_FUNCTION          //| 37 |//
+#define    G_1(G,a    ) G ##_## a                     //| 38 |//
+#define    G_2(G,a,b  ) G ##_## a ##_## b             //| 39 |//
+#define    G_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 40 |//
+#define    g_1(a      ) G_1( lib, a      )            //| 41 |//
+#define    g_2(a,b    ) G_2( lib, a,b    )            //| 42 |//
+#define    g_3(a,b,c  ) G_3( lib, a,b,c  )            //| 43 |//
+#define    U32 unsigned           int                 //| 44 |//
+#define    I32 signed             int                 //| 45 |//
+#define    U64 unsigned long long int                 //| 46 |//
+#define    I64 signed   long long int                 //| 47 |//
+#define termin //:TERMINAL_STRUCT_NODE://             //| 48 |//
+#define      s ;                                      //| 49 |//
+#define      S ;                                      //| 50 |//
+#define      _                                        //| 51 |//
+//:If the macro is banned, it means you'll have       //| -- |//
+//:to use the private (lowercase) version and         //| -- |//
+//:add getter code. OR you can be more generic        //| -- |//
+//:and make the value a MEM(member_name).             //| -- |//
+//:A bit rigid. But widdling down the ways things     //| -- |//
+//:are allowed to be done should have benifits.       //| -- |//
+#if defined( PTR ) || defined( ptr )                  //| -- |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
+#endif                                                //| -- |//
+#if defined( SIZ )                                    //| -- |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( NUM )                                    //| -- |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( ARR )                                    //| -- |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( OBJ )                                    //| -- |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( POI )                                    //| -- |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+//:V_* can be confused as a local variable.           //| -- |//
+//:F_* can be confused as function pyramid type.      //| -- |//
+//:g_ : private global. (File scope variable.)        //| -- |//
+#if defined( v_1 ) || defined( V_1 )                  //| -- |//
+    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
+#endif                                                //| -- |//
+#if defined( f_1 ) || defined( F_1 )                  //| -- |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
+#endif                                                //| -- |//
+//|____________________________________________|V4_MEGAHEADER|//
+//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
+//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
+
+    //:PATH_TO_THIS_FILE_AS_ALL_CAPITAL_MACRO:
+    #define  SRC_OPENGL_SETUP_MAIN ( 2020+04+27 - 1154 + 'G' )
+
+//:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM  :CHAINFILE_MACRO://
+//:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://                                      
+    static void fun(Halt)( const char* msg ){printf( //:- - -://                       
+    "[SRC/OPENGL(GRAPHICS_LIB)/SETUP/main._:Halt]:%s\n"
+    , msg);;fflush(stdout);exit(0xF0);}//:- - - - - - - - - -://   
+    static void fun(Dmsg)( const char* msg ){printf(
+    "[SRC/OPENGL(GRAPHICS_LIB)/SETUP/main._:Dmsg]:%s\n"
+    ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
+//:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG:// 
+//:TYPEDEFS::TDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTD://
+
+
+    //:SetupForPointerToA:GetProcAddress:Function:
+    #define T( nam ) TYP( nam ) //://////////////////////////://
+
+    typedef void       (* T(GEN_FUN) )(void);  //:Generic:FUNC
+    typedef void          T(GEN_DAT)        ;  //:Generic:DATA
+    typedef T(GEN_FUN) (* T(GPA_FUN) )(void*); //:GPA_Pointer
+
+    #undef  T //:////////////////////////////////////////////://
+
+//:TDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTD::TYPEDEFS://
+
+    //:IN: SRC/NATIVE/CALLWRAP/GetProcAddress._ 
+    //:CORRECT[ dll_gra ]WRONG[ han_gra ]( open_gl_handle )
+    extern void* INS(dll_gra); 
+
+    #define    N  =(NIL);/////////://////////////////////////://  
+    #define    G  TYP(GPA_FUN)  //://////////////////////////://
+    #define    F  TYP(FUN)      //://////////////////////////://    
+    #define F_01  TYP(F_01)     //://////////////////////////://
+
+        //:These function pointers can be immediately fetched.
+        //:Other OpenGL function pointers require an OpenGL
+        //:context to be created first. I believe because
+        //:the function pointers are [instance/member]
+        //:methods of your context. 
+        G       ins(wglGetProcAddress)                         N
+        F       ins(wglGetCurrentContext)                      N
+        F       ins(wglCreateContext)                          N
+        F       ins(wglMakeCurrent)                            N
+                    
+        //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
+        //|You must call wglMakeCurrent after m_hDC has been |//
+        //|setup. stackoverflow.com/questions/2348332 SC[    |//
+        //|mc-after-dc-url ]                                 |//
+        //| - - - - - - - - - - - -- - - - - - - - - - - - - |//
+        //|Before you can use OpenGL,the context you created |//
+        //|must be made current. This is done with the       |//
+        //|wglMakeCurrent function.                          |//
+        //| - - - - - - - - - - - -- - - - - - - - - - - - - |//
+        //|SEE:SC[ make_context_current_you_must_url ]       |//
+        //|www.khronos.org/opengl/wiki/                      |//
+        //|Creating_an_OpenGL_Context_(WGL)                  |//
+        //|#Simple_Context_Creation                          |//
+        //|COMMENT_RIPPED_FROM[ V:\GLEB\GLEB.H ]*************|//
+        //|__________________________________________________|//
+
+    #undef     N  //:////////////////////////////////////////://
+    #undef     G  //:////////////////////////////////////////://
+    #undef     F  //:////////////////////////////////////////://
+    #undef  F_01  //:////////////////////////////////////////://
+
+    //://////////////////////////////////////////////////////://
+
+ 
+//[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
+    void EII(SRC_OPENGL_SETUP_main)(void){ //:///////////////://
+
+            H("hey");
+            D("hey");
+
+
+    }    E_F(SRC_OPENGL_SETUP_main)  //://///////////////////://
+//[MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM:MAIN]//
+
+
+//:AG:Any_GL:(BELOW):¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+//:AGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAG://
+//:                                                          ://
+//: AG: Any GL ( Get Any OpenGL Function Pointer )           ://
+//:                                                          ://
+//:AGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAG://
+//:wglGetProcAddress will not return function pointers from  ://
+//:any OpenGL functions that are directly exported by the    ://
+//:OpenGL32.DLL itself. This means the old ones from OpenGL  ://
+//:version 1.1. Fortunately those functions can be obtained  ://
+//:by the Win32's GetProcAddress. On the other hand          ://
+//:GetProcAddress will not work for the functions for which  ://
+//:wglGetProcAddress works. So in order to get the address of://
+//:any GL function one can try with wglGetProcAddress and if ://
+//:it fails,try again with the Win32's GetProcAddress:       ://
+//:SOURCE[ URL[                                              ://
+//:                                                          ://
+//:      www.khronos.org/opengl/wiki/Load_OpenGL_Functions   ://
+//:                                                          ://
+//: ]URL]SOURCE                                              ://
+//:AGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAG://
+    TYP(FUN) fun(GetAnyGLFuncAddress)( //:///////////////////://
+        const char* ARG(fun_nam) //:name_of_open_gl_function
+    ){
+        //:Remove const qualifier:
+        char* fun_nam=(char*)ARG(fun_nam);
+
+        //:This MIGHT be the only call you need:
+        TYP(FUN) ret_pfn=( ins(wglGetProcAddress)( fun_nam ) );
+
+        //:Unless some weird math with the function pointer
+        //:or null is returned. SEE[ Load_OpenGL_Functions ]
+        if(
+            ( ret_pfn ==        0       ) ||
+            ( ret_pfn == ( TYP(FUN) )0x1) || 
+            ( ret_pfn == ( TYP(FUN) )0x2) ||
+            ( ret_pfn == ( TYP(FUN) )0x3) ||
+            ( ret_pfn == ( TYP(FUN) ) -1) ||
+        0){
+            //:If we are in this section, these are the special
+            //:function pointers that require an opengl 
+            //:instance. So if dll_gra is NIL, we did not
+            //:do things in the correct order and consider
+            //:the fact that it worked co-incidential.
+            //:AKA:Undefined Behavior.
+            if(NIL==INS(dll_gra) ){ H("[2020_04_28_0131AM]");};
+            ret_pfn=FUN(SRC_NATIVE_CALLWRAP_GetProcAddress)(
+            /**/    "dll_gra" //:DLL_Graphics:OpenGL.dll
+            ,       fun_nam   //:name_of_open_gl_function
+            );;
+            if(NIL==ret_pfn){ H("[2020_04_28_0205AM]"); };
+        };;
+        if(NULL==ret_pfn){ H("[2020_04_28_0128AM]");};;
+        return(  ret_pfn );
+    }E_F(GetAnyGLFuncAddress)//://///////////////////////////://
+//:AGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAG://
+//:AG:Any_GL:(ABOVE):________________________________________://
+
+
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+#undef     lib                                        //| 01 |//
+#undef     LIB                                        //| 02 |//
+#undef     GM1                                        //| 03 |//
+#undef     GM2                                        //| 04 |//
+#undef     K_1                                        //| 05 |//
+#undef     K_2                                        //| 06 |//
+#undef     VAR                                        //| 07 |//
+#undef     EII                                        //| 08 |//
+#undef     MEM                                        //| 09 |//
+#undef     INS                                        //| 10 |//
+#undef     FUN                                        //| 11 |//
+#undef     TYP                                        //| 12 |//
+#undef     ARG                                        //| 13 |//
+#undef     RET                                        //| 14 |//
+#undef     BRA                                        //| 15 |//
+#undef     SUB                                        //| 16 |//
+#undef     var                                        //| 17 |//
+#undef     eii                                        //| 18 |//
+#undef     mem                                        //| 19 |//
+#undef     ins                                        //| 20 |//
+#undef     fun                                        //| 21 |//
+#undef     typ                                        //| 22 |//
+#undef     arg                                        //| 23 |//
+#undef     ret                                        //| 24 |//
+#undef     bra                                        //| 25 |//
+#undef     sub                                        //| 26 |//
+#undef     obj                                        //| 27 |//
+#undef     poi                                        //| 28 |//
+#undef     NIL                                        //| 29 |//
+#undef     siz                                        //| 30 |//
+#undef     num                                        //| 31 |//
+#undef     arr                                        //| 32 |//
+#undef     dex                                        //| 33 |//
+#undef       H                                        //| 34 |//
+#undef       D                                        //| 35 |//
+#undef     E_S                                        //| 36 |//
+#undef     E_F                                        //| 37 |//
+#undef     G_1                                        //| 38 |//
+#undef     G_2                                        //| 39 |//
+#undef     G_3                                        //| 40 |//
+#undef     g_1                                        //| 41 |//
+#undef     g_2                                        //| 42 |//
+#undef     g_3                                        //| 43 |//
+#undef     U32                                        //| 44 |//
+#undef     I32                                        //| 45 |//
+#undef     U64                                        //| 46 |//
+#undef     I64                                        //| 47 |//
+#undef  termin                                        //| 48 |//
+#undef       s                                        //| 49 |//
+#undef       S                                        //| 50 |//
+#undef       _                                        //| 51 |//
+//:If the macro is banned, it means you'll have       //| -- |//
+//:to use the private (lowercase) version and         //| -- |//
+//:add getter code. OR you can be more generic        //| -- |//
+//:and make the value a MEM(member_name).             //| -- |//
+//:A bit rigid. But widdling down the ways things     //| -- |//
+//:are allowed to be done should have benifits.       //| -- |//
+#if defined( PTR ) || defined( ptr )                  //| -- |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
+#endif                                                //| -- |//
+#if defined( SIZ )                                    //| -- |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( NUM )                                    //| -- |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( ARR )                                    //| -- |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( OBJ )                                    //| -- |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( POI )                                    //| -- |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+//:V_* can be confused as a local variable.           //| -- |//
+//:F_* can be confused as function pyramid type.      //| -- |//
+//:g_ : private global. (File scope variable.)        //| -- |//
+#if defined( v_1 ) || defined( V_1 )                  //| -- |//
+    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
+#endif                                                //| -- |//
+#if defined( f_1 ) || defined( F_1 )                  //| -- |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
+#endif                                                //| -- |//
+//|____________________________________________|V4_MEGAHEADER|//
+
+
 
 #define lib MACRO_project_prefix_HIDDEN  //: Private  //: 01 ://
 #define LIB MACRO_project_prefix_VISIBLE //: Public   //: 02 ://

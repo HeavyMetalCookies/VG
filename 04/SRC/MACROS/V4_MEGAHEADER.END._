@@ -1,0 +1,92 @@
+
+//# ***** DONT_USE_THIS_FILE!:WontWorkForPrivateMacros ***** #//
+
+//:THIS IS A CUT AND PASTED COPY OF AHK:SC[ V4_MEGAHEADER]
+
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+#undef     lib                                        //| 01 |//
+#undef     LIB                                        //| 02 |//
+#undef     GM1                                        //| 03 |//
+#undef     GM2                                        //| 04 |//
+#undef     K_1                                        //| 05 |//
+#undef     K_2                                        //| 06 |//
+#undef     VAR                                        //| 07 |//
+#undef     EII                                        //| 08 |//
+#undef     MEM                                        //| 09 |//
+#undef     INS                                        //| 10 |//
+#undef     FUN                                        //| 11 |//
+#undef     TYP                                        //| 12 |//
+#undef     ARG                                        //| 13 |//
+#undef     RET                                        //| 14 |//
+#undef     BRA                                        //| 15 |//
+#undef     SUB                                        //| 16 |//
+#undef     var                                        //| 17 |//
+#undef     eii                                        //| 18 |//
+#undef     mem                                        //| 19 |//
+#undef     ins                                        //| 20 |//
+#undef     fun                                        //| 21 |//
+#undef     typ                                        //| 22 |//
+#undef     arg                                        //| 23 |//
+#undef     ret                                        //| 24 |//
+#undef     bra                                        //| 25 |//
+#undef     sub                                        //| 26 |//
+#undef     obj                                        //| 27 |//
+#undef     poi                                        //| 28 |//
+#undef     NIL                                        //| 29 |//
+#undef     siz                                        //| 30 |//
+#undef     num                                        //| 31 |//
+#undef     arr                                        //| 32 |//
+#undef     dex                                        //| 33 |//
+#undef       H                                        //| 34 |//
+#undef       D                                        //| 35 |//
+#undef     E_S                                        //| 36 |//
+#undef     E_F                                        //| 37 |//
+#undef     G_1                                        //| 38 |//
+#undef     G_2                                        //| 39 |//
+#undef     G_3                                        //| 40 |//
+#undef     g_1                                        //| 41 |//
+#undef     g_2                                        //| 42 |//
+#undef     g_3                                        //| 43 |//
+#undef     U32                                        //| 44 |//
+#undef     I32                                        //| 45 |//
+#undef     U64                                        //| 46 |//
+#undef     I64                                        //| 47 |//
+#undef  termin                                        //| 48 |//
+#undef       s                                        //| 49 |//
+#undef       S                                        //| 50 |//
+#undef       _                                        //| 51 |//
+//:If the macro is banned, it means you'll have       //| -- |//
+//:to use the private (lowercase) version and         //| -- |//
+//:add getter code. OR you can be more generic        //| -- |//
+//:and make the value a MEM(member_name).             //| -- |//
+//:A bit rigid. But widdling down the ways things     //| -- |//
+//:are allowed to be done should have benifits.       //| -- |//
+#if defined( PTR ) || defined( ptr )                  //| -- |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
+#endif                                                //| -- |//
+#if defined( SIZ )                                    //| -- |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( NUM )                                    //| -- |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( ARR )                                    //| -- |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( OBJ )                                    //| -- |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( POI )                                    //| -- |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+//:V_* can be confused as a local variable.           //| -- |//
+//:F_* can be confused as function pyramid type.      //| -- |//
+//:g_ : private global. (File scope variable.)        //| -- |//
+#if defined( v_1 ) || defined( V_1 )                  //| -- |//
+    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
+#endif                                                //| -- |//
+#if defined( f_1 ) || defined( F_1 )                  //| -- |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
+#endif                                                //| -- |//
+//|____________________________________________|V4_MEGAHEADER|//
+//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://

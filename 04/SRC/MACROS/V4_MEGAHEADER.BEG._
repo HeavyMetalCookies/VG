@@ -1,0 +1,91 @@
+
+//# ***** DONT_USE_THIS_FILE!:WontWorkForPrivateMacros ***** #//
+
+//:THIS IS A CUT AND PASTED COPY OF AHK:SC[ V4_MEGAHEADER]
+
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+#define    lib MACRO_project_prefix_HIDDEN            //| 01 |//
+#define    LIB MACRO_project_prefix_VISIBLE           //| 02 |//
+#define    GM1( a , b )      a## _ ##b                //| 03 |//
+#define    GM2( a , b ) GM1( a   ,   b )              //| 04 |//
+#define    K_1( a,b,c )      a## _ ##b##   _ ##c      //| 05 |//
+#define    K_2( a,b,c ) K_1( a   ,   b     ,   c )    //| 06 |//
+#define    VAR( n ) GM2( VAR   ,               n )    //| 07 |//
+#define    EII( n ) K_2( LIB, EII,             n )    //| 08 |//
+#define    MEM( n ) K_2( LIB ,MEM,             n )    //| 09 |//
+#define    INS( n ) K_2( LIB ,INS,             n )    //| 10 |//
+#define    FUN( n ) K_2( LIB ,FUN,             n )    //| 11 |//
+#define    TYP( n ) K_2( LIB ,TYP,             n )    //| 12 |//
+#define    ARG( n ) GM2(      ARG,             n )    //| 13 |//
+#define    RET( n ) GM2(      RET,             n )    //| 14 |//
+#define    BRA( n ) K_2( lib, bra,             n )    //| 15 |//
+#define    SUB( n ) K_2( lib, sub,             n )    //| 16 |//
+#define    var( n ) GM2( v_2020_04_25_1007PM , n )    //| 17 |//
+#define    eii( n ) GM2( e_2020_04_25_1007PM , n )    //| 18 |//
+#define    mem( n ) GM2( m_2020_04_25_1007PM , n )    //| 19 |//
+#define    ins( n ) GM2( i_2020_04_25_1007PM , n )    //| 20 |//
+#define    fun( n ) GM2( f_2020_04_25_1007PM , n )    //| 21 |//
+#define    typ( n ) GM2( t_2020_04_25_1007PM , n )    //| 22 |//
+#define    arg( n ) GM2( a_2020_04_25_1007PM , n )    //| 23 |//
+#define    ret( n ) GM2( r_2020_04_25_1007PM , n )    //| 24 |//
+#define    bra( n ) GM2( b_2020_04_25_1007PM , n )    //| 25 |//
+#define    sub( n ) GM2( s_2020_04_25_1007PM , n )    //| 26 |//
+#define    obj( n ) GM2( o_2020_04_25_1007PM , n )    //| 27 |//
+#define    poi( n ) GM2( p_2020_04_25_1007PM , n )    //| 28 |//
+#define    NIL        ((void*)0)                      //| 29 |//
+#define    siz( n ) GM2( S_2020_04_25_1007PM , n )    //| 30 |//
+#define    num( n ) GM2( N_2020_04_25_1007PM , n )    //| 31 |//
+#define    arr( n ) GM2( A_2020_04_25_1007PM , n )    //| 32 |//
+#define    dex( n ) GM2( D_2020_04_24_1007PM , n )    //| 33 |//
+#define      H          fun( Halt )                   //| 34 |//
+#define      D          fun( Dmsg )                   //| 35 |//
+#define    E_S(  nam  )   ;  // END_STRUCT            //| 36 |//
+#define    E_F(  nam  )      // END_FUNCTION          //| 37 |//
+#define    G_1(G,a    ) G ##_## a                     //| 38 |//
+#define    G_2(G,a,b  ) G ##_## a ##_## b             //| 39 |//
+#define    G_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 40 |//
+#define    g_1(a      ) G_1( lib, a      )            //| 41 |//
+#define    g_2(a,b    ) G_2( lib, a,b    )            //| 42 |//
+#define    g_3(a,b,c  ) G_3( lib, a,b,c  )            //| 43 |//
+#define    U32 unsigned           int                 //| 44 |//
+#define    I32 signed             int                 //| 45 |//
+#define    U64 unsigned long long int                 //| 46 |//
+#define    I64 signed   long long int                 //| 47 |//
+#define termin //:TERMINAL_STRUCT_NODE://             //| 48 |//
+#define      s ;                                      //| 49 |//
+#define      S ;                                      //| 50 |//
+#define      _                                        //| 51 |//
+//:If the macro is banned, it means you'll have       //| -- |//
+//:to use the private (lowercase) version and         //| -- |//
+//:add getter code. OR you can be more generic        //| -- |//
+//:and make the value a MEM(member_name).             //| -- |//
+//:A bit rigid. But widdling down the ways things     //| -- |//
+//:are allowed to be done should have benifits.       //| -- |//
+#if defined( PTR ) || defined( ptr )                  //| -- |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
+#endif                                                //| -- |//
+#if defined( SIZ )                                    //| -- |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( NUM )                                    //| -- |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( ARR )                                    //| -- |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( OBJ )                                    //| -- |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+#if defined( POI )                                    //| -- |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
+#endif                                                //| -- |//
+//:V_* can be confused as a local variable.           //| -- |//
+//:F_* can be confused as function pyramid type.      //| -- |//
+//:g_ : private global. (File scope variable.)        //| -- |//
+#if defined( v_1 ) || defined( V_1 )                  //| -- |//
+    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
+#endif                                                //| -- |//
+#if defined( f_1 ) || defined( F_1 )                  //| -- |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
+#endif                                                //| -- |//
+//|____________________________________________|V4_MEGAHEADER|//

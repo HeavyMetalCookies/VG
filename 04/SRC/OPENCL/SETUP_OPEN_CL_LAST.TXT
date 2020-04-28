@@ -1,0 +1,51 @@
+
+Looks like openGL<==>openCL sharing requires creating
+the openGL context first. If there ever becomes a
+vulkan<==>openCL sharing, it will probably mean
+you create the vulkan context first. So lets make
+sure openCL context is always created last in our code.
+
+Looking at old code: V:\COG\COG.H
+    #include "../GLEB/GLEB.H"  <<< OpenGL Window
+    #include "../CLEB/CLEB.H"  <<< OpenCL Function Pointers
+
+
+Looking at: GAKU.H:
+    //|¯¯|¯¯|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|¯¯|¯¯|//
+    //|  |  |                                |  |  |//
+    /* //|--|// */#include "../COG/COG.H"  //|--|  |// 
+    //|  |  |                                |  |  |//
+    //|  |  |      GLEB_SWIN  <--Gets Win32  |  |  |//
+    //|  |  |         ||         Window      |  |  |//
+    //|  |  |         ||                     |  |  |//
+    //|  |  Gets      ||               Gets  |  |  |//
+    //|  |OpenGL --> GLEB     CLEB <-- OpenCL|  |  |//
+    //|  Context         \   /         Context  |  |//
+    //|  |  |             \ /                |  |  |//
+    //|  |  |             COG <===== CO:CO_mpute|  |//
+    //|  |  |                         G:G_raphics  |//
+    //|  |  |              |            Gets GLCL  |//
+    //|  |  |              |            Context |  |//
+    //|  |  |    +---+---GA_KU---+---+       |  |  |//
+    //|  |  |    |                   |       |  |  |//
+    //|  |  |    |GA: OpenGL Code    |       |  |  |//
+    //|  |  |    |                   |       |  |  |//
+    //|  |  |    |KU: OpenCL Code    |       |  |  |//
+    //|  |  |    |                   |       |  |  |//
+    //|  |  |    |GAKU: Coordination |       |  |  |//
+    //|  |  |    |      GA<==>KU code|       |  |  |//
+    //|  |  |    |                   |       |  |  |//
+    //|  |  |    |GAKUSHARE:         |       |  |  |//
+    //|  |  |    |Implementation of  |       |  |  |//
+    //|  |  |    |GA<==KU            |       |  |  |//
+    //|  |  |    |coordination code. |       |  |  |//
+    //|  |  |    |                   |       |  |  |//
+    //|  |  |    |GAKU/GAKU_ is only |       |  |  |//
+    //|  |  |    |PUBLIC namespace   |       |  |  |//
+    //|  |  |    |to be used by      |       |  |  |//
+    //|  |  |    |other libraries    |       |  |  |//
+    //|  |  |    |down the chain.    |       |  |  |//
+    //|  |  |    +-------------------+       |  |  |//
+    //|  |--|                                |--|  |//
+    //|  |  |                                |  |  |//
+    //|__|__|________________________________|__|__|//

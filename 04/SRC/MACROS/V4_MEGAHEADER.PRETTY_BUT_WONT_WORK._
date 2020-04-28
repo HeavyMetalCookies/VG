@@ -1,0 +1,36 @@
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯SC[V4_MEGAHEADER]|//
+#include "./SRC/MACROS/V4_MEGAHEADER.BEG._"//|               |//                                
+//|     lib     VAR     var     siz     E_S     NIL     U32  |//
+//|     LIB     EII     eii     num     E_F     H       I32  |//
+//|     GM1     MEM     mem     arr     G_1     D       U64  |//
+//|     GM2     INS     ins     dex     G_2 termin      I64  |//
+//|     K_1     FUN     fun             G_3     s            |//
+//|     K_2     TYP     typ             g_1     S            |//
+//|             ARG     arg             g_2     _            |//
+//|             RET     ret             g_3                  |//
+//|             BRA     bra                                  |//
+//|             SUB     sub                                  |//
+//|                     obj                                  |//
+//|                     poi                                  |//
+//|__________________________________________________________|//
+
+    All this effort. But cannot do something like this because
+    some of these macros are private to the file.
+        
+   
+//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//                                
+//|                                                          |//
+//|                     poi                                  |//
+//|                     obj                                  |//
+//|             SUB     sub                                  |//
+//|             BRA     bra                                  |//
+//|             RET     ret             g_3                  |//
+//|             ARG     arg             g_2     _            |//
+//|     K_2     TYP     typ             g_1     S            |//
+//|     K_1     FUN     fun             G_3     s            |//
+//|     GM2     INS     ins     dex     G_2 termin      I64  |//
+//|     GM1     MEM     mem     arr     G_1     D       U64  |//
+//|     LIB     EII     eii     num     E_F     H       I32  |//
+//|     lib     VAR     var     siz     E_S     NIL     U32  |//
+#include "./SRC/MACROS/V4_MEGAHEADER.END._"//|               |//
+//|_________________________________________SC[V4_MEGAHEADER]|//

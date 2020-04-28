@@ -34,7 +34,11 @@ EXE_CAT "./SRC/FUNCTION_TYPEDEF_PYRAMID._"
     EXE_CAT "./SRC/NATIVE/CALLWRAP/GetProcAddress._"
     EXE_CAT "./SRC/NATIVE/ping"
     EXE_CAT "./SRC/NATIVE/WINDOW/creation._"
-    EXE_CAT "./SRC/VULKAN/SETUP/main._"
+
+    
+    EXE_CAT "./SRC/VULKAN/SETUP/main._" ## VK BEFORE CL
+    EXE_CAT "./SRC/OPENGL/SETUP/main._" ## GL BEFORE CL
+##   EXE_CAT "./SRC/OPENCL/SETUP/main._" ## CL AFTER GL & VK
 
 
 ################################################################

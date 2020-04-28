@@ -41,6 +41,13 @@
     void* INS( dll_g32 ) = NIL; //:Gdi32.dll    pointer
     void* INS( dll_vuk ) = NIL; //:vulkan-1.dll pointer
 
+    //:If you have trouble getting pointers to OpenGL.dll
+    //:You may have to add your "OPEN_CL_SEARCH_PATHS.TXT"
+    //:and "OPEN_GL_SEARCH_PATHS.TXT" code to this project.
+    //:I have a feeling this MIGHT be the case for OpenCL.
+    void* INS( dll_gra ) = NIL; //:OpenGL.dll   pointer
+    void* INS( dll_com ) = NIL; //:OpenCL.dll   pointer
+
 //:TYPEDEFS: ////////////////////////////////////////////////://
 
     typedef void (* TYP(Func) )(void); //:Function pointer.
@@ -194,6 +201,31 @@
             VAR(Data)=DLLL_LoadLibraryA("vulkan-1.dll");
             INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
         }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l'  
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_gra"
+        &&  ARG(dll_nam)[4] == 'g'  //:(opengl32.dll)
+        &&  ARG(dll_nam)[5] == 'r' 
+        &&  ARG(dll_nam)[6] == 'a' 
+        ){          //[ C:\Windows\System32\opengl32.dll     ]//
+                    printf("[RESOLVES_TO:opengl32.dll]\n");
+            VAR(Data)=DLLL_LoadLibraryA("opengl32.dll");
+            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l'  
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_com"
+        &&  ARG(dll_nam)[4] == 'c'  //:(OpenCL64.dll)
+        &&  ARG(dll_nam)[5] == 'o' 
+        &&  ARG(dll_nam)[6] == 'm' 
+        ){  //[ C:/Program Files                             ]//
+            //[  /NVIDIA Corporation\OpenCL\OpenCL64.dll     ]//
+                    printf("[RESOLVES_TO:OpenCL64.dll]\n");
+            VAR(Data)=DLLL_LoadLibraryA("OpenCL64.dll");
+            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
+        }else
         if( 1 ){
             //:If dll_name is not a shorthand name,
             //:load it as is.
@@ -290,6 +322,36 @@
             };; assert(  INS( dll_vuk ) );
             VAR(dll_ptr)=INS( dll_vuk );
         }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_gra"
+        &&  ARG(dll_nam)[4] == 'g' 
+        &&  ARG(dll_nam)[5] == 'r' 
+        &&  ARG(dll_nam)[6] == 'a' 
+        ){
+            //:if_library_not_loaded____load_now:
+            if( NIL ==   INS( dll_gra ) ){
+                         INS( dll_gra )=fun( LoadLibrary    )
+                     /** INS( dll_gra ) **/( "opengl32.dll" );
+            };; assert(  INS( dll_gra ) );
+            VAR(dll_ptr)=INS( dll_gra );
+        }else
+        if( ARG(dll_nam)[0] == 'd' 
+        &&  ARG(dll_nam)[1] == 'l' 
+        &&  ARG(dll_nam)[2] == 'l' 
+        &&  ARG(dll_nam)[3] == '_'  //:"dll_com"
+        &&  ARG(dll_nam)[4] == 'c' 
+        &&  ARG(dll_nam)[5] == 'o' 
+        &&  ARG(dll_nam)[6] == 'm' 
+        ){
+            //:if_library_not_loaded____load_now:
+            if( NIL ==   INS( dll_com ) ){
+                         INS( dll_com )=fun( LoadLibrary    )
+                     /** INS( dll_com ) **/( "OpenCL64.dll" );
+            };; assert(  INS( dll_com ) );
+            VAR(dll_ptr)=INS( dll_com );
+        }else
         if( 1 ){
             printf("[UnknownValueOf:dll_nam]:%s\n"
             , ARG(dll_nam));;
@@ -318,6 +380,24 @@
 
         return( VAR(GetProcAddress) );
 
+    }
+
+    //:A wrapper function so when called from other files
+    //:you know where the function is comming from
+    TYP(Func)
+    FUN(SRC_NATIVE_CALLWRAP_GetProcAddress)(
+        TYP(Str)    ARG(dll_nam)
+    ,   TYP(Str)    ARG(fun_nam)
+    ){
+        TYP(Func) ret_pfn=((void*)0);
+        ret_pfn=(
+            FUN(GetProcAddress)(
+                    ARG(dll_nam)
+            ,       ARG(fun_nam)
+            )
+        );;
+        if( ((void*)0)==ret_pfn ){ H("[2020_04_28_0201AM]");};
+        return( ret_pfn );
     }
 
     //:Prviate version of "GetProcAddress" wrapper:
