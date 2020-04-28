@@ -25,6 +25,17 @@
     #define  SRC_NATIVE_WINDOW_CREATION ( 1 )
 
 //:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM  :CHAINFILE_MACRO://
+//[THINGS_ID_LIKE_YOU_TO_SEE_FIRST:11111111111111111111111111]//
+
+    
+    typedef void* 
+        TYP(con_win);
+        TYP(con_win) 
+    FUN(SRC_NATIVE_WINDOW_CREATION_GetWinDC)( void );
+
+
+
+//[11111111111111111111111111:THINGS_ID_LIKE_YOU_TO_SEE_FIRST]//
 //:STRUCTS: SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS://
 
     //[  SEE[ VG03.ALL's F09_STRUCT_PIXELFORMATDESCRIPTOR ]  ]//
@@ -1123,6 +1134,13 @@ fun(WinMsgHanWndPoc)(
 
     return( return_this_result );
 } //://////////////////////////////////////// WinMsgHanWndPoc://
+
+    void* //: [ TYP(con_win) == void* ]
+    FUN(SRC_NATIVE_WINDOW_CREATION_GetWinDC)( void ){
+
+        if(NIL==ins(con_win)){ H("[GetWinDC:NIL:con_win]"); };
+        return( ins(con_win) );
+    }
 
 #undef  lib ////////////////////////////////////////////: 01 ://
 #undef  LIB ////////////////////////////////////////////: 02 ://

@@ -861,6 +861,17 @@
     #define  SRC_NATIVE_WINDOW_CREATION ( 1 )
 
 //:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM  :CHAINFILE_MACRO://
+//[THINGS_ID_LIKE_YOU_TO_SEE_FIRST:11111111111111111111111111]//
+
+    
+    typedef void* 
+        TYP(con_win);
+        TYP(con_win) 
+    FUN(SRC_NATIVE_WINDOW_CREATION_GetWinDC)( void );
+
+
+
+//[11111111111111111111111111:THINGS_ID_LIKE_YOU_TO_SEE_FIRST]//
 //:STRUCTS: SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS://
 
     //[  SEE[ VG03.ALL's F09_STRUCT_PIXELFORMATDESCRIPTOR ]  ]//
@@ -1960,6 +1971,13 @@ fun(WinMsgHanWndPoc)(
     return( return_this_result );
 } //://////////////////////////////////////// WinMsgHanWndPoc://
 
+    void* //: [ TYP(con_win) == void* ]
+    FUN(SRC_NATIVE_WINDOW_CREATION_GetWinDC)( void ){
+
+        if(NIL==ins(con_win)){ H("[GetWinDC:NIL:con_win]"); };
+        return( ins(con_win) );
+    }
+
 #undef  lib ////////////////////////////////////////////: 01 ://
 #undef  LIB ////////////////////////////////////////////: 02 ://
 #undef  GM1 ////////////////////////////////////////////: 03 ://
@@ -2764,12 +2782,22 @@ fun(WinMsgHanWndPoc)(
 #define      D          fun( Dmsg )                   //| 35 |//
 #define    E_S(  nam  )   ;  // END_STRUCT            //| 36 |//
 #define    E_F(  nam  )      // END_FUNCTION          //| 37 |//
+
 #define    G_1(G,a    ) G ##_## a                     //| 38 |//
 #define    G_2(G,a,b  ) G ##_## a ##_## b             //| 39 |//
 #define    G_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 40 |//
 #define    g_1(a      ) G_1( lib, a      )            //| 41 |//
 #define    g_2(a,b    ) G_2( lib, a,b    )            //| 42 |//
 #define    g_3(a,b,c  ) G_3( lib, a,b,c  )            //| 43 |//
+
+//:Local_Variables:
+#define    V_1(V,a    ) V ##_## a                     //| -- |//
+#define    V_2(V,a,b  ) V ##_## a ##_## b             //| -- |//
+#define    V_3(V,a,b,c) V ##_## a ##_## b ##_## c     //| -- |//
+#define    v_1(a      ) V_1( V, a      )              //| -- |//
+#define    v_2(a,b    ) V_2( V, a,b    )              //| -- |//
+#define    v_3(a,b,c  ) V_3( V, a,b,c  )              //| -- |//
+
 #define    U32 unsigned           int                 //| 44 |//
 #define    I32 signed             int                 //| 45 |//
 #define    U64 unsigned long long int                 //| 46 |//
@@ -2806,7 +2834,7 @@ fun(WinMsgHanWndPoc)(
 //:F_* can be confused as function pyramid type.      //| -- |//
 //:g_ : private global. (File scope variable.)        //| -- |//
 #if defined( v_1 ) || defined( V_1 )                  //| -- |//
-    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
+    //: #error USE: g_1,g_2,g_3,g_4 (NOT:V_)          //| -- |//
 #endif                                                //| -- |//
 #if defined( f_1 ) || defined( F_1 )                  //| -- |//
     #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
@@ -2827,10 +2855,34 @@ fun(WinMsgHanWndPoc)(
     "[SRC/OPENGL(GRAPHICS_LIB)/SETUP/main._:Dmsg]:%s\n"
     ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
 //:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG:// 
+//[THINGS_ID_LIKE_YOU_TO_SEE_FIRST:11111111111111111111111111]//
+
+    //:IN: SRC/NATIVE/CALLWRAP/GetProcAddress._ 
+    //:CORRECT[ dll_gra ]WRONG[ han_gra ]( open_gl_handle )
+    extern void* INS(dll_gra); //:<--HandleTo:OpenGL32.dll
+           void* ins(con_gra); //:<--Context:Graphics
+
+//[11111111111111111111111111:THINGS_ID_LIKE_YOU_TO_SEE_FIRST]//
 //:TYPEDEFS::TDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTD://
 
 
-    //:SetupForPointerToA:GetProcAddress:Function:
+    //:SetupForPointerToA:GetProcAddress:Function:SC[GPA_FUN]
+    //://////////////////////////////////////////////////////://
+    //:                                                      ://
+    //: Below we are constructing type:                      ://
+    //:                         TYP(GPA_FUN) / T(GPA_FUN)    ://
+    //:                                                      ://
+    //: It is a is like a generic function pointer, EXCEPT   ://
+    //: that it returns a function pointer rather than a     ://
+    //: void*. We need this specialized generic function     ://
+    //: pointer because we cannot mix data pointers and      ://
+    //: function pointers when casting.                      ://
+    //:                                                      ://
+    //: NO!  TYP(FUN) f = (TYP(FUN))INS(gen_fun)("FuncName"); //
+    //: OK:  TYP(FUN) f = (TYP(FUN))INS(gpa_fun)("FuncName"); //
+    //: OK:  TYP(FUN) f =           INS(gpa_fun)("FuncName"); //
+    //:                                                      ://
+    //://////////////////////////////////////////////////////://
     #define T( nam ) TYP( nam ) //://////////////////////////://
 
     typedef void       (* T(GEN_FUN) )(void);  //:Generic:FUNC
@@ -2840,25 +2892,28 @@ fun(WinMsgHanWndPoc)(
     #undef  T //:////////////////////////////////////////////://
 
 //:TDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTD::TYPEDEFS://
+//:FORWARD_DECLARATIONS::FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD://
 
-    //:IN: SRC/NATIVE/CALLWRAP/GetProcAddress._ 
-    //:CORRECT[ dll_gra ]WRONG[ han_gra ]( open_gl_handle )
-    extern void* INS(dll_gra); 
+    TYP(FUN) fun(GetAnyGLFuncAddress)( const char* );
 
+//:FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD::FORWARD_DECLARATIONS://
+//:OPENGL_FUNCTION_POINTERS::FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP://
+
+    //:T1:Teir_1:Teir_1_OpenGL_Function_Pointers:------------://
+    //:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
     #define    N  =(NIL);/////////://////////////////////////://  
     #define    G  TYP(GPA_FUN)  //://////////////////////////://
-    #define    F  TYP(FUN)      //://////////////////////////://    
-    #define F_01  TYP(F_01)     //://////////////////////////://
+    #define    F  TYP(FUN)      //://////////////////////////://  
 
         //:These function pointers can be immediately fetched.
         //:Other OpenGL function pointers require an OpenGL
         //:context to be created first. I believe because
         //:the function pointers are [instance/member]
         //:methods of your context. 
-        G       ins(wglGetProcAddress)                         N
-        F       ins(wglGetCurrentContext)                      N
-        F       ins(wglCreateContext)                          N
-        F       ins(wglMakeCurrent)                            N
+        G            ins(wglGetProcAddress   )                 N
+        F            ins(wglGetCurrentContext)                 N
+        TYP(F_01)    ins(wglCreateContext    )                 N
+        TYP(F_02)    ins(wglMakeCurrent      )                 N
                     
         //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
         //|You must call wglMakeCurrent after m_hDC has been |//
@@ -2879,16 +2934,287 @@ fun(WinMsgHanWndPoc)(
     #undef     N  //:////////////////////////////////////////://
     #undef     G  //:////////////////////////////////////////://
     #undef     F  //:////////////////////////////////////////://
-    #undef  F_01  //:////////////////////////////////////////://
+    //:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
+
+    //:T2:Teir_2:Teir_1_OpenGL_Function_Pointers:------------://
+    //:T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2://
+    #define     N  =(NIL);/////////://///////////////////////://  
+    #define     F  TYP(FUN)      //://///////////////////////://    
+
+    /** 01 **/  F       ins(glGenBuffers                     ) N            
+    /** 02 **/  F       ins(glBindBuffer                     ) N            
+    /** 03 **/  F       ins(glBufferData                     ) N            
+    /** 04 **/  F       ins(glGetError                       ) N            
+    /** 05 **/  F       ins(glEnableVertexAttribArray        ) N
+    /** 06 **/  F       ins(glVertexAttribPointer            ) N   
+    /** 07 **/  F       ins(glDrawArrays                     ) N            
+    /** 08 **/  F       ins(glDisableVertexAttribArray       ) N
+    /** 09 **/  F       ins(glCreateShader                   ) N          
+    /** 10 **/  F       ins(glShaderSource                   ) N          
+    /** 11 **/  F       ins(glCompileShader                  ) N         
+    /** 12 **/  F       ins(glGetShaderiv                    ) N           
+    /** 13 **/  F       ins(glGetShaderInfoLog               ) N      
+    /** 14 **/  F       ins(glCreateProgram                  ) N         
+    /** 15 **/  F       ins(glAttachShader                   ) N          
+    /** 16 **/  F       ins(glLinkProgram                    ) N           
+    /** 17 **/  F       ins(glGetProgramiv                   ) N          
+    /** 18 **/  F       ins(glGetProgramInfoLog              ) N     
+    /** 19 **/  F       ins(glDetachShader                   ) N          
+    /** 20 **/  F       ins(glDeleteShader                   ) N          
+    /** 21 **/  F       ins(glClear                          ) N                 
+    /** 22 **/  F       ins(glUseProgram                     ) N            
+    /** 23 **/  F       ins(glViewport                       ) N              
+    /** 24 **/  F       ins(glClearColor                     ) N            
+    /** 25 **/  F       ins(glGenVertexArrays                ) N       
+    /** 26 **/  F       ins(glBindVertexArray                ) N       
+    /** 27 **/  F       ins(glGenTextures                    ) N           
+    /** 28 **/  F       ins(glBindTexture                    ) N           
+    /** 29 **/  F       ins(glTexParameteri                  ) N         
+    /** 30 **/  F       ins(glTexImage2D                     ) N            
+    /** 31 **/  F       ins(glActiveTexture                  ) N         
+    /** 32 **/  F       ins(glGetUniformLocation             ) N    
+    /** 33 **/  F       ins(glUniform1i                      ) N             
+    /** 34 **/  F       ins(glPixelStorei                    ) N           
+    /** 35 **/  F       ins(glEnable                         ) N                
+    /** 36 **/  F       ins(glFinish                         ) N                
+    /** 37 **/  F       ins(glGetIntegerv                    ) N           
+                    
+    #undef      N  //:///////////////////////////////////////://
+    #undef      F  //:///////////////////////////////////////://
+    //:T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2://
+//:FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP::OPENGL_FUNCTION_POINTERS://
+//:OPEN_GL_ENUMERATIONS:EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE://
+
+    //:Sizes of various openGL types:
+    //:     www.khronos.org/opengl/wiki/OpenGL_Type
+    //:
+    //:Good lookup tool to verify enum values:
+    //:     docs.factorcode.org/search?search=GLbool
+
+    //:Make these types private because they are obscure names
+    //:and only really used to declare the values.
+    typedef unsigned int     typ(ENUM) ; //:GLenum      32-B
+    typedef unsigned int     typ(BITF) ; //:GLbitfield  32-B
+    typedef unsigned char    typ(BOOL) ; //:GLboolean   +1-B
+    typedef          float   typ(FLOA) ; //:GLfloat     32-B
+
+    //:Got type values from: glcorearb.h
+    //: www.khronos.org/registry/OpenGL/api/GL/glcorearb.h
+    //://////////////////////////////////////////////////////://
+    //:-----12345678
+    #define BITFIELD unsigned  int  //:GLbitfield,32bits
+    #define ENUM_ooo unsigned  int  //:GLenum    ,32bits
+    #define ooo_BOOL unsigned char  //:GLboolean ,+1bits
+    #define FLOAT_oo         float  //:GLfloat SEE[[#GL_FLOAT#]]
+    #define o_TODO_o    TODO_ERROR  //://////////////////////://
+
+    #define A      _Static_assert   //://////////////////////://
+    #define I(n)   INS(n)           //:PUBLIC_INSTANCE  //~//://
+    #define T(t)   typ(t)           //:PRIVATE_TYPE     //~//://
+    #define O(t,n,h,d) T(t) I(n) = h; A(h==d,"[ASS]"#n) //://://
+
+                
+        O( ENUM , gl_texture_2d           ,0x0DE1, 3553   ) ;
+        O( ENUM , gl_rgba8ui              ,0x8D7C, 36220  ) ;
+        O( ENUM , gl_rgba_integer         ,0x8D99, 36249  ) ;
+        O( ENUM , gl_unsigned_byte        ,0x1401, 5121   ) ;
+        O( ENUM , gl_texture_min_filter   ,0x2801, 10241  ) ;
+        O( ENUM , gl_texture_mag_filter   ,0x2800, 10240  ) ;
+
+    #error NOTICE_ME_SENPAI__CLEAN_THIS_MESS_UP: OPENGL/SETUP/main._
+
+  //  E(gl_texture_wrap_s       ,0x2802,        );       
+  //  E(gl_texture_wrap_t       ,0x2803,        );
+  //  E(gl_nearest              ,0x2600,        );
+  //  E(gl_clamp_to_edge        ,0x812F,        );
+  //  E(gl_texture0             ,0x84C0,        );
+  //  E(gl_max_uniform_locations,1024  ,        );
+  //  E(gl_unpack_alignment     ,0x0CF5,        );
+  //  E(gl_texture_2d           ,0x0DE1,        );
+  //  E(gl_texture_binding_2d   ,0x8069,        );
+  //  E(gl_active_texture       ,0x84E0,        );
+
+    //: INS(gl_texture_2d)
+
+    
+    A( sizeof( INS(gl_texture_2d) ) > 0, "[NOT_EXIST:01]" );
+
+
+    #undef  A  //:///////////////////////////////////////////://
+    #undef  E  //:///////////////////////////////////////////://
+
+
+    FLOAT_oo    INS(gl_float           ) = 0x1406     ;
+
+    ooo_BOOL    INS(gl_true            ) = 1          ;
+    ooo_BOOL    INS(gl_false           ) = 0          ;
+
+    ENUM_ooo    INS(gl_array_buffer    ) = 0x8892     ;
+    ENUM_ooo    INS(gl_static_draw     ) = 0x88E4     ;
+    ENUM_ooo    INS(gl_no_error        ) = 0x0        ;
+    ENUM_ooo    INS(gl_triangles       ) = 0x0004     ;
+    ENUM_ooo    INS(gl_triangle_fan    ) = 0x0006     ;
+    ENUM_ooo    INS(gl_triangle_strip  ) = 0x0005     ;
+    ENUM_ooo    INS(gl_vertex_shader   ) = 0x8B31     ;
+    ENUM_ooo    INS(gl_fragment_shader ) = 0x8B30     ;
+    ENUM_ooo    INS(gl_compile_status  ) = 0x8B81     ;
+    ENUM_ooo    INS(gl_info_log_length ) = 0x8B84     ;
+    ENUM_ooo    INS(gl_link_status     ) = 0x8B82     ;
+
+    BITFIELD    INS(gl_color_buffer_bit) = 0x00004000 ; 
+
+    #undef  BITFIELD  //:////////////////////////////////////://
+    #undef  ENUM_ooo  //:////////////////////////////////////://
+    #undef  ooo_BOOL  //:////////////////////////////////////://
+    #undef  FLOAT_oo  //:////////////////////////////////////://
+    #undef  o_TODO_o  //:////////////////////////////////////://
 
     //://////////////////////////////////////////////////////://
 
- 
+//:EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE:OPEN_GL_ENUMERATIONS://
 //[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
     void EII(SRC_OPENGL_SETUP_main)(void){ //:///////////////://
 
-            H("hey");
-            D("hey");
+        //:T1:Teir_1:Grab Teir 1 OpenGL Functions:
+        //:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
+
+        #define g_p_a FUN(SRC_NATIVE_CALLWRAP_GetProcAddress) //
+        #define G_P_A( a ) g_p_a( "dll_gra",  a )    //://///://
+        #define     G( a ) G_P_A(            #a )    //://///://
+        #define     n( a ) if(!ins( a )){ H( #a"[IS_NULL]" ); };
+        #define     N( a ) n( a ) //:////////////////////////://
+
+            #define G0( a ) G( a )
+            #define G1( a ) (TYP(F_01))G( a )
+            #define G2( a ) (TYP(F_02))G( a )
+
+            //:MACROS:
+            //:     G: Calls GetProcAddress
+            //:     N: Null  Checks Function Pointer
+
+            //:wglGetProcAddress: IS_SPECIAL:
+            //:wglGetProcAddress cant simply be casted to
+            //:our regular generic function pointer type
+            //:that returns (void*).
+            //:WHY:
+            //:void* is a generic datapointer, it needs to 
+            //:return geneneric functionpointer to not violate
+            //:strict C rules.
+            ins(wglGetProcAddress   )=(
+                (TYP(GPA_FUN))G( wglGetProcAddress    ));;
+
+            ins(wglGetCurrentContext)=G0( wglGetCurrentContext);
+            ins(wglCreateContext    )=G1( wglCreateContext    );
+            ins(wglMakeCurrent      )=G2( wglMakeCurrent      );
+
+            N(wglGetProcAddress   ); //:NULL_CHECKS
+            N(wglGetCurrentContext); //:NULL_CHECKS
+            N(wglCreateContext    ); //:NULL_CHECKS
+            N(wglMakeCurrent      ); //:NULL_CHECKS
+
+            #undef G0
+            #undef G1
+            #undef G2
+
+        #undef  g_p_a  //:///////////////////////////////////://
+        #undef  G_P_A  //:///////////////////////////////////://
+        #undef      G  //:///////////////////////////////////://
+        #undef      n  //:///////////////////////////////////://
+        #undef      N  //:///////////////////////////////////://
+
+        //:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
+        
+        //:get_window_device_context:
+        //:con_win==windows_handle_to_device_context
+        //:con_win::CONtext_WINdow
+        void* var(con_win)=(
+            FUN(SRC_NATIVE_WINDOW_CREATION_GetWinDC)( ) );;
+        if(NIL==var(con_win)){ H("[FAIL:NIL_GET:con_win]");};
+        if(NIL!=var(con_win)){ D("[PASS:GET_GOT:con_win]");};
+
+        //:make:open_gl_rendering_context:AKA:OpenGL_Context
+        //:con_gra==handle_to_gl_rendering_context
+        //:con_gra::CONtext_GRAphics
+        ins(con_gra)=( ins(wglCreateContext)( var(con_win) ) );
+        if(NIL==ins(con_gra)){ H("[FAIL:NIL_MAKE:con_gra]");};
+        if(NIL!=ins(con_gra)){ D("[PASS:GOT_MADE:con_gra]");};
+
+        //# CONTEXT_MUST_BE_MADE_CURRENT_BEFORE_WE_CAN_FETCH #//
+        //# OTHER_FUNCTIONS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #//
+        int v_2(wglMakeCurrent,worked)=( 0 );
+            v_2(wglMakeCurrent,worked)=(
+                (int)(U64)
+                ins(wglMakeCurrent)(
+                    var(con_win) //: HDC   ( void* )
+                ,   ins(con_gra) //: HGLRC ( void* )
+                )
+            );;
+            if( 1!=v_2(wglMakeCurrent,worked) ){ H("[M_C]");};
+            if( 1==v_2(wglMakeCurrent,worked) ){ D("[M_C]");};
+
+        //:T2:Teir_2:( 2nd_tier_opengl_function_pointers )
+        //:T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2://
+        //://////////////////////////////////////////////////://
+        #define g_p_a fun(GetAnyGLFuncAddress)       //://///://
+        #define G_P_A( a ) g_p_a(             a )    //://///://
+        #define     G( a ) G_P_A(            #a )    //://///://
+        #define     n( a ) if(!ins( a )){ H( #a"[IS_NULL]" ); };
+        #define     o( a ) if( ins( a )){ D( "[OK_YEAH]"#a ); };
+        #define     N( a ) n( a ) //:////////////////////////://
+
+            //:G_N:Get_function_pointer_AND_check_for_null.
+            //://////////////////////////////////////////////://
+            #define G_N( a ) ins( a )=G( a );N( a ); o( a );
+
+                    G_N( glGenBuffers               );//| 01 |//
+                    G_N( glBindBuffer               );//| 02 |//
+                    G_N( glBufferData               );//| 03 |//
+                    G_N( glGetError                 );//| 04 |//
+                    G_N( glEnableVertexAttribArray  );//| 05 |//
+                    G_N( glVertexAttribPointer      );//| 06 |//
+                    G_N( glDrawArrays               );//| 07 |//
+                    G_N( glDisableVertexAttribArray );//| 08 |//
+                    G_N( glCreateShader             );//| 09 |//
+                    G_N( glShaderSource             );//| 10 |//
+                    G_N( glCompileShader            );//| 11 |//
+                    G_N( glGetShaderiv              );//| 12 |//
+                    G_N( glGetShaderInfoLog         );//| 13 |//
+                    G_N( glCreateProgram            );//| 14 |//
+                    G_N( glAttachShader             );//| 15 |//
+                    G_N( glLinkProgram              );//| 16 |//
+                    G_N( glGetProgramiv             );//| 17 |//
+                    G_N( glGetProgramInfoLog        );//| 18 |//
+                    G_N( glDetachShader             );//| 19 |//
+                    G_N( glDeleteShader             );//| 20 |//
+                    G_N( glClear                    );//| 21 |//
+                    G_N( glUseProgram               );//| 22 |//
+                    G_N( glViewport                 );//| 23 |//
+                    G_N( glClearColor               );//| 24 |//
+                    G_N( glGenVertexArrays          );//| 25 |//
+                    G_N( glBindVertexArray          );//| 26 |//
+                    G_N( glGenTextures              );//| 27 |//
+                    G_N( glBindTexture              );//| 28 |//
+                    G_N( glTexParameteri            );//| 29 |//
+                    G_N( glTexImage2D               );//| 30 |//
+                    G_N( glActiveTexture            );//| 31 |//
+                    G_N( glGetUniformLocation       );//| 32 |//
+                    G_N( glUniform1i                );//| 33 |//
+                    G_N( glPixelStorei              );//| 34 |//
+                    G_N( glEnable                   );//| 35 |//
+                    G_N( glFinish                   );//| 36 |//
+                    G_N( glGetIntegerv              );//| 37 |//
+
+            #undef  G_N //://////////////////////////////////://
+            //://////////////////////////////////////////////://
+
+        #undef  g_p_a   //://////////////////////////////////://
+        #undef  G_P_A   //://////////////////////////////////://
+        #undef      G   //://////////////////////////////////://
+        #undef      n   //://////////////////////////////////://
+        #undef      o   //://////////////////////////////////://
+        #undef      N   //://////////////////////////////////://
+        //://////////////////////////////////////////////////://
+        //:T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2://
 
 
     }    E_F(SRC_OPENGL_SETUP_main)  //://///////////////////://
@@ -2998,6 +3324,14 @@ fun(WinMsgHanWndPoc)(
 #undef     g_1                                        //| 41 |//
 #undef     g_2                                        //| 42 |//
 #undef     g_3                                        //| 43 |//
+
+#undef     V_1                                        //| 38 |//
+#undef     V_2                                        //| 39 |//
+#undef     V_3                                        //| 40 |//
+#undef     v_1                                        //| 41 |//
+#undef     v_2                                        //| 42 |//
+#undef     v_3                                        //| 43 |//
+
 #undef     U32                                        //| 44 |//
 #undef     I32                                        //| 45 |//
 #undef     U64                                        //| 46 |//
@@ -3033,8 +3367,8 @@ fun(WinMsgHanWndPoc)(
 //:V_* can be confused as a local variable.           //| -- |//
 //:F_* can be confused as function pyramid type.      //| -- |//
 //:g_ : private global. (File scope variable.)        //| -- |//
-#if defined( v_1 ) || defined( V_1 )                  //| -- |//
-    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
+#if defined( v_1 ) || defined( V_1 )                  
+    //: #error USE: g_1,g_2,g_3,g_4 (NOT:V_)            
 #endif                                                //| -- |//
 #if defined( f_1 ) || defined( F_1 )                  //| -- |//
     #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
@@ -3042,6 +3376,23 @@ fun(WinMsgHanWndPoc)(
 //|____________________________________________|V4_MEGAHEADER|//
 
 
+//:COMMENTS_SECTION:
+
+    //[#GL_FLOAT#]////|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
+    //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
+    //|On a platfrom that supports IEEE-754 float it's going |//
+    //|to be 32 bit. On platforms that don't,different width |//
+    //|will probably be the least of your problems. Bottom   |//
+    //|line - use float and don't worry.                     |//
+    //|stackoverflow.com/questions/18705192                  |//
+    //|                                                      |//
+    //|glcoarearb.h : typedef       khronos_float_t GLfloat; |//
+    //|khrplatform.h: typedef float khronos_float_t        ; |// 
+    //|                                                      |//
+    //|THIS_WILL_BE_GOOD_ENOUGH:                             |//
+    //|typedef float GLfloat;                                |//
+    //|                                                      |//
+    //|______________________________________________________|//
 
 #define lib MACRO_project_prefix_HIDDEN  //: Private  //: 01 ://
 #define LIB MACRO_project_prefix_VISIBLE //: Public   //: 02 ://
@@ -3110,19 +3461,38 @@ int main( void ){
     #else
         INS(AT_END_OF_CHAIN)++;
     #endif
-    
-    ////////////////////////////////////////////////////////////
-    
-    #if(    SRC_VULKAN_SETUP_MAIN  >= 1 )
-        ASS( INS( AT_END_OF_CHAIN ) <= 0 );
-        EII(SRC_VULKAN_SETUP_main)();
-    #else
-        INS(AT_END_OF_CHAIN)++;
-    #endif
-    
-    ////////////////////////////////////////////////////////////
 
+    //://////////////////////////////////////////////////////://
 
+        //:SETUP_LIBRARIES:
+    
+        //://////////////////////////////////////////////////://
+        //:VULKAN:
+        #if(    SRC_VULKAN_SETUP_MAIN  >= 1 )
+            ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+            EII(SRC_VULKAN_SETUP_main)();
+        #else
+            INS(AT_END_OF_CHAIN)++;
+        #endif
+        //://////////////////////////////////////////////////://
+        //:OPENGL:
+        #if(    SRC_OPENGL_SETUP_MAIN  >= 1 )
+            ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+            EII(SRC_OPENGL_SETUP_main)();
+        #else
+            INS(AT_END_OF_CHAIN)++;
+        #endif 
+        //://////////////////////////////////////////////////://
+        //:OPENCL:
+        #if(    SRC_OPENCL_SETUP_MAIN  >= 1 )
+            ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+            EII(SRC_OPENCL_SETUP_main)();
+        #else
+            INS(AT_END_OF_CHAIN)++;
+        #endif
+        //://////////////////////////////////////////////////://
+
+    //://////////////////////////////////////////////////////://
 
 
 
