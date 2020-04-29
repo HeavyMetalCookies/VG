@@ -566,7 +566,7 @@
         ){          //[ C:\Windows\System32\opengl32.dll     ]//
                     printf("[RESOLVES_TO:opengl32.dll]\n");
             VAR(Data)=DLLL_LoadLibraryA("opengl32.dll");
-            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
+            INS(dll_gra)=( VAR(Data) ); //:CACHE_YOUR_DLL
         }else
         if( ARG(dll_nam)[0] == 'd' 
         &&  ARG(dll_nam)[1] == 'l' 
@@ -577,9 +577,18 @@
         &&  ARG(dll_nam)[6] == 'm' 
         ){  //[ C:/Program Files                             ]//
             //[  /NVIDIA Corporation\OpenCL\OpenCL64.dll     ]//
-                    printf("[RESOLVES_TO:OpenCL64.dll]\n");
-            VAR(Data)=DLLL_LoadLibraryA("OpenCL64.dll");
-            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
+
+                    printf("[RESOLVES_TO:<OPEN_CL*>.dll]\n");
+
+            const char* TODO_ADD_ABILITY_TO_SET_SEARCH_PATH_FOR_DLL_FILES=(
+                "C:/Program Files/NVIDIA Corporation/OpenCL/OpenCL64.dll"
+            );;
+
+            VAR(Data)=DLLL_LoadLibraryA(
+                TODO_ADD_ABILITY_TO_SET_SEARCH_PATH_FOR_DLL_FILES
+            );;
+            INS(dll_com)=( VAR(Data) ); //:CACHE_YOUR_DLL
+
         }else
         if( 1 ){
             //:If dll_name is not a shorthand name,
@@ -2744,23 +2753,33 @@ fun(WinMsgHanWndPoc)(
 //:     VK_TUT_2018 is my shortcut name that opens the
 //:     tutorial on my computer.
 
-//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0656AM|//
+//:ESTABLISH_NAMESPACE::::::::::::::::::::::::::::::////| == |//
+//:SEE[ SRC\PROJECT_PREFIX.DEFINE._ ]:::::::::::::::////| == |//
+//:For definitions of:               :::::::::::::::////| == |//
+//:      1:    MACRO_project_prefix_HIDDEN :::::::::////| == |//
+//:      2:    MACRO_project_prefix_VISIBLE:::::::::////| == |//
 #define    lib MACRO_project_prefix_HIDDEN            //| 01 |//
 #define    LIB MACRO_project_prefix_VISIBLE           //| 02 |//
-#define    GM1( a , b )      a## _ ##b                //| 03 |//
-#define    GM2( a , b ) GM1( a   ,   b )              //| 04 |//
-#define    K_1( a,b,c )      a## _ ##b##   _ ##c      //| 05 |//
-#define    K_2( a,b,c ) K_1( a   ,   b     ,   c )    //| 06 |//
-#define    VAR( n ) GM2( VAR   ,                  n ) //| 07 |//
-#define    EII( n ) K_2( LIB, EII,                n ) //| 08 |//
-#define    MEM( n ) K_2( LIB ,MEM,                n ) //| 09 |//
-#define    INS( n ) K_2( LIB ,INS,                n ) //| 10 |//
-#define    FUN( n ) K_2( LIB ,FUN,                n ) //| 11 |//
-#define    TYP( n ) K_2( LIB ,TYP,                n ) //| 12 |//
-#define    ARG( n ) GM2(      ARG,                n ) //| 13 |//
-#define    RET( n ) GM2(      RET,                n ) //| 14 |//
-#define    BRA( n ) K_2( lib, bra,                n ) //| 15 |//
-#define    SUB( n ) K_2( lib, sub,                n ) //| 16 |//
+//:TEMPORRARY_HELPER_MACROS:::::::::::::::::::::::::////| -- |//
+#define    gm2( a , b )      a## _ ##b                //| 03 |//
+#define    GM2( a , b ) gm2( a   ,   b )              //| 04 |//
+#define    gm3( a,b,c )      a## _ ##b##   _ ##c      //| 05 |//
+#define    GM3( a,b,c ) gm3( a   ,   b     ,   c )    //| 06 |//
+//:USABLE_SCOPES: VISIBLE/PUBLIC/LOCAL/GLOBAL:::::::////| -- |//
+#define    INS( n ) GM3( LIB ,INS, n )  //:INSTANCE:////| 07 |//
+#define    TYP( n ) GM3( LIB ,TYP, n )  //:TYPE:::::////| 08 |//
+#define    EII( n ) GM3( LIB ,EII, n )  //:E.I.I.:::////| 09 |//
+#define    MEM( n ) GM3( LIB ,MEM, n )  //:MEMBER:::////| 10 |//
+#define    FUN( n ) GM3( LIB ,FUN, n )  //:FUNCTION:////| 11 |//
+//:SubBranch.TYPE==BRA, SubBranch.INST==SUB:::::::::////| -- |//
+#define    BRA( n ) GM3( lib, bra,n )   //:TYPE:::::////| 12 |//
+#define    SUB( n ) GM3( lib, sub,n )   //:INSTANCE:////| 13 |//
+//:ARGument+RETurn+VARiable:Local+Public only:::::::////| -- |//
+#define    ARG( n ) GM2(      ARG,n )   //:ARGUMENT:////| 14 |//
+#define    RET( n ) GM2(      RET,n )   //:RET_VAL::////| 15 |//
+#define    VAR( n ) GM2(      VAR,n )   //:LOCALVAR:////| 16 |//
+//:PRIVATE_VIA_OBFUSCATION:Use_As_Local_Or_Global:::////| -- |//
 #define    var( n ) GM2( v_2020_04_28_1248AM_GL , n ) //| 17 |//
 #define    eii( n ) GM2( e_2020_04_28_1248AM_GL , n ) //| 18 |//
 #define    mem( n ) GM2( m_2020_04_28_1248AM_GL , n ) //| 19 |//
@@ -2773,74 +2792,71 @@ fun(WinMsgHanWndPoc)(
 #define    sub( n ) GM2( s_2020_04_28_1248AM_GL , n ) //| 26 |//
 #define    obj( n ) GM2( o_2020_04_28_1248AM_GL , n ) //| 27 |//
 #define    poi( n ) GM2( p_2020_04_28_1248AM_GL , n ) //| 28 |//
-#define    NIL        ((void*)0)                      //| 29 |//
-#define    siz( n ) GM2( S_2020_04_28_1248AM_GL , n ) //| 30 |//
-#define    num( n ) GM2( N_2020_04_28_1248AM_GL , n ) //| 31 |//
-#define    arr( n ) GM2( A_2020_04_28_1248AM_GL , n ) //| 32 |//
-#define    dex( n ) GM2( D_2020_04_28_1248AM_GL , n ) //| 33 |//
-#define      H          fun( Halt )                   //| 34 |//
-#define      D          fun( Dmsg )                   //| 35 |//
-#define    E_S(  nam  )   ;  // END_STRUCT            //| 36 |//
-#define    E_F(  nam  )      // END_FUNCTION          //| 37 |//
-
-#define    G_1(G,a    ) G ##_## a                     //| 38 |//
-#define    G_2(G,a,b  ) G ##_## a ##_## b             //| 39 |//
-#define    G_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 40 |//
-#define    g_1(a      ) G_1( lib, a      )            //| 41 |//
-#define    g_2(a,b    ) G_2( lib, a,b    )            //| 42 |//
-#define    g_3(a,b,c  ) G_3( lib, a,b,c  )            //| 43 |//
-
-//:Local_Variables:
-#define    V_1(V,a    ) V ##_## a                     //| -- |//
-#define    V_2(V,a,b  ) V ##_## a ##_## b             //| -- |//
-#define    V_3(V,a,b,c) V ##_## a ##_## b ##_## c     //| -- |//
-#define    v_1(a      ) V_1( V, a      )              //| -- |//
-#define    v_2(a,b    ) V_2( V, a,b    )              //| -- |//
-#define    v_3(a,b,c  ) V_3( V, a,b,c  )              //| -- |//
-
-#define    U32 unsigned           int                 //| 44 |//
-#define    I32 signed             int                 //| 45 |//
-#define    U64 unsigned long long int                 //| 46 |//
-#define    I64 signed   long long int                 //| 47 |//
-#define termin //:TERMINAL_STRUCT_NODE://             //| 48 |//
+#define    siz( n ) GM2( S_2020_04_28_1248AM_GL , n ) //| 29 |//
+#define    num( n ) GM2( N_2020_04_28_1248AM_GL , n ) //| 30 |//
+#define    arr( n ) GM2( A_2020_04_28_1248AM_GL , n ) //| 31 |//
+#define    dex( n ) GM2( D_2020_04_28_1248AM_GL , n ) //| 32 |//
+//:PRIVATE_GLOBALS:(Private,but not obfuscated):::::////| -- |//
+#define    G_1(G,a    ) G ##_## a                     //| 33 |//
+#define    G_2(G,a,b  ) G ##_## a ##_## b             //| 34 |//
+#define    G_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 35 |//
+#define    g_1(a      ) G_1( lib, a      )            //| 36 |//
+#define    g_2(a,b    ) G_2( lib, a,b    )            //| 37 |//
+#define    g_3(a,b,c  ) G_3( lib, a,b,c  )            //| 38 |//
+//:Local_Variables:(Namespace=="V_")::::::::::::::::////| -- |//
+#define    V_1(V,a    ) V ##_## a                     //| 39 |//
+#define    V_2(V,a,b  ) V ##_## a ##_## b             //| 40 |//
+#define    V_3(V,a,b,c) V ##_## a ##_## b ##_## c     //| 41 |//
+#define    v_1(a      ) V_1( V, a      )              //| 42 |//
+#define    v_2(a,b    ) V_2( V, a,b    )              //| 43 |//
+#define    v_3(a,b,c  ) V_3( V, a,b,c  )              //| 44 |//
+//:MISC:::::::::::::::::::::::::::::::::::::::::::::////| -- |//
+#define termin //:TERMINAL_STRUCT_NODE://             //| 45 |//
+#define    NIL        ((void*)0)                      //| 46 |//
+#define    E_S(  nam  )   ;  // END_STRUCT            //| 47 |//
+#define    E_F(  nam  )      // END_FUNCTION          //| 48 |//
 #define      s ;                                      //| 49 |//
 #define      S ;                                      //| 50 |//
 #define      _                                        //| 51 |//
-//:If the macro is banned, it means you'll have       //| -- |//
-//:to use the private (lowercase) version and         //| -- |//
-//:add getter code. OR you can be more generic        //| -- |//
-//:and make the value a MEM(member_name).             //| -- |//
-//:A bit rigid. But widdling down the ways things     //| -- |//
-//:are allowed to be done should have benifits.       //| -- |//
-#if defined( PTR ) || defined( ptr )                  //| -- |//
-    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
-#endif                                                //| -- |//
-#if defined( SIZ )                                    //| -- |//
-    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( NUM )                                    //| -- |//
-    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( ARR )                                    //| -- |//
-    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( OBJ )                                    //| -- |//
-    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( POI )                                    //| -- |//
-    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-//:V_* can be confused as a local variable.           //| -- |//
-//:F_* can be confused as function pyramid type.      //| -- |//
-//:g_ : private global. (File scope variable.)        //| -- |//
-#if defined( v_1 ) || defined( V_1 )                  //| -- |//
-    //: #error USE: g_1,g_2,g_3,g_4 (NOT:V_)          //| -- |//
-#endif                                                //| -- |//
-#if defined( f_1 ) || defined( F_1 )                  //| -- |//
-    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
-#endif                                                //| -- |//
-//|____________________________________________|V4_MEGAHEADER|//
-//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
+#define      H          fun( Halt )                   //| 52 |//
+#define      D          fun( Dmsg )                   //| 53 |//
+//:PRIMITIVE_TYPES::::::::::::::::::::::::::::::::::////| -- |//
+#define    U32 unsigned           int                 //| 54 |//
+#define    I32 signed             int                 //| 55 |//
+#define    U64 unsigned long long int                 //| 56 |//
+#define    I64 signed   long long int                 //| 57 |//
+//:BANNED_MACROS:SEE[MACRO_BAN_ABOUT]:::::::::::::::////| == |//
+#if defined( MSG ) || defined( msg )                  //| == |//
+    #error DID_WINDOWS_DOT_H_GET_INCLUDED_SOMEHOW?    //| == |//
+#endif                                                //| == |//
+#if defined( PTR ) || defined( ptr )                  //| == |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| == |//
+#endif                                                //| == |//
+#if defined( SIZ )                                    //| == |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( NUM )                                    //| == |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( ARR )                                    //| == |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( OBJ )                                    //| == |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( POI )                                    //| == |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+//:V_* can be confused as a local variable.      :::////| == |//
+//:F_* can be confused as function pyramid type. :::////| == |//
+//:g_ : private global. (File scope variable.)   :::////| == |//
+#if defined( v_1 ) || defined( V_1 )                  //| == |//
+    //:I found a need for this. Allow it.:::::::::::////| == |//
+#endif                                                //| == |//
+#if defined( f_1 ) || defined( F_1 )                  //| == |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
+#endif                                                //| == |//
+//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0656AM|//
 //:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
 
     //:PATH_TO_THIS_FILE_AS_ALL_CAPITAL_MACRO:
@@ -2991,85 +3007,110 @@ fun(WinMsgHanWndPoc)(
     //:Good lookup tool to verify enum values:
     //:     docs.factorcode.org/search?search=GLbool
 
-    //:Make these types private because they are obscure names
-    //:and only really used to declare the values.
-    typedef unsigned int     typ(ENUM) ; //:GLenum      32-B
-    typedef unsigned int     typ(BITF) ; //:GLbitfield  32-B
-    typedef unsigned char    typ(BOOL) ; //:GLboolean   +1-B
-    typedef          float   typ(FLOA) ; //:GLfloat     32-B
-
-    //:Got type values from: glcorearb.h
-    //: www.khronos.org/registry/OpenGL/api/GL/glcorearb.h
+    //:SC[VK04_DECLARE_ASSERT_EXIST-(edit|paste|help)](BELOW)
     //://////////////////////////////////////////////////////://
-    //:-----12345678
-    #define BITFIELD unsigned  int  //:GLbitfield,32bits
-    #define ENUM_ooo unsigned  int  //:GLenum    ,32bits
-    #define ooo_BOOL unsigned char  //:GLboolean ,+1bits
-    #define FLOAT_oo         float  //:GLfloat SEE[[#GL_FLOAT#]]
-    #define o_TODO_o    TODO_ERROR  //://////////////////////://
+    #define  E_M BLUE_PENGUINS_ON_PARADE //:ERROR_MESSAGE
+    #define  D_T U32                     //:DECLARE_TYPE(ALL)
+    #define  E_0(con,msg) _Static_assert( con, msg )
+    #define  E_1(t_t,msg) E_0(sizeof(t_t) > 0, msg )
+    #define  A_1 _Static_assert
+    #define  A_2(h_d,msg_nam) A_1(               h_d,#msg_nam )
+    #define  A_3(h_d,nam,msg) A_2(               h_d, msg:nam )
+    #define  A_4(h_d,nam,msg) A_3(               h_d, nam,msg )
+    #define  A_5(nam,hex,dec) A_4(          hex==dec, nam,E_M )
+    #define  A_6(nam,hex,dec) A_5(   nam  , hex ,dec          )
+    #define  D_1(nam,hex    ) D_T INS(nam) = hex
+    #define  D_2(nam,hex    ) D_1(    nam  , hex       )
+    #define  DA1(nam,hex,dec) D_2(nam,hex) ; A_6(nam,hex,dec)
+    #define  DA2(nam,hex,dec,eye_tot) DA1(nam,hex,dec)
+        
+        //:DA: Declare & Assert
+        //:HackishChecksum:Check hex against decimal for match.
+        DA2( gl_unsigned_byte        ,0x1401    , 5121  , 01 ) ;
+        DA2( gl_texture_min_filter   ,0x2801    , 10241 , 02 ) ;
+        DA2( gl_texture_mag_filter   ,0x2800    , 10240 , 03 ) ;
+        DA2( gl_texture_wrap_s       ,0x2802    , 10242 , 04 ) ;       
+        DA2( gl_texture_wrap_t       ,0x2803    , 10243 , 05 ) ;
+        DA2( gl_nearest              ,0x2600    , 9728  , 06 ) ;
+        DA2( gl_clamp_to_edge        ,0x812F    , 33071 , 07 ) ;
+        DA2( gl_texture0             ,0x84C0    , 33984 , 08 ) ;
+        DA2( gl_max_uniform_locations,1024      , 1024  , 09 ) ;
+        DA2( gl_unpack_alignment     ,0x0CF5    , 3317  , 10 ) ;
+        DA2( gl_texture_2d           ,0x0DE1    , 3553  , 11 ) ;
+        DA2( gl_texture_binding_2d   ,0x8069    , 32873 , 12 ) ;
+        DA2( gl_rgba_integer         ,0x8D99    , 36249 , 13 ) ;
+        DA2( gl_active_texture       ,0x84E0    , 34016 , 14 ) ;
+        DA2( gl_rgba8ui              ,0x8D7C    , 36220 , 15 ) ;
+        DA2( gl_float                ,0x1406    , 5126  , 16 ) ;
+        DA2( gl_true                 ,1         ,     1 , 17 ) ;
+        DA2( gl_false                ,0         ,     0 , 18 ) ;
+        DA2( gl_array_buffer         ,0x8892    , 34962 , 19 ) ;
+        DA2( gl_static_draw          ,0x88E4    , 35044 , 20 ) ;
+        DA2( gl_no_error             ,0x0       ,     0 , 21 ) ;
+        DA2( gl_triangles            ,0x0004    ,     4 , 22 ) ;
+        DA2( gl_triangle_fan         ,0x0006    ,     6 , 23 ) ;
+        DA2( gl_triangle_strip       ,0x0005    ,     5 , 24 ) ;
+        DA2( gl_vertex_shader        ,0x8B31    , 35633 , 25 ) ;
+        DA2( gl_fragment_shader      ,0x8B30    , 35632 , 26 ) ;
+        DA2( gl_compile_status       ,0x8B81    , 35713 , 27 ) ;
+        DA2( gl_info_log_length      ,0x8B84    , 35716 , 28 ) ;
+        DA2( gl_link_status          ,0x8B82    , 35714 , 29 ) ;
+        DA2( gl_color_buffer_bit     ,0x00004000, 16384 , 30 ) ;
 
-    #define A      _Static_assert   //://////////////////////://
-    #define I(n)   INS(n)           //:PUBLIC_INSTANCE  //~//://
-    #define T(t)   typ(t)           //:PRIVATE_TYPE     //~//://
-    #define O(t,n,h,d) T(t) I(n) = h; A(h==d,"[ASS]"#n) //://://
-
-                
-        O( ENUM , gl_texture_2d           ,0x0DE1, 3553   ) ;
-        O( ENUM , gl_rgba8ui              ,0x8D7C, 36220  ) ;
-        O( ENUM , gl_rgba_integer         ,0x8D99, 36249  ) ;
-        O( ENUM , gl_unsigned_byte        ,0x1401, 5121   ) ;
-        O( ENUM , gl_texture_min_filter   ,0x2801, 10241  ) ;
-        O( ENUM , gl_texture_mag_filter   ,0x2800, 10240  ) ;
-
-    #error NOTICE_ME_SENPAI__CLEAN_THIS_MESS_UP: OPENGL/SETUP/main._
-
-  //  E(gl_texture_wrap_s       ,0x2802,        );       
-  //  E(gl_texture_wrap_t       ,0x2803,        );
-  //  E(gl_nearest              ,0x2600,        );
-  //  E(gl_clamp_to_edge        ,0x812F,        );
-  //  E(gl_texture0             ,0x84C0,        );
-  //  E(gl_max_uniform_locations,1024  ,        );
-  //  E(gl_unpack_alignment     ,0x0CF5,        );
-  //  E(gl_texture_2d           ,0x0DE1,        );
-  //  E(gl_texture_binding_2d   ,0x8069,        );
-  //  E(gl_active_texture       ,0x84E0,        );
-
-    //: INS(gl_texture_2d)
-
-    
-    A( sizeof( INS(gl_texture_2d) ) > 0, "[NOT_EXIST:01]" );
-
-
-    #undef  A  //:///////////////////////////////////////////://
-    #undef  E  //:///////////////////////////////////////////://
-
-
-    FLOAT_oo    INS(gl_float           ) = 0x1406     ;
-
-    ooo_BOOL    INS(gl_true            ) = 1          ;
-    ooo_BOOL    INS(gl_false           ) = 0          ;
-
-    ENUM_ooo    INS(gl_array_buffer    ) = 0x8892     ;
-    ENUM_ooo    INS(gl_static_draw     ) = 0x88E4     ;
-    ENUM_ooo    INS(gl_no_error        ) = 0x0        ;
-    ENUM_ooo    INS(gl_triangles       ) = 0x0004     ;
-    ENUM_ooo    INS(gl_triangle_fan    ) = 0x0006     ;
-    ENUM_ooo    INS(gl_triangle_strip  ) = 0x0005     ;
-    ENUM_ooo    INS(gl_vertex_shader   ) = 0x8B31     ;
-    ENUM_ooo    INS(gl_fragment_shader ) = 0x8B30     ;
-    ENUM_ooo    INS(gl_compile_status  ) = 0x8B81     ;
-    ENUM_ooo    INS(gl_info_log_length ) = 0x8B84     ;
-    ENUM_ooo    INS(gl_link_status     ) = 0x8B82     ;
-
-    BITFIELD    INS(gl_color_buffer_bit) = 0x00004000 ; 
-
-    #undef  BITFIELD  //:////////////////////////////////////://
-    #undef  ENUM_ooo  //:////////////////////////////////////://
-    #undef  ooo_BOOL  //:////////////////////////////////////://
-    #undef  FLOAT_oo  //:////////////////////////////////////://
-    #undef  o_TODO_o  //:////////////////////////////////////://
-
+        //:E_#:Exists: Assert these INS(___) types exist
+        //:    by using static type assertion and sizeof(...)
+        //:    WRITTEN THIS WAY SO YOU CAN USE "CTRL+F" on
+        //:    the name of the type and have an chance of
+        //:    figuring out how+where it is defined. 
+        //:    (It is defined  ABOVE in this macro section)
+        //:    (And   verified BELOW in this macro section)
+        E_1( INS(gl_unsigned_byte        ) , "eye_tot:01" );
+        E_1( INS(gl_texture_min_filter   ) , "eye_tot:02" );
+        E_1( INS(gl_texture_mag_filter   ) , "eye_tot:03" );
+        E_1( INS(gl_texture_wrap_s       ) , "eye_tot:04" );
+        E_1( INS(gl_texture_wrap_t       ) , "eye_tot:05" );
+        E_1( INS(gl_nearest              ) , "eye_tot:06" );
+        E_1( INS(gl_clamp_to_edge        ) , "eye_tot:07" );
+        E_1( INS(gl_texture0             ) , "eye_tot:08" );
+        E_1( INS(gl_max_uniform_locations) , "eye_tot:09" );
+        E_1( INS(gl_unpack_alignment     ) , "eye_tot:10" );
+        E_1( INS(gl_texture_2d           ) , "eye_tot:11" );
+        E_1( INS(gl_texture_binding_2d   ) , "eye_tot:12" );
+        E_1( INS(gl_rgba_integer         ) , "eye_tot:13" );
+        E_1( INS(gl_active_texture       ) , "eye_tot:14" );
+        E_1( INS(gl_rgba8ui              ) , "eye_tot:15" );
+        E_1( INS(gl_float                ) , "eye_tot:16" );
+        E_1( INS(gl_true                 ) , "eye_tot:17" );
+        E_1( INS(gl_false                ) , "eye_tot:18" );
+        E_1( INS(gl_array_buffer         ) , "eye_tot:19" );
+        E_1( INS(gl_static_draw          ) , "eye_tot:20" );
+        E_1( INS(gl_no_error             ) , "eye_tot:21" );
+        E_1( INS(gl_triangles            ) , "eye_tot:22" );
+        E_1( INS(gl_triangle_fan         ) , "eye_tot:23" );
+        E_1( INS(gl_triangle_strip       ) , "eye_tot:24" );
+        E_1( INS(gl_vertex_shader        ) , "eye_tot:25" );
+        E_1( INS(gl_fragment_shader      ) , "eye_tot:26" );
+        E_1( INS(gl_compile_status       ) , "eye_tot:27" );
+        E_1( INS(gl_info_log_length      ) , "eye_tot:28" );
+        E_1( INS(gl_link_status          ) , "eye_tot:29" );
+        E_1( INS(gl_color_buffer_bit     ) , "eye_tot:30" );
+            
+    #undef   E_M    //://////////////////////////////////////://
+    #undef   D_T    //://////////////////////////////////////://
+    #undef   E_0    //://////////////////////////////////////://
+    #undef   E_1    //://////////////////////////////////////://
+    #undef   A_1    //://////////////////////////////////////://
+    #undef   A_2    //://////////////////////////////////////://
+    #undef   A_3    //://////////////////////////////////////://
+    #undef   A_4    //://////////////////////////////////////://
+    #undef   A_5    //://////////////////////////////////////://
+    #undef   A_6    //://////////////////////////////////////://
+    #undef   D_1    //://////////////////////////////////////://
+    #undef   D_2    //://////////////////////////////////////://
+    #undef   DA1    //://////////////////////////////////////://
+    #undef   DA2    //://////////////////////////////////////://
     //://////////////////////////////////////////////////////://
+    //:SC[VK04_DECLARE_ASSERT_EXIST-(edit|paste|help)](BELOW)
 
 //:EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE:OPEN_GL_ENUMERATIONS://
 //[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
@@ -3280,23 +3321,28 @@ fun(WinMsgHanWndPoc)(
 //:AG:Any_GL:(ABOVE):________________________________________://
 
 
-//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0656AM|//
 #undef     lib                                        //| 01 |//
 #undef     LIB                                        //| 02 |//
-#undef     GM1                                        //| 03 |//
+//://---------                                        //::--:://
+#undef     gm2                                        //| 03 |//
 #undef     GM2                                        //| 04 |//
-#undef     K_1                                        //| 05 |//
-#undef     K_2                                        //| 06 |//
-#undef     VAR                                        //| 07 |//
-#undef     EII                                        //| 08 |//
-#undef     MEM                                        //| 09 |//
-#undef     INS                                        //| 10 |//
+#undef     gm3                                        //| 05 |//
+#undef     GM3                                        //| 06 |//
+//://---------                                        //::--:://
+#undef     INS                                        //| 07 |//
+#undef     TYP                                        //| 08 |//
+#undef     EII                                        //| 09 |//
+#undef     MEM                                        //| 10 |//
 #undef     FUN                                        //| 11 |//
-#undef     TYP                                        //| 12 |//
-#undef     ARG                                        //| 13 |//
-#undef     RET                                        //| 14 |//
-#undef     BRA                                        //| 15 |//
-#undef     SUB                                        //| 16 |//
+//://---------                                        //::--:://
+#undef     BRA                                        //| 12 |//
+#undef     SUB                                        //| 13 |//
+//://---------                                        //::--:://
+#undef     ARG                                        //| 14 |//
+#undef     RET                                        //| 15 |//
+#undef     VAR                                        //| 16 |//
+//://---------                                        //::--:://
 #undef     var                                        //| 17 |//
 #undef     eii                                        //| 18 |//
 #undef     mem                                        //| 19 |//
@@ -3309,71 +3355,68 @@ fun(WinMsgHanWndPoc)(
 #undef     sub                                        //| 26 |//
 #undef     obj                                        //| 27 |//
 #undef     poi                                        //| 28 |//
-#undef     NIL                                        //| 29 |//
-#undef     siz                                        //| 30 |//
-#undef     num                                        //| 31 |//
-#undef     arr                                        //| 32 |//
-#undef     dex                                        //| 33 |//
-#undef       H                                        //| 34 |//
-#undef       D                                        //| 35 |//
-#undef     E_S                                        //| 36 |//
-#undef     E_F                                        //| 37 |//
-#undef     G_1                                        //| 38 |//
-#undef     G_2                                        //| 39 |//
-#undef     G_3                                        //| 40 |//
-#undef     g_1                                        //| 41 |//
-#undef     g_2                                        //| 42 |//
-#undef     g_3                                        //| 43 |//
-
-#undef     V_1                                        //| 38 |//
-#undef     V_2                                        //| 39 |//
-#undef     V_3                                        //| 40 |//
-#undef     v_1                                        //| 41 |//
-#undef     v_2                                        //| 42 |//
-#undef     v_3                                        //| 43 |//
-
-#undef     U32                                        //| 44 |//
-#undef     I32                                        //| 45 |//
-#undef     U64                                        //| 46 |//
-#undef     I64                                        //| 47 |//
-#undef  termin                                        //| 48 |//
+#undef     siz                                        //| 29 |//
+#undef     num                                        //| 30 |//
+#undef     arr                                        //| 31 |//
+#undef     dex                                        //| 32 |//
+//://---------                                        //::--:://
+#undef     G_1                                        //| 33 |//
+#undef     G_2                                        //| 34 |//
+#undef     G_3                                        //| 35 |//
+#undef     g_1                                        //| 36 |//
+#undef     g_2                                        //| 37 |//
+#undef     g_3                                        //| 38 |//
+//://---------                                        //::--:://
+#undef     V_1                                        //| 39 |//
+#undef     V_2                                        //| 40 |//
+#undef     V_3                                        //| 41 |//
+#undef     v_1                                        //| 42 |//
+#undef     v_2                                        //| 43 |//
+#undef     v_3                                        //| 44 |//
+//://---------                                        //::--:://
+#undef  termin                                        //| 45 |//
+#undef     NIL                                        //| 46 |//
+#undef     E_S                                        //| 47 |//
+#undef     E_F                                        //| 48 |//
 #undef       s                                        //| 49 |//
 #undef       S                                        //| 50 |//
 #undef       _                                        //| 51 |//
-//:If the macro is banned, it means you'll have       //| -- |//
-//:to use the private (lowercase) version and         //| -- |//
-//:add getter code. OR you can be more generic        //| -- |//
-//:and make the value a MEM(member_name).             //| -- |//
-//:A bit rigid. But widdling down the ways things     //| -- |//
-//:are allowed to be done should have benifits.       //| -- |//
-#if defined( PTR ) || defined( ptr )                  //| -- |//
-    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
-#endif                                                //| -- |//
-#if defined( SIZ )                                    //| -- |//
-    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( NUM )                                    //| -- |//
-    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( ARR )                                    //| -- |//
-    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( OBJ )                                    //| -- |//
-    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( POI )                                    //| -- |//
-    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-//:V_* can be confused as a local variable.           //| -- |//
-//:F_* can be confused as function pyramid type.      //| -- |//
-//:g_ : private global. (File scope variable.)        //| -- |//
-#if defined( v_1 ) || defined( V_1 )                  
-    //: #error USE: g_1,g_2,g_3,g_4 (NOT:V_)            
-#endif                                                //| -- |//
-#if defined( f_1 ) || defined( F_1 )                  //| -- |//
-    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
-#endif                                                //| -- |//
-//|____________________________________________|V4_MEGAHEADER|//
+#undef       H                                        //| 52 |//
+#undef       D                                        //| 53 |//
+//://---------                                        //::--:://
+#undef     U32                                        //| 54 |//
+#undef     I32                                        //| 55 |//
+#undef     U64                                        //| 56 |//
+#undef     I64                                        //| 57 |//
+//:BANNED_MACROS:SEE[MACRO_BAN_ABOUT]:::::::::::::::////| == |//
+#if defined( MSG ) || defined( msg )                  //| == |//
+    #error DID_WINDOWS_DOT_H_GET_INCLUDED_SOMEHOW?    //| == |//
+#endif                                                //| == |//
+#if defined( PTR ) || defined( ptr )                  //| == |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| == |//
+#endif                                                //| == |//
+#if defined( SIZ )                                    //| == |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( NUM )                                    //| == |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( ARR )                                    //| == |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( OBJ )                                    //| == |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( POI )                                    //| == |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( v_1 ) || defined( V_1 )                  //| == |//
+    //:I found a need for this. Allow it.:::::::::::////| == |//
+#endif                                                //| == |//
+#if defined( f_1 ) || defined( F_1 )                  //| == |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
+#endif                                                //| == |//
+//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0656AM|//
 
 
 //:COMMENTS_SECTION:

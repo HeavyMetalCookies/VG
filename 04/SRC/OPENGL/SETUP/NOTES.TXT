@@ -1,0 +1,125 @@
+NOTES:
+
+    Trying to figure out the exact type of all of these
+    if fucking ridiculous. And sometimes the type varies
+    depending on the function call used.
+    So... Just encode as 32 bit unsigned integer or 64 bit
+    unsigned integer and cast as needed.
+
+    I mean, look at this bullshit.
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+    //:Make these types private because they are obscure names
+    //:and only really used to declare the values.
+    //: (+): Unsigned, only positive.
+    //: (-): Signed  , negative or positive.
+    //: (*): Not specified. Probably hardcoded. Use unsigned.
+    typedef unsigned int     typ(GLUI) ; //:GLuint      32-B (+)
+    typedef signed   int     typ(GLIN) ; //:GLint       32-B (-)
+    typedef unsigned int     typ(ENUM) ; //:GLenum      32-B (*)
+    typedef unsigned int     typ(BITF) ; //:GLbitfield  32-B (*)
+    typedef unsigned char    typ(BOOL) ; //:GLboolean   +1-B (*)
+    typedef          float   typ(FLOA) ; //:GLfloat     32-B (-)
+
+    //:Got type values from: glcorearb.h
+    //: www.khronos.org/registry/OpenGL/api/GL/glcorearb.h
+    //://////////////////////////////////////////////////////://
+    //:-----12345678
+    #define BITFIELD unsigned  int  //:GLbitfield,32bits
+    #define ENUM_ooo unsigned  int  //:GLenum    ,32bits
+    #define ooo_BOOL unsigned char  //:GLboolean ,+1bits
+    #define FLOAT_oo         float  //:GLfloat SEE[[#GL_FLOAT#]]
+    #define o_TODO_o    TODO_ERROR  //://////////////////////://
+
+    //|AITO:(BELOW):¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
+    //|AITO:////////////////////////////////////////////:AITO|//
+    #define A      _Static_assert   //://////////////////////://
+    #define I(n)   INS(n)           //:PUBLIC_INSTANCE  //~//://
+    #define T(t)   typ(t)           //:PRIVATE_TYPE     //~//://
+    #define O(t,n,h,d) T(t) I(n) = h; A(h==d,"[ASS]"#n) //://://
+    //|AITO:////////////////////////////////////////////:AITO|//
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+        O( ENUM , gl_unsigned_byte        ,0x1401, 5121   ) ;
+        O( ENUM , gl_texture_min_filter   ,0x2801, 10241  ) ;
+
+        
+
+        //:es2.0/xhtml/glTexParameter.xml
+        //:GL_TEXTURE_WRAP_S:
+        //:Sets wrap parameter for texture coordinate "S" TO:
+        //:GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT, or GL_REPEAT
+        //:glTexParameteriv(                                 ://
+        //:    GLenum target                                 ://
+        //:    //GL_TEXTURE_2D|GL_TEXTURE_CUBE_MAP           ://
+        //:                                                  ://
+            //:Specifies the symbolic name of a texture      ://
+            //:parameter. pname can be one of the following: ://
+            //:GL_TEXTURE_MIN_FILTER,GL_TEXTURE_MAG_FILTER,  ://
+            //:GL_TEXTURE_WRAP_S,or GL_TEXTURE_WRAP_T.       ://
+            //|,   GLenum pname                              |//
+            O( ENUM , gl_texture_mag_filter   ,0x2800, 10240  ) ;
+            O( ENUM , gl_texture_wrap_s       ,0x2802, 10242  ) ;       
+            O( ENUM , gl_texture_wrap_t       ,0x2803, 10243  ) ;
+        //:  
+        //:    const GLint * params //:pointer TO array where
+        //:                         //:value of pname is stored.
+        //:);;
+        O( ENUM , gl_nearest              ,0x2600, 9728   ) ;
+        O( ENUM , gl_clamp_to_edge        ,0x812F, 33071  ) ;
+
+
+        //: The initial value is GL_TEXTURE0.    
+        //| glActiveTexture( ...GLenum texture... );         |//
+        O( ENUM , gl_texture0             ,0x84C0, 33984  ) ;
+        
+        //: pname SYMBOLIC constant:
+        //: GL_MAX_UNIFORM_LOCATIONS:
+        //:     data returns one value, the maximum number of 
+        //:     explicitly assignable uniform locations, which 
+        //:     must be at least 1024.
+        //| glGetIntegerv(	...GLenum pname... );            |//
+        O( ENUM , gl_max_uniform_locations,1024  , 1024   ) ;
+        
+        //:GL_UNPACK_ALIGNMENT: affects the unpacking of pixel
+        //:                     data from memory:
+        //| glPixelStorei(	.... GLenum pname ... );         |//
+        O( ENUM , gl_unpack_alignment     ,0x0CF5, 3317   ) ;
+
+        //: target:..of active texture unit....texture is bound. 
+        //: Must be either GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP.
+        //| glBindTexture(	...GLenum target... )            |//
+        O( ENUM , gl_texture_2d           ,0x0DE1, 3553   ) ;
+
+        //: ...symbolic constants are accepted by pname:     ://
+        //:    GL_TEXTURE_BINDING_2D...                      ://
+        //| glGetIntegerv(	... GLenum pname ... );          |//
+        O( ENUM , gl_texture_binding_2d   ,0x8069, 32873  ) ;
+
+        //:A "SYMBOLIC_VALUE"
+        //:glTexImage2D( 
+        //:     ... GLint internalFormat ...
+        //:     ... GLenum        format ... )    
+        //: es3.0/html/glTexImage2D.xhtml
+        O( ENUM , gl_rgba_integer         ,0x8D99, 36249  ) ;
+
+        //: gl4/html/glActiveTexture.xhtml                   ://
+        //: void glActiveTexture( GLenum texture );          ://
+        //: glGet with argument GL_ACTIVE_TEXTURE            ://
+        //: gl4/html/glGet.xhtml                             ://
+        //: SYMBOLIC_CONSTANT: GL_ACTIVE_TEXTURE:            ://
+        //:data returns a single value indicating the active ://
+        //:multitexture unit. The initial value is           ://
+        //:GL_TEXTURE0. See glActiveTexture.                 ://
+        //| glGetIntegeri_v(	... GLenum target ... )      |//
+        O( ENUM , gl_active_texture       ,0x84E0, 34016  ) ;
+
+        //:gl4/html/glBindTexture.xhtml
+        //| glBindTexture( ... GLuint texture ... )          |//
+        O( GLUI , gl_texture_2d           ,0x0DE1, 3553   ) ;
+
+        //:OpenGL-Refpages/gl4/html/glTexImage2D.xhtml
+        //| glTexImage2D( ... GLint internalformat ... )     |//
+        O( GLIN , gl_rgba8ui              ,0x8D7C, 36220  ) ;

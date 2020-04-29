@@ -211,7 +211,7 @@
         ){          //[ C:\Windows\System32\opengl32.dll     ]//
                     printf("[RESOLVES_TO:opengl32.dll]\n");
             VAR(Data)=DLLL_LoadLibraryA("opengl32.dll");
-            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
+            INS(dll_gra)=( VAR(Data) ); //:CACHE_YOUR_DLL
         }else
         if( ARG(dll_nam)[0] == 'd' 
         &&  ARG(dll_nam)[1] == 'l' 
@@ -222,9 +222,18 @@
         &&  ARG(dll_nam)[6] == 'm' 
         ){  //[ C:/Program Files                             ]//
             //[  /NVIDIA Corporation\OpenCL\OpenCL64.dll     ]//
-                    printf("[RESOLVES_TO:OpenCL64.dll]\n");
-            VAR(Data)=DLLL_LoadLibraryA("OpenCL64.dll");
-            INS(dll_vuk)=( VAR(Data) ); //:CACHE_YOUR_DLL
+
+                    printf("[RESOLVES_TO:<OPEN_CL*>.dll]\n");
+
+            const char* TODO_ADD_ABILITY_TO_SET_SEARCH_PATH_FOR_DLL_FILES=(
+                "C:/Program Files/NVIDIA Corporation/OpenCL/OpenCL64.dll"
+            );;
+
+            VAR(Data)=DLLL_LoadLibraryA(
+                TODO_ADD_ABILITY_TO_SET_SEARCH_PATH_FOR_DLL_FILES
+            );;
+            INS(dll_com)=( VAR(Data) ); //:CACHE_YOUR_DLL
+
         }else
         if( 1 ){
             //:If dll_name is not a shorthand name,

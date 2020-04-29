@@ -1,89 +1,107 @@
-//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
+//:ESTABLISH_NAMESPACE::::::::::::::::::::::::::::::////| == |//
+//:SEE[ SRC\PROJECT_PREFIX.DEFINE._ ]:::::::::::::::////| == |//
+//:For definitions of:               :::::::::::::::////| == |//
+//:      1:    MACRO_project_prefix_HIDDEN :::::::::////| == |//
+//:      2:    MACRO_project_prefix_VISIBLE:::::::::////| == |//
 #define    lib MACRO_project_prefix_HIDDEN            //| 01 |//
 #define    LIB MACRO_project_prefix_VISIBLE           //| 02 |//
-#define    GM1( a , b )      a## _ ##b                //| 03 |//
-#define    GM2( a , b ) GM1( a   ,   b )              //| 04 |//
-#define    K_1( a,b,c )      a## _ ##b##   _ ##c      //| 05 |//
-#define    K_2( a,b,c ) K_1( a   ,   b     ,   c   )  //| 06 |//
-#define    VAR( n ) GM2( VAR   ,                 n )  //| 07 |//
-#define    EII( n ) K_2( LIB, EII,               n )  //| 08 |//
-#define    MEM( n ) K_2( LIB ,MEM,               n )  //| 09 |//
-#define    INS( n ) K_2( LIB ,INS,               n )  //| 10 |//
-#define    FUN( n ) K_2( LIB ,FUN,               n )  //| 11 |//
-#define    TYP( n ) K_2( LIB ,TYP,               n )  //| 12 |//
-#define    ARG( n ) GM2(      ARG,               n )  //| 13 |//
-#define    RET( n ) GM2(      RET,               n )  //| 14 |//
-#define    BRA( n ) K_2( lib, bra,               n )  //| 15 |//
-#define    SUB( n ) K_2( lib, sub,               n )  //| 16 |//
-#define    var( n ) GM2( v_2020_04_28_1246AM_CL, n )  //| 17 |//
-#define    eii( n ) GM2( e_2020_04_28_1246AM_CL, n )  //| 18 |//
-#define    mem( n ) GM2( m_2020_04_28_1246AM_CL, n )  //| 19 |//
-#define    ins( n ) GM2( i_2020_04_28_1246AM_CL, n )  //| 20 |//
-#define    fun( n ) GM2( f_2020_04_28_1246AM_CL, n )  //| 21 |//
-#define    typ( n ) GM2( t_2020_04_28_1246AM_CL, n )  //| 22 |//
-#define    arg( n ) GM2( a_2020_04_28_1246AM_CL, n )  //| 23 |//
-#define    ret( n ) GM2( r_2020_04_28_1246AM_CL, n )  //| 24 |//
-#define    bra( n ) GM2( b_2020_04_28_1246AM_CL, n )  //| 25 |//
-#define    sub( n ) GM2( s_2020_04_28_1246AM_CL, n )  //| 26 |//
-#define    obj( n ) GM2( o_2020_04_28_1246AM_CL, n )  //| 27 |//
-#define    poi( n ) GM2( p_2020_04_28_1246AM_CL, n )  //| 28 |//
-#define    NIL        ((void*)0)                      //| 29 |//
-#define    siz( n ) GM2( S_2020_04_28_1246AM_CL, n )  //| 30 |//
-#define    num( n ) GM2( N_2020_04_28_1246AM_CL, n )  //| 31 |//
-#define    arr( n ) GM2( A_2020_04_28_1246AM_CL, n )  //| 32 |//
-#define    dex( n ) GM2( D_2020_04_28_1246AM_CL, n )  //| 33 |//
-#define      H          fun( Halt )                   //| 34 |//
-#define      D          fun( Dmsg )                   //| 35 |//
-#define    E_S(  nam  )   ;  // END_STRUCT            //| 36 |//
-#define    E_F(  nam  )      // END_FUNCTION          //| 37 |//
-#define    G_1(G,a    ) G ##_## a                     //| 38 |//
-#define    G_2(G,a,b  ) G ##_## a ##_## b             //| 39 |//
-#define    G_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 40 |//
-#define    g_1(a      ) G_1( lib, a      )            //| 41 |//
-#define    g_2(a,b    ) G_2( lib, a,b    )            //| 42 |//
-#define    g_3(a,b,c  ) G_3( lib, a,b,c  )            //| 43 |//
-#define    U32 unsigned           int                 //| 44 |//
-#define    I32 signed             int                 //| 45 |//
-#define    U64 unsigned long long int                 //| 46 |//
-#define    I64 signed   long long int                 //| 47 |//
-#define termin //:TERMINAL_STRUCT_NODE://             //| 48 |//
+//:TEMPORRARY_HELPER_MACROS:::::::::::::::::::::::::////| -- |//
+#define    gm2( a , b )      a## _ ##b                //| 03 |//
+#define    GM2( a , b ) gm2( a   ,   b )              //| 04 |//
+#define    gm3( a,b,c )      a## _ ##b##   _ ##c      //| 05 |//
+#define    GM3( a,b,c ) gm3( a   ,   b     ,   c )    //| 06 |//
+//:USABLE_SCOPES: VISIBLE/PUBLIC/LOCAL/GLOBAL:::::::////| -- |//
+#define    INS( n ) GM3( LIB ,INS, n )  //:INSTANCE:////| 07 |//
+#define    TYP( n ) GM3( LIB ,TYP, n )  //:TYPE:::::////| 08 |//
+#define    EII( n ) GM3( LIB ,EII, n )  //:E.I.I.:::////| 09 |//
+#define    MEM( n ) GM3( LIB ,MEM, n )  //:MEMBER:::////| 10 |//
+#define    FUN( n ) GM3( LIB ,FUN, n )  //:FUNCTION:////| 11 |//
+//:SubBranch.TYPE==BRA, SubBranch.INST==SUB:::::::::////| -- |//
+#define    BRA( n ) GM3( lib, bra,n )   //:TYPE:::::////| 12 |//
+#define    SUB( n ) GM3( lib, sub,n )   //:INSTANCE:////| 13 |//
+//:ARGument+RETurn+VARiable:Local+Public only:::::::////| -- |//
+#define    ARG( n ) GM2(      ARG,n )   //:ARGUMENT:////| 14 |//
+#define    RET( n ) GM2(      RET,n )   //:RET_VAL::////| 15 |//
+#define    VAR( n ) GM2(      VAR,n )   //:LOCALVAR:////| 16 |//
+//:PRIVATE_VIA_OBFUSCATION:Use_As_Local_Or_Global:::////| -- |//
+#define    var( n ) GM2( v_2020_04_29_0714AM_CL , n ) //| 17 |//
+#define    eii( n ) GM2( e_2020_04_29_0714AM_CL , n ) //| 18 |//
+#define    mem( n ) GM2( m_2020_04_29_0714AM_CL , n ) //| 19 |//
+#define    ins( n ) GM2( i_2020_04_29_0714AM_CL , n ) //| 20 |//
+#define    fun( n ) GM2( f_2020_04_29_0714AM_CL , n ) //| 21 |//
+#define    typ( n ) GM2( t_2020_04_29_0714AM_CL , n ) //| 22 |//
+#define    arg( n ) GM2( a_2020_04_29_0714AM_CL , n ) //| 23 |//
+#define    ret( n ) GM2( r_2020_04_29_0714AM_CL , n ) //| 24 |//
+#define    bra( n ) GM2( b_2020_04_29_0714AM_CL , n ) //| 25 |//
+#define    sub( n ) GM2( s_2020_04_29_0714AM_CL , n ) //| 26 |//
+#define    obj( n ) GM2( o_2020_04_29_0714AM_CL , n ) //| 27 |//
+#define    poi( n ) GM2( p_2020_04_29_0714AM_CL , n ) //| 28 |//
+#define    siz( n ) GM2( S_2020_04_29_0714AM_CL , n ) //| 29 |//
+#define    num( n ) GM2( N_2020_04_29_0714AM_CL , n ) //| 30 |//
+#define    arr( n ) GM2( A_2020_04_29_0714AM_CL , n ) //| 31 |//
+#define    dex( n ) GM2( D_2020_04_29_0714AM_CL , n ) //| 32 |//
+//:PRIVATE_GLOBALS:(Private,but not obfuscated):::::////| -- |//
+#define  GLO_1(G,a    ) G ##_## a                     //| 33 |//
+#define  GLO_2(G,a,b  ) G ##_## a ##_## b             //| 34 |//
+#define  GLO_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 35 |//
+#define    g_1(a      ) GLO_1( lib, a      )          //| 36 |//
+#define    g_2(a,b    ) GLO_2( lib, a,b    )          //| 37 |//
+#define    g_3(a,b,c  ) GLO_3( lib, a,b,c  )          //| 38 |//
+//:Local_Variables:(Namespace=="V_")::::::::::::::::////| -- |//
+#define  VAR_1(V,a    ) V ##_## a                     //| 39 |//
+#define  VAR_2(V,a,b  ) V ##_## a ##_## b             //| 40 |//
+#define  VAR_3(V,a,b,c) V ##_## a ##_## b ##_## c     //| 41 |//
+#define    v_1(a      ) VAR_1(   V, a      )          //| 42 |//
+#define    v_2(a,b    ) VAR_2(   V, a,b    )          //| 43 |//
+#define    v_3(a,b,c  ) VAR_3(   V, a,b,c  )          //| 44 |//
+//:MISC:::::::::::::::::::::::::::::::::::::::::::::////| -- |//
+#define termin //:TERMINAL_STRUCT_NODE://             //| 45 |//
+#define    NIL        ((void*)0)                      //| 46 |//
+#define    E_S(  nam  )   ;  // END_STRUCT            //| 47 |//
+#define    E_F(  nam  )      // END_FUNCTION          //| 48 |//
 #define      s ;                                      //| 49 |//
 #define      S ;                                      //| 50 |//
 #define      _                                        //| 51 |//
-//:If the macro is banned, it means you'll have       //| -- |//
-//:to use the private (lowercase) version and         //| -- |//
-//:add getter code. OR you can be more generic        //| -- |//
-//:and make the value a MEM(member_name).             //| -- |//
-//:A bit rigid. But widdling down the ways things     //| -- |//
-//:are allowed to be done should have benifits.       //| -- |//
-#if defined( PTR ) || defined( ptr )                  //| -- |//
-    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
-#endif                                                //| -- |//
-#if defined( SIZ )                                    //| -- |//
-    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( NUM )                                    //| -- |//
-    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( ARR )                                    //| -- |//
-    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( OBJ )                                    //| -- |//
-    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( POI )                                    //| -- |//
-    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-//:V_* can be confused as a local variable.           //| -- |//
-//:F_* can be confused as function pyramid type.      //| -- |//
-//:g_ : private global. (File scope variable.)        //| -- |//
-#if defined( v_1 ) || defined( V_1 )                  //| -- |//
-    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
-#endif                                                //| -- |//
-#if defined( f_1 ) || defined( F_1 )                  //| -- |//
-    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
-#endif                                                //| -- |//
-//|____________________________________________|V4_MEGAHEADER|//
+#define      H          fun( Halt )                   //| 52 |//
+#define      D          fun( Dmsg )                   //| 53 |//
+//:PRIMITIVE_TYPES::::::::::::::::::::::::::::::::::////| -- |//
+#define    U32 unsigned           int                 //| 54 |//
+#define    I32 signed             int                 //| 55 |//
+#define    U64 unsigned long long int                 //| 56 |//
+#define    I64 signed   long long int                 //| 57 |//
+//:BANNED_MACROS:SEE[MACRO_BAN_ABOUT]:::::::::::::::////| == |//
+#if defined( MSG ) || defined( msg )                  //| == |//
+    #error DID_WINDOWS_DOT_H_GET_INCLUDED_SOMEHOW?    //| == |//
+#endif                                                //| == |//
+#if defined( PTR ) || defined( ptr )                  //| == |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| == |//
+#endif                                                //| == |//
+#if defined( SIZ )                                    //| == |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( NUM )                                    //| == |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( ARR )                                    //| == |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( OBJ )                                    //| == |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( POI )                                    //| == |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+//:V_* can be confused as a local variable.      :::////| == |//
+//:F_* can be confused as function pyramid type. :::////| == |//
+//:g_ : private global. (File scope variable.)   :::////| == |//
+#if defined( v_1 ) || defined( VAR_1 )                //| == |//
+    //:I found a need for this. Allow it.:::::::::::////| == |//
+#endif                                                //| == |//
+#if defined( f_1 ) || defined( F_1 )                  //| == |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
+#endif                                                //| == |//
+//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
 //:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
 
     //:PATH_TO_THIS_FILE_AS_ALL_CAPITAL_MACRO:
@@ -99,34 +117,400 @@
     ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
 //:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG://        
                     
+//:TYPEDEFS::TDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTD://
+
+
+    //:SetupForPointerToA:GetProcAddress:Function:SC[GPA_FUN]
+    //://////////////////////////////////////////////////////://
+    //:                                                      ://
+    //: Below we are constructing type:                      ://
+    //:                         TYP(GPA_FUN) / T(GPA_FUN)    ://
+    //:                                                      ://
+    //: It is a is like a generic function pointer, EXCEPT   ://
+    //: that it returns a function pointer rather than a     ://
+    //: void*. We need this specialized generic function     ://
+    //: pointer because we cannot mix data pointers and      ://
+    //: function pointers when casting.                      ://
+    //:                                                      ://
+    //: NO!  TYP(FUN) f = (TYP(FUN))INS(gen_fun)("FuncName"); //
+    //: OK:  TYP(FUN) f = (TYP(FUN))INS(gpa_fun)("FuncName"); //
+    //: OK:  TYP(FUN) f =           INS(gpa_fun)("FuncName"); //
+    //:                                                      ://
+    //://////////////////////////////////////////////////////://
+    #define T( nam ) TYP( nam ) //://////////////////////////://
+
+    typedef void       (* T(GEN_FUN) )(void);  //:Generic:FUNC
+    typedef void          T(GEN_DAT)        ;  //:Generic:DATA
+    typedef T(GEN_FUN) (* T(GPA_FUN) )(void*); //:GPA_Pointer
+
+    #undef  T //:////////////////////////////////////////////://
+
+//:TDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTD::TYPEDEFS://
+//:FORWARD_DECLARATIONS::FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD://
+
+    TYP(FUN) fun(GetAnyCLFuncAddress)( const char* );
+
+//:FDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFDFD::FORWARD_DECLARATIONS://
+//:OPENCL_FUNCTION_POINTERS::FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP://
+
+    //:T1:Teir_1:Teir_1_OpenCL_Function_Pointers:------------://
+    //:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
+    #define    N  =(NIL);/////////://////////////////////////://  
+    #define    G  TYP(GPA_FUN)  //://////////////////////////://
+    #define    F  TYP(FUN)      //://////////////////////////://  
+
+    //: //:OpenCL function pointers that can be immediately
+    //: //:Fetched without requiring an OpenCL instance.
+    //: G            ins(wclGetProcAddress   )                 N
+    //: F            ins(wclGetCurrentContext)                 N
+    //: TYP(F_01)    ins(wclCreateContext    )                 N
+    //: TYP(F_02)    ins(wclMakeCurrent      )                 N
+
+    #undef     N  //:////////////////////////////////////////://
+    #undef     G  //:////////////////////////////////////////://
+    #undef     F  //:////////////////////////////////////////://
+    //:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
+
+    //:T2:Teir_2:Teir_1_OpenCL_Function_Pointers:------------://
+    //:T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2://
+    #define  N      =(NIL);   //:////////////////////////////://  
+    #define  F    TYP(FUN)    //:////////////////////////////://   
+    #define  F_01 TYP(F_01)   //:////////////////////////////://
+    #define  F_02 TYP(F_02)   //:////////////////////////////://
+    #define  F_03 TYP(F_03)   //:////////////////////////////://
+    #define  F_04 TYP(F_04)   //:////////////////////////////://
+    #define  F_05 TYP(F_05)   //:////////////////////////////://
+    #define  F_06 TYP(F_06)   //:////////////////////////////://
+    #define  F_07 TYP(F_07)   //:////////////////////////////://
+    #define  F_08 TYP(F_08)   //:////////////////////////////://
+    #define  F_09 TYP(F_09)   //:////////////////////////////://
+
+    //:OpenCL: 1.2  
+    //:------------------------------------------------------://
+    #define MACRO_01 clGetExtensionFunctionAddressForPlatform
+    //:------------------------------------------------------://
+    F_01  INS( clFinish                   ) N         //| 01 |//
+    F_01  INS( clFlush                    ) N         //| 02 |//
+    F_01  INS( clReleaseKernel            ) N         //| 03 |//
+    F_01  INS( clReleaseProgram           ) N         //| 04 |//
+    F_01  INS( clReleaseMemObject         ) N         //| 05 |//
+    F_01  INS( clReleaseCommandQueue      ) N         //| 06 |//
+    F_01  INS( clReleaseContext           ) N         //| 07 |//
+    F_02  INS( clWaitForEvents            ) N         //| 08 |//
+    F_02  INS( MACRO_01                   ) N         //| 09 |//
+    F_03  INS( clGetPlatformIDs           ) N         //| 10 |//
+    F_03  INS( clCreateKernel             ) N         //| 11 |//
+    F_04  INS( clCreateCommandQueue       ) N         //| 12 |//
+    F_04  INS( clSetKernelArg             ) N         //| 13 |//
+    F_05  INS( clCreateBuffer             ) N         //| 14 |//
+    F_05  INS( clCreateProgramWithSource  ) N         //| 15 |//
+    F_05  INS( clGetDeviceIDs             ) N         //| 16 |//
+    F_05  INS( clGetDeviceInfo            ) N         //| 17 |//
+    F_05  INS( clGetContextInfo           ) N         //| 18 |//
+    F_05  INS( clGetCommandQueueInfo      ) N         //| 19 |//
+    F_05  INS( clGetKernelInfo            ) N         //| 20 |//
+    F_05  INS( clGetPlatformInfo          ) N         //| 21 |//
+    F_06  INS( clGetProgramBuildInfo      ) N         //| 22 |//
+    F_06  INS( clBuildProgram             ) N         //| 23 |//
+    F_06  INS( clCreateContext            ) N         //| 24 |//
+    F_09  INS( clEnqueueReadBuffer        ) N         //| 25 |//
+    F_09  INS( clEnqueueNDRangeKernel     ) N         //| 26 |//
+    F_09  INS( clEnqueueWriteBuffer       ) N         //| 27 |//
+    //:------------------------------------------------------://
+    #undef MACRO_01 //://////////////////////////////////////://
+    //:------------------------------------------------------://
+
+    //:CL 2.0 only.
+    //:F_04  INS( clCreateCommandQueueWithProperties       ) N 
+          
+    #undef  N     //:////////////////////////////////////////://
+    #undef  F     //:////////////////////////////////////////://
+    #undef  F_01  //:////////////////////////////////////////://
+    #undef  F_02  //:////////////////////////////////////////://
+    #undef  F_03  //:////////////////////////////////////////://
+    #undef  F_04  //:////////////////////////////////////////://
+    #undef  F_05  //:////////////////////////////////////////://
+    #undef  F_06  //:////////////////////////////////////////://
+    #undef  F_07  //:////////////////////////////////////////://
+    #undef  F_08  //:////////////////////////////////////////://
+    #undef  F_09  //:////////////////////////////////////////://
+    //:T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2://
+//:FPFPFPFPFPFPFPFPFPFPFPFPFPFPFPFP::OPENCL_FUNCTION_POINTERS://
+//:OPEN_CL_ENUMERATIONS:EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE://
+
+    //:SC[VK04_DECLARE_ASSERT_EXIST-(edit|paste|help)](BELOW)
+    //://////////////////////////////////////////////////////://
+    #define  E_M CLEAR_CRYSTAL_BALL_WITCH_PARTY //:ERROR_MESSAGE
+    #define  D_T U32                     //:DECLARE_TYPE(ALL)
+    #define  E_0(con,msg) _Static_assert( con, msg )
+    #define  E_1(t_t,msg) E_0(sizeof(t_t) > 0, msg )
+    #define  A_1 _Static_assert
+    #define  A_2(h_d,msg_nam) A_1(               h_d,#msg_nam )
+    #define  A_3(h_d,nam,msg) A_2(               h_d, msg:nam )
+    #define  A_4(h_d,nam,msg) A_3(               h_d, nam,msg )
+    #define  A_5(nam,hex,dec) A_4(          hex==dec, nam,E_M )
+    #define  A_6(nam,hex,dec) A_5(   nam  , hex ,dec          )
+    #define  D_1(nam,hex    ) D_T INS(nam) = hex
+    #define  D_2(nam,hex    ) D_1(    nam  , hex       )
+    #define  DA1(nam,hex,dec) D_2(nam,hex) ; A_6(nam,hex,dec)
+    #define  DA2(nam,hex,dec,eye_tot) DA1(nam,hex,dec)
+        
+        //:DA: Declare & Assert
+        //:HackishChecksum:Check hex against decimal for match.
+        DA2( cl_mem_read_write      ,   0x1 , (1<<0) , 01 ) ;
+        DA2( cl_mem_write_only      ,   0x2 , (1<<1) , 02 ) ;
+        DA2( cl_mem_read_only       ,   0x4 , (1<<2) , 03 ) ;
+        DA2( cl_mem_use_host_ptr    ,   0x8 , (1<<3) , 04 ) ;       
+        DA2( cl_mem_alloc_host_ptr  ,  0x10 , (1<<4) , 05 ) ;
+        DA2( cl_mem_copy_host_ptr   ,  0x20 , (1<<5) , 06 ) ;
+        ///( RESERVED               ,  0x40 , (1<<6) , 07 ) ;
+        DA2( cl_mem_host_write_only ,  0x80 , (1<<7) , 08 ) ;
+        DA2( cl_mem_host_read_only  , 0x100 , (1<<8) , 09 ) ;
+        DA2( cl_mem_host_no_access  , 0x200 , (1<<9) , 10 ) ;
+
+        //:E_#:Exists: Assert these INS(___) types exist
+        //:SEE[ STATIC_ASSERT_EXIST_HACK ]
+        E_1( INS( cl_mem_read_write      ) , "eye_tot:01" );
+        E_1( INS( cl_mem_write_only      ) , "eye_tot:02" );
+        E_1( INS( cl_mem_read_only       ) , "eye_tot:03" );
+        E_1( INS( cl_mem_use_host_ptr    ) , "eye_tot:04" );
+        E_1( INS( cl_mem_alloc_host_ptr  ) , "eye_tot:05" );
+        E_1( INS( cl_mem_copy_host_ptr   ) , "eye_tot:06" );
+        ///( INS( RESERVED               ) , "eye_tot:07" );
+        E_1( INS( cl_mem_host_write_only ) , "eye_tot:08" );
+        E_1( INS( cl_mem_host_read_only  ) , "eye_tot:09" );
+        E_1( INS( cl_mem_host_no_access  ) , "eye_tot:10" );
+
+    #undef   E_M    //://////////////////////////////////////://
+    #undef   D_T    //://////////////////////////////////////://
+    #undef   E_0    //://////////////////////////////////////://
+    #undef   E_1    //://////////////////////////////////////://
+    #undef   A_1    //://////////////////////////////////////://
+    #undef   A_2    //://////////////////////////////////////://
+    #undef   A_3    //://////////////////////////////////////://
+    #undef   A_4    //://////////////////////////////////////://
+    #undef   A_5    //://////////////////////////////////////://
+    #undef   A_6    //://////////////////////////////////////://
+    #undef   D_1    //://////////////////////////////////////://
+    #undef   D_2    //://////////////////////////////////////://
+    #undef   DA1    //://////////////////////////////////////://
+    #undef   DA2    //://////////////////////////////////////://
+    //://////////////////////////////////////////////////////://
+    //:SC[VK04_DECLARE_ASSERT_EXIST-(edit|paste|help)](BELOW)
+
+//:EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE:OPEN_CL_ENUMERATIONS://
 //[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
     void EII(SRC_OPENCL_SETUP_main)(void){ //:///////////////://
 
-            H("hey");
-            D("hey");
+        //:T1:Teir_1:Grab Teir 1 OpenCL Functions:
+        //:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
+
+        #define g_p_a FUN(SRC_NATIVE_CALLWRAP_GetProcAddress) //
+        #define G_P_A( a ) g_p_a( "dll_gra",  a )    //://///://
+        #define     G( a ) G_P_A(            #a )    //://///://
+        #define     n( a ) if(!ins( a )){ H( #a"[IS_NULL]" ); };
+        #define     N( a ) n( a ) //:////////////////////////://
+
+            #define G0( a ) G( a )
+            #define G1( a ) (TYP(F_01))G( a )
+            #define G2( a ) (TYP(F_02))G( a )
+
+            //:Unlike openGL code, I don't think we need
+            //:to separate into teir1 and teir2 functions,
+            //:but just in case, leave this code here for
+            //:now.
+
+            //////  //:MACROS:
+            //////  //:     G: Calls GetProcAddress
+            //////  //:     N: Null  Checks Function Pointer
+            //////  
+            //////  //:SEE[ GPA_POINTERS_ARE_SPECIAL ]
+            //////  ins(wclGetProcAddress   )=(
+            //////      (TYP(GPA_FUN))G( wclGetProcAddress    ));;
+            //////  
+            //////  ins(wclGetCurrentContext)=G0( wclGetCurrentContext);
+            //////  ins(wclCreateContext    )=G1( wclCreateContext    );
+            //////  ins(wclMakeCurrent      )=G2( wclMakeCurrent      );
+            //////  
+            //////  N(wclGetProcAddress   ); //:NULL_CHECKS
+            //////  N(wclGetCurrentContext); //:NULL_CHECKS
+            //////  N(wclCreateContext    ); //:NULL_CHECKS
+            //////  N(wclMakeCurrent      ); //:NULL_CHECKS
+
+            #undef G0
+            #undef G1
+            #undef G2
+
+        #undef  g_p_a  //:///////////////////////////////////://
+        #undef  G_P_A  //:///////////////////////////////////://
+        #undef      G  //:///////////////////////////////////://
+        #undef      n  //:///////////////////////////////////://
+        #undef      N  //:///////////////////////////////////://
+
+        //:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
+        
+        //[ TODO: Any setup code that might be needed between]//
+        //[       Teir_1 and Teir_2 function pointer fetch.  ]//
+
+        //:T2:Teir_2:( 2nd_tier_opencl_function_pointers )
+        //:T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2://
+        //://////////////////////////////////////////////////://
+        #define g_p_a fun(GetAnyCLFuncAddress)       //://///://
+        #define G_P_A( a ) g_p_a(             a )    //://///://
+        #define     G( a ) G_P_A(            #a )    //://///://
+        #define     n( a ) if(!INS( a )){ H( #a"[IS_NULL]" ); };
+        #define     o( a ) if( INS( a )){ D( "[OK_YEAH]"#a ); };
+        #define     N( a ) n( a ) //:////////////////////////://
+
+            //:G_N:Get_function_pointer_AND_check_for_null.
+            //://////////////////////////////////////////////://
+            #define G_N( a ) INS( a )=G( a );N( a ); o( a );
+
+            #define G0( a ) INS( a )=(TYP(F_00))G( a ) _ _ _ _ _
+            #define G1( a ) INS( a )=(TYP(F_01))G( a ) _ _ _ _ _
+            #define G2( a ) INS( a )=(TYP(F_02))G( a ) _ _ _ _ _
+            #define G3( a ) INS( a )=(TYP(F_03))G( a ) _ _ _ _ _
+            #define G4( a ) INS( a )=(TYP(F_04))G( a ) _ _ _ _ _
+            #define G5( a ) INS( a )=(TYP(F_05))G( a ) _ _ _ _ _
+            #define G6( a ) INS( a )=(TYP(F_06))G( a ) _ _ _ _ _
+            #define G7( a ) INS( a )=(TYP(F_07))G( a ) _ _ _ _ _
+            #define G8( a ) INS( a )=(TYP(F_08))G( a ) _ _ _ _ _
+            #define G9( a ) INS( a )=(TYP(F_09))G( a ) _ _ _ _ _
+
+            #define G_0( a ) G0( a );N( a ); o( a ); _ _ _ _ _ _
+            #define G_1( a ) G1( a );N( a ); o( a ); _ _ _ _ _ _
+            #define G_2( a ) G2( a );N( a ); o( a ); _ _ _ _ _ _
+            #define G_3( a ) G3( a );N( a ); o( a ); _ _ _ _ _ _
+            #define G_4( a ) G4( a );N( a ); o( a ); _ _ _ _ _ _
+            #define G_5( a ) G5( a );N( a ); o( a ); _ _ _ _ _ _
+            #define G_6( a ) G6( a );N( a ); o( a ); _ _ _ _ _ _
+            #define G_7( a ) G7( a );N( a ); o( a ); _ _ _ _ _ _
+            #define G_8( a ) G8( a );N( a ); o( a ); _ _ _ _ _ _
+            #define G_9( a ) G9( a );N( a ); o( a ); _ _ _ _ _ _
+
+//:----------------------------------------------------------://
+#define MACRO_01 clGetExtensionFunctionAddressForPlatform //:://
+//:----------------------------------------------------------://
+
+                    G_1( clFinish                  ); //| 01 |//
+                    G_1( clFlush                   ); //| 02 |//
+                    G_1( clReleaseKernel           ); //| 03 |//
+                    G_1( clReleaseProgram          ); //| 04 |//
+                    G_1( clReleaseMemObject        ); //| 05 |//
+                    G_1( clReleaseCommandQueue     ); //| 06 |//
+                    G_1( clReleaseContext          ); //| 07 |//
+                    G_2( clWaitForEvents           ); //| 08 |//
+                    G_2( MACRO_01                  ); //| 09 |//
+                    G_3( clGetPlatformIDs          ); //| 10 |//
+                    G_3( clCreateKernel            ); //| 11 |//
+                    G_4( clCreateCommandQueue      ); //| 12 |//
+                    G_4( clSetKernelArg            ); //| 13 |//
+                    G_5( clCreateBuffer            ); //| 14 |//
+                    G_5( clCreateProgramWithSource ); //| 15 |//
+                    G_5( clGetDeviceIDs            ); //| 16 |//
+                    G_5( clGetDeviceInfo           ); //| 17 |//
+                    G_5( clGetContextInfo          ); //| 18 |//
+                    G_5( clGetCommandQueueInfo     ); //| 19 |//
+                    G_5( clGetKernelInfo           ); //| 20 |//
+                    G_5( clGetPlatformInfo         ); //| 21 |//
+                    G_6( clGetProgramBuildInfo     ); //| 22 |//
+                    G_6( clBuildProgram            ); //| 23 |//
+                    G_6( clCreateContext           ); //| 24 |//
+                    G_9( clEnqueueReadBuffer       ); //| 25 |//
+                    G_9( clEnqueueNDRangeKernel    ); //| 26 |//
+                    G_9( clEnqueueWriteBuffer      ); //| 27 |//
+
+//:----------------------------------------------------------://
+#undef MACRO_01 //://////////////////////////////////////////://
+//:----------------------------------------------------------://
+
+            #undef   G0 //://////////////////////////////////://
+            #undef   G1 //://////////////////////////////////://
+            #undef   G2 //://////////////////////////////////://
+            #undef   G3 //://////////////////////////////////://
+            #undef   G4 //://////////////////////////////////://
+            #undef   G5 //://////////////////////////////////://
+            #undef   G6 //://////////////////////////////////://
+            #undef   G7 //://////////////////////////////////://
+            #undef   G8 //://////////////////////////////////://
+            #undef   G9 //://////////////////////////////////://
+                        //://////////////////////////////////://
+            #undef  G_0 //://////////////////////////////////://
+            #undef  G_1 //://////////////////////////////////://
+            #undef  G_2 //://////////////////////////////////://
+            #undef  G_3 //://////////////////////////////////://
+            #undef  G_4 //://////////////////////////////////://
+            #undef  G_5 //://////////////////////////////////://
+            #undef  G_6 //://////////////////////////////////://
+            #undef  G_7 //://////////////////////////////////://
+            #undef  G_8 //://////////////////////////////////://
+            #undef  G_9 //://////////////////////////////////://
+
+            #undef  G_N //://////////////////////////////////://
+            //://////////////////////////////////////////////://
+
+        #undef  g_p_a   //://////////////////////////////////://
+        #undef  G_P_A   //://////////////////////////////////://
+        #undef      G   //://////////////////////////////////://
+        #undef      n   //://////////////////////////////////://
+        #undef      o   //://////////////////////////////////://
+        #undef      N   //://////////////////////////////////://
+        //://////////////////////////////////////////////////://
+        //:T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2://
 
 
     }    E_F(SRC_OPENCL_SETUP_main)  //://///////////////////://
 //[MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM:MAIN]//
 
 
-//|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER|//
+//:AG:Any_CL:(BELOW):¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
+//:AGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAG://
+//:                                                          ://
+//: Decided to make a "GetAnyCLFuncAddress" to mirror        ://
+//: the Open_Graphics_Library function of similiar name:     ://
+//: "GetAnyGLFunctionAddress". Uncertain if this will        ://
+//: be a needed function.                                    ://
+//:                                                          ://
+//:AGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAG://
+    TYP(FUN) fun(GetAnyCLFuncAddress)( //:///////////////////://
+        const char* ARG(fun_nam) //:name_of_open_cl_function
+    ){
+        
+        TYP(FUN) 
+        RET(FUN)=( FUN(SRC_NATIVE_CALLWRAP_GetProcAddress)(
+            "dll_com" //: dll_nam: "dll_com"==OpenCL*.DLL
+        ,ARG(fun_nam) //: dll_com:dll_compute
+        ));;
+
+        return( RET(FUN) );
+
+    }E_F(GetAnyCLFuncAddress)//://///////////////////////////://
+//:AGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAG://
+//:AG:Any_CL:(ABOVE):________________________________________://
+
+
+//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
 #undef     lib                                        //| 01 |//
 #undef     LIB                                        //| 02 |//
-#undef     GM1                                        //| 03 |//
+//://---------                                        //::--:://
+#undef     gm2                                        //| 03 |//
 #undef     GM2                                        //| 04 |//
-#undef     K_1                                        //| 05 |//
-#undef     K_2                                        //| 06 |//
-#undef     VAR                                        //| 07 |//
-#undef     EII                                        //| 08 |//
-#undef     MEM                                        //| 09 |//
-#undef     INS                                        //| 10 |//
+#undef     gm3                                        //| 05 |//
+#undef     GM3                                        //| 06 |//
+//://---------                                        //::--:://
+#undef     INS                                        //| 07 |//
+#undef     TYP                                        //| 08 |//
+#undef     EII                                        //| 09 |//
+#undef     MEM                                        //| 10 |//
 #undef     FUN                                        //| 11 |//
-#undef     TYP                                        //| 12 |//
-#undef     ARG                                        //| 13 |//
-#undef     RET                                        //| 14 |//
-#undef     BRA                                        //| 15 |//
-#undef     SUB                                        //| 16 |//
+//://---------                                        //::--:://
+#undef     BRA                                        //| 12 |//
+#undef     SUB                                        //| 13 |//
+//://---------                                        //::--:://
+#undef     ARG                                        //| 14 |//
+#undef     RET                                        //| 15 |//
+#undef     VAR                                        //| 16 |//
+//://---------                                        //::--:://
 #undef     var                                        //| 17 |//
 #undef     eii                                        //| 18 |//
 #undef     mem                                        //| 19 |//
@@ -139,60 +523,65 @@
 #undef     sub                                        //| 26 |//
 #undef     obj                                        //| 27 |//
 #undef     poi                                        //| 28 |//
-#undef     NIL                                        //| 29 |//
-#undef     siz                                        //| 30 |//
-#undef     num                                        //| 31 |//
-#undef     arr                                        //| 32 |//
-#undef     dex                                        //| 33 |//
-#undef       H                                        //| 34 |//
-#undef       D                                        //| 35 |//
-#undef     E_S                                        //| 36 |//
-#undef     E_F                                        //| 37 |//
-#undef     G_1                                        //| 38 |//
-#undef     G_2                                        //| 39 |//
-#undef     G_3                                        //| 40 |//
-#undef     g_1                                        //| 41 |//
-#undef     g_2                                        //| 42 |//
-#undef     g_3                                        //| 43 |//
-#undef     U32                                        //| 44 |//
-#undef     I32                                        //| 45 |//
-#undef     U64                                        //| 46 |//
-#undef     I64                                        //| 47 |//
-#undef  termin                                        //| 48 |//
+#undef     siz                                        //| 29 |//
+#undef     num                                        //| 30 |//
+#undef     arr                                        //| 31 |//
+#undef     dex                                        //| 32 |//
+//://---------                                        //::--:://
+#undef   GLO_1                                        //| 33 |//
+#undef   GLO_2                                        //| 34 |//
+#undef   GLO_3                                        //| 35 |//
+#undef     g_1                                        //| 36 |//
+#undef     g_2                                        //| 37 |//
+#undef     g_3                                        //| 38 |//
+//://---------                                        //::--:://
+#undef   VAR_1                                        //| 39 |//
+#undef   VAR_2                                        //| 40 |//
+#undef   VAR_3                                        //| 41 |//
+#undef     v_1                                        //| 42 |//
+#undef     v_2                                        //| 43 |//
+#undef     v_3                                        //| 44 |//
+//://---------                                        //::--:://
+#undef  termin                                        //| 45 |//
+#undef     NIL                                        //| 46 |//
+#undef     E_S                                        //| 47 |//
+#undef     E_F                                        //| 48 |//
 #undef       s                                        //| 49 |//
 #undef       S                                        //| 50 |//
 #undef       _                                        //| 51 |//
-//:If the macro is banned, it means you'll have       //| -- |//
-//:to use the private (lowercase) version and         //| -- |//
-//:add getter code. OR you can be more generic        //| -- |//
-//:and make the value a MEM(member_name).             //| -- |//
-//:A bit rigid. But widdling down the ways things     //| -- |//
-//:are allowed to be done should have benifits.       //| -- |//
-#if defined( PTR ) || defined( ptr )                  //| -- |//
-    #error WE_USE:POI:for_pointer:NOT:PTR             //| -- |//
-#endif                                                //| -- |//
-#if defined( SIZ )                                    //| -- |//
-    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( NUM )                                    //| -- |//
-    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( ARR )                                    //| -- |//
-    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( OBJ )                                    //| -- |//
-    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-#if defined( POI )                                    //| -- |//
-    #error   POI(UPPERCASE):Used_As_Local_Macro       //| -- |//
-#endif                                                //| -- |//
-//:V_* can be confused as a local variable.           //| -- |//
-//:F_* can be confused as function pyramid type.      //| -- |//
-//:g_ : private global. (File scope variable.)        //| -- |//
-#if defined( v_1 ) || defined( V_1 )                  //| -- |//
-    #error USE: g_1,g_2,g_3,g_4 (NOT:V_)              //| -- |//
-#endif                                                //| -- |//
-#if defined( f_1 ) || defined( F_1 )                  //| -- |//
-    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| -- |//
-#endif                                                //| -- |//
-//|____________________________________________|V4_MEGAHEADER|//
+#undef       H                                        //| 52 |//
+#undef       D                                        //| 53 |//
+//://---------                                        //::--:://
+#undef     U32                                        //| 54 |//
+#undef     I32                                        //| 55 |//
+#undef     U64                                        //| 56 |//
+#undef     I64                                        //| 57 |//
+//:BANNED_MACROS:SEE[MACRO_BAN_ABOUT]:::::::::::::::////| == |//
+#if defined( MSG ) || defined( msg )                  //| == |//
+    #error DID_WINDOWS_DOT_H_GET_INCLUDED_SOMEHOW?    //| == |//
+#endif                                                //| == |//
+#if defined( PTR ) || defined( ptr )                  //| == |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| == |//
+#endif                                                //| == |//
+#if defined( SIZ )                                    //| == |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( NUM )                                    //| == |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( ARR )                                    //| == |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( OBJ )                                    //| == |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( POI )                                    //| == |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( v_1 ) || defined( VAR_1 )                //| == |//
+    //:I found a need for this. Allow it.:::::::::::////| == |//
+#endif                                                //| == |//
+#if defined( f_1 ) || defined( F_1 )                  //| == |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
+#endif                                                //| == |//
+//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
