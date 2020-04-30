@@ -1,28 +1,45 @@
 
+    //:A:About:
+    //:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA://
+    //:     Undefine Chain Files:                            ://
+    //:                                                      ://
+    //:     There is no "CHAIN_FILE.DEFINE._"                ://
+    //:     File because those macros are added              ://
+    //:     when different files are concatted               ://
+    //:     together in the building bash script.            ://
+    //:                                                      ://
+    //:     Try to undefine in the exact same                ://
+    //:     order as they were defined.                      ://
+    //:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA://
 
-    //:Undefine Chain Files:
-    //:There is no "CHAIN_FILE.DEFINE._"
-    //:File because those macros are added when
-    //:different files are concatted together in the
-    //:building bash script.
+    //:ML:MainLoop:
+    //:MLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLML://
 
-    //:looptable._
-    #undef SRC_MAINLOOP_LOOPTABLE              
+        //:looptable._
+        #undef SRC_MAINLOOP_LOOPTABLE              
 
-   
+    //:MLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLMLML://
+    //:N:Native:
+    //:NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN://
 
-    //:LoadLibrary._
-    #undef SRC_NATIVE_CALLWRAP_LOADLIBRARY  
+        //:LoadLibrary._
+        #undef SRC_NATIVE_CALLWRAP_LOADLIBRARY  
 
-    //:GetProcAddress._
-    #undef SRC_NATIVE_CALLWRAP_GETPROCADDRESS 
+        //:GetProcAddress._
+        #undef SRC_NATIVE_CALLWRAP_GETPROCADDRESS 
 
-    //:ping:
-    #undef SRC_NATIVE_PING
+        //:ping:
+        #undef SRC_NATIVE_PING
 
-    //:creation._
-    #undef SRC_NATIVE_WINDOW_CREATION
+        //:creation._
+        #undef SRC_NATIVE_WINDOW_CREATION
     
+    //:NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN://
+    //:AS:API_Setup:
+    //:ASASASASASASASASASASASASASASASASASASASASASASASASASASAS://
 
+        #undef SRC_OPENGL_SETUP_MAIN
+        #undef SRC_OPENCL_SETUP_MAIN
+        #undef SRC_VULKAN_SETUP_MAIN
 
-   
+    //:ASASASASASASASASASASASASASASASASASASASASASASASASASASAS://

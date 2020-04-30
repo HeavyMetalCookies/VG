@@ -116,7 +116,6 @@
     "[SRC/OPENCL(COMPUTE_LIB)/SETUP/main._:Dmsg]:%s\n"
     ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
 //:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG://        
-                    
 //:TYPEDEFS::TDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTDTD://
 
 
@@ -299,6 +298,36 @@
     //:SC[VK04_DECLARE_ASSERT_EXIST-(edit|paste|help)](BELOW)
 
 //:EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE:OPEN_CL_ENUMERATIONS://
+//:FILESCOPE_WHATEVERS:FWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFW://
+    
+    //|RISK: The host side type ‘cl_uint’ is guaranteed to be|//
+    //|the same format as the device side type ‘uint’.       |//
+    //|Depending of the platform,‘unsigned int’ may be       |//
+    //|something different.                                  |//
+    //|community.khronos.org/t/unsigned-int-or-cl-uint/2200  |//
+
+    #define VOD void //://///////////////////////////////////://
+  
+    //:PLATFORM_ID: cl_platform_id[ ] :::::::::::::::::::::::://
+    VOD* g_2(plat_id, pid_arr) =(  NIL  ); //:arr_dat
+    U32  g_2(plat_id, pid_num) =(   0   ); //:arr_num
+    int  g_2(plat_id, pid_cap) =( 0 - 1 ); //:arr_cap
+    int  g_2(plat_id, pid_dex) =( 0 - 1 ); //:sel_dex
+
+    //:DEVICE_ID:     cl_device_id[ ] :::::::::::::::::::::::://
+    VOD* g_2(devi_id,dev_arr)=(  NIL  ); //:arr_dat
+    U32  g_2(devi_id,dev_num)=(   0   ); //:arr_num
+    int  g_2(devi_id,dev_cap)=( 0 - 1 ); //:arr_cap
+    int  g_2(devi_id,dev_dex)=( 0 - 1 ); //:sel_dex
+    
+    //:CONTEXT:cl_context+cl_context_properties :::::::::::::://
+    VOD* g_2(con_com,context)=( NIL ); //:cl_context
+    VOD* g_2(con_com,con_pro)=( NIL ); //:cl_context_properties
+   
+    #undef  VOD //://////////////////////////////////////////://
+           
+
+//:FWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFW:FILESCOPE_WHATEVERS://
 //[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
     void EII(SRC_OPENCL_SETUP_main)(void){ //:///////////////://
 
@@ -457,6 +486,42 @@
         #undef      N   //://////////////////////////////////://
         //://////////////////////////////////////////////////://
         //:T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2T2://
+
+    //:======================================================://
+    //:ABOVE:GrabbinThemFunctionPointers:
+    //:BELOW:COG_CreateContext_OpenComputeLanguage:
+    //:======================================================://
+
+    #define VOD void //://///////////////////////////////////://
+    extern VOD* g_2(plat_id, pid_arr); //:arr_dat
+    extern U32  g_2(plat_id, pid_num); //:arr_num
+    extern int  g_2(plat_id, pid_cap); //:arr_cap
+    extern int  g_2(plat_id, pid_dex); //:sel_dex
+    #undef  VOD //://////////////////////////////////////////://
+
+        g_2(plat_id, pid_arr)  = NIL;
+        g_2(plat_id, pid_num)  = 0;
+        g_2(plat_id, pid_cap)  = 0;     
+        g_2(plat_id, pid_dex)  = 0;
+
+        #error TODO:OPENCLSTUFF
+
+    //   //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
+    //   INS(clGetPlatformIDs)(	
+    //   /**//**/  0           //: num_entries   01 ://
+    //   ,         NULL        //: platforms     02 ://
+    //   ,       &(PID->num)   //: num_platforms 03 ://
+    //   );;           
+    //   CLEB.MEM.MAL.PID( &(PID->arr), PID->num );
+    //   INS(clGetPlatformIDs)(
+    //   /**//**/  PID->num    //: num_entries   01 ://
+    //   ,         PID->arr    //: platforms     02 ://
+    //   ,         NULL        //: num_platforms 03 ://
+    //   );;
+    //   printf( "[PID->num]:%d\n"
+    //   ,         PID->num    );;    
+    //   //|________________________________________|//
+
 
 
     }    E_F(SRC_OPENCL_SETUP_main)  //://///////////////////://

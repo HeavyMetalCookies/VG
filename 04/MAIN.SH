@@ -2,9 +2,43 @@
 
 exe_SRC="exe._" ## 
 EXE_CAT () {
+
+    ##--------------------------------------------------------##
+
     echo "[INPUTS:1&2]:" $1 $2
-    cat $1     >> $exe_SRC
-    echo $'\n' >> $exe_SRC
+
+    ##--------------------------------------------------------##
+    
+    part_a="//++++++++++++++++++++++++++++++"
+    part_b="+++++++++++++++++++++++++++////{"
+    ab_lin=$part_a$part_b
+
+    part_c="//++++++++++++++++++++++++++++++"
+    part_d="++++++++++++++++++++++++++++++//"
+    cd_lin=$part_c$part_d
+
+    ##--------------------------------------------------------##
+
+    ##Top_Divider:
+    echo $cd_lin                  >> $exe_SRC
+    echo "//{//+EXE_CAT:BELOW+//:$1" >> $exe_SRC ## }
+
+    ##--------------------------------------------------------##
+
+    ##Actual_Source_File_Content:
+    echo $'\n'                    >> $exe_SRC
+    cat $1                        >> $exe_SRC
+    echo $'\n'                    >> $exe_SRC
+
+    ##--------------------------------------------------------##
+
+    ##Bot_Divider:
+    echo "//}"                       >> $exe_SRC ##CODE_FOLD
+    echo "//++++EXE_CAT:ABOVE+//:$1" >> $exe_SRC
+    echo $cd_lin                     >> $exe_SRC
+
+    ##--------------------------------------------------------##
+
 }
 >  $exe_SRC ##ERASE_OLD_FILE_CONTENTS
 
@@ -32,13 +66,13 @@ EXE_CAT "./SRC/FUNCTION_TYPEDEF_PYRAMID._"
     EXE_CAT "./SRC/MAINLOOP/looptable._"
     EXE_CAT "./SRC/NATIVE/CALLWRAP/LoadLibrary._"
     EXE_CAT "./SRC/NATIVE/CALLWRAP/GetProcAddress._"
-    EXE_CAT "./SRC/NATIVE/ping"
+    EXE_CAT "./SRC/NATIVE/ping._"
     EXE_CAT "./SRC/NATIVE/WINDOW/creation._"
 
     ## Any API interop code needs to come AFTER basic setup:
     EXE_CAT "./SRC/VULKAN/SETUP/main._" ## VK BEFORE CL
     EXE_CAT "./SRC/OPENGL/SETUP/main._" ## GL BEFORE CL
-  ##  EXE_CAT "./SRC/OPENCL/SETUP/main._" ## CL AFTER GL & VK
+    EXE_CAT "./SRC/OPENCL/SETUP/main._" ## CL AFTER GL & VK
 
 
 ################################################################

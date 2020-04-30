@@ -1,4 +1,4 @@
-//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0656AM|//
+//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
 //:ESTABLISH_NAMESPACE::::::::::::::::::::::::::::::////| == |//
 //:SEE[ SRC\PROJECT_PREFIX.DEFINE._ ]:::::::::::::::////| == |//
 //:For definitions of:               :::::::::::::::////| == |//
@@ -25,36 +25,36 @@
 #define    RET( n ) GM2(      RET,n )   //:RET_VAL::////| 15 |//
 #define    VAR( n ) GM2(      VAR,n )   //:LOCALVAR:////| 16 |//
 //:PRIVATE_VIA_OBFUSCATION:Use_As_Local_Or_Global:::////| -- |//
-#define    var( n ) GM2( v_2020_04_28_1248AM_GL , n ) //| 17 |//
-#define    eii( n ) GM2( e_2020_04_28_1248AM_GL , n ) //| 18 |//
-#define    mem( n ) GM2( m_2020_04_28_1248AM_GL , n ) //| 19 |//
-#define    ins( n ) GM2( i_2020_04_28_1248AM_GL , n ) //| 20 |//
-#define    fun( n ) GM2( f_2020_04_28_1248AM_GL , n ) //| 21 |//
-#define    typ( n ) GM2( t_2020_04_28_1248AM_GL , n ) //| 22 |//
-#define    arg( n ) GM2( a_2020_04_28_1248AM_GL , n ) //| 23 |//
-#define    ret( n ) GM2( r_2020_04_28_1248AM_GL , n ) //| 24 |//
-#define    bra( n ) GM2( b_2020_04_28_1248AM_GL , n ) //| 25 |//
-#define    sub( n ) GM2( s_2020_04_28_1248AM_GL , n ) //| 26 |//
-#define    obj( n ) GM2( o_2020_04_28_1248AM_GL , n ) //| 27 |//
-#define    poi( n ) GM2( p_2020_04_28_1248AM_GL , n ) //| 28 |//
-#define    siz( n ) GM2( S_2020_04_28_1248AM_GL , n ) //| 29 |//
-#define    num( n ) GM2( N_2020_04_28_1248AM_GL , n ) //| 30 |//
-#define    arr( n ) GM2( A_2020_04_28_1248AM_GL , n ) //| 31 |//
-#define    dex( n ) GM2( D_2020_04_28_1248AM_GL , n ) //| 32 |//
+#define    var( n ) GM2( v_2020_04_29_1123AM_GL , n ) //| 17 |//
+#define    eii( n ) GM2( e_2020_04_29_1123AM_GL , n ) //| 18 |//
+#define    mem( n ) GM2( m_2020_04_29_1123AM_GL , n ) //| 19 |//
+#define    ins( n ) GM2( i_2020_04_29_1123AM_GL , n ) //| 20 |//
+#define    fun( n ) GM2( f_2020_04_29_1123AM_GL , n ) //| 21 |//
+#define    typ( n ) GM2( t_2020_04_29_1123AM_GL , n ) //| 22 |//
+#define    arg( n ) GM2( a_2020_04_29_1123AM_GL , n ) //| 23 |//
+#define    ret( n ) GM2( r_2020_04_29_1123AM_GL , n ) //| 24 |//
+#define    bra( n ) GM2( b_2020_04_29_1123AM_GL , n ) //| 25 |//
+#define    sub( n ) GM2( s_2020_04_29_1123AM_GL , n ) //| 26 |//
+#define    obj( n ) GM2( o_2020_04_29_1123AM_GL , n ) //| 27 |//
+#define    poi( n ) GM2( p_2020_04_29_1123AM_GL , n ) //| 28 |//
+#define    siz( n ) GM2( S_2020_04_29_1123AM_GL , n ) //| 29 |//
+#define    num( n ) GM2( N_2020_04_29_1123AM_GL , n ) //| 30 |//
+#define    arr( n ) GM2( A_2020_04_29_1123AM_GL , n ) //| 31 |//
+#define    dex( n ) GM2( D_2020_04_29_1123AM_GL , n ) //| 32 |//
 //:PRIVATE_GLOBALS:(Private,but not obfuscated):::::////| -- |//
-#define    G_1(G,a    ) G ##_## a                     //| 33 |//
-#define    G_2(G,a,b  ) G ##_## a ##_## b             //| 34 |//
-#define    G_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 35 |//
-#define    g_1(a      ) G_1( lib, a      )            //| 36 |//
-#define    g_2(a,b    ) G_2( lib, a,b    )            //| 37 |//
-#define    g_3(a,b,c  ) G_3( lib, a,b,c  )            //| 38 |//
+#define  GLO_1(G,a    ) G ##_## a                     //| 33 |//
+#define  GLO_2(G,a,b  ) G ##_## a ##_## b             //| 34 |//
+#define  GLO_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 35 |//
+#define    g_1(a      ) GLO_1( lib, a      )          //| 36 |//
+#define    g_2(a,b    ) GLO_2( lib, a,b    )          //| 37 |//
+#define    g_3(a,b,c  ) GLO_3( lib, a,b,c  )          //| 38 |//
 //:Local_Variables:(Namespace=="V_")::::::::::::::::////| -- |//
-#define    V_1(V,a    ) V ##_## a                     //| 39 |//
-#define    V_2(V,a,b  ) V ##_## a ##_## b             //| 40 |//
-#define    V_3(V,a,b,c) V ##_## a ##_## b ##_## c     //| 41 |//
-#define    v_1(a      ) V_1( V, a      )              //| 42 |//
-#define    v_2(a,b    ) V_2( V, a,b    )              //| 43 |//
-#define    v_3(a,b,c  ) V_3( V, a,b,c  )              //| 44 |//
+#define  VAR_1(V,a    ) V ##_## a                     //| 39 |//
+#define  VAR_2(V,a,b  ) V ##_## a ##_## b             //| 40 |//
+#define  VAR_3(V,a,b,c) V ##_## a ##_## b ##_## c     //| 41 |//
+#define    v_1(a      ) VAR_1(   V, a      )          //| 42 |//
+#define    v_2(a,b    ) VAR_2(   V, a,b    )          //| 43 |//
+#define    v_3(a,b,c  ) VAR_3(   V, a,b,c  )          //| 44 |//
 //:MISC:::::::::::::::::::::::::::::::::::::::::::::////| -- |//
 #define termin //:TERMINAL_STRUCT_NODE://             //| 45 |//
 #define    NIL        ((void*)0)                      //| 46 |//
@@ -95,13 +95,13 @@
 //:V_* can be confused as a local variable.      :::////| == |//
 //:F_* can be confused as function pyramid type. :::////| == |//
 //:g_ : private global. (File scope variable.)   :::////| == |//
-#if defined( v_1 ) || defined( V_1 )                  //| == |//
+#if defined( v_1 ) || defined( VAR_1 )                //| == |//
     //:I found a need for this. Allow it.:::::::::::////| == |//
 #endif                                                //| == |//
 #if defined( f_1 ) || defined( F_1 )                  //| == |//
     #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
 #endif                                                //| == |//
-//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0656AM|//
+//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
 //:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
 
     //:PATH_TO_THIS_FILE_AS_ALL_CAPITAL_MACRO:
@@ -566,7 +566,7 @@
 //:AG:Any_GL:(ABOVE):________________________________________://
 
 
-//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0656AM|//
+//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
 #undef     lib                                        //| 01 |//
 #undef     LIB                                        //| 02 |//
 //://---------                                        //::--:://
@@ -605,16 +605,16 @@
 #undef     arr                                        //| 31 |//
 #undef     dex                                        //| 32 |//
 //://---------                                        //::--:://
-#undef     G_1                                        //| 33 |//
-#undef     G_2                                        //| 34 |//
-#undef     G_3                                        //| 35 |//
+#undef   GLO_1                                        //| 33 |//
+#undef   GLO_2                                        //| 34 |//
+#undef   GLO_3                                        //| 35 |//
 #undef     g_1                                        //| 36 |//
 #undef     g_2                                        //| 37 |//
 #undef     g_3                                        //| 38 |//
 //://---------                                        //::--:://
-#undef     V_1                                        //| 39 |//
-#undef     V_2                                        //| 40 |//
-#undef     V_3                                        //| 41 |//
+#undef   VAR_1                                        //| 39 |//
+#undef   VAR_2                                        //| 40 |//
+#undef   VAR_3                                        //| 41 |//
 #undef     v_1                                        //| 42 |//
 #undef     v_2                                        //| 43 |//
 #undef     v_3                                        //| 44 |//
@@ -655,13 +655,13 @@
 #if defined( POI )                                    //| == |//
     #error   POI(UPPERCASE):Used_As_Local_Macro       //| == |//
 #endif                                                //| == |//
-#if defined( v_1 ) || defined( V_1 )                  //| == |//
+#if defined( v_1 ) || defined( VAR_1 )                //| == |//
     //:I found a need for this. Allow it.:::::::::::////| == |//
 #endif                                                //| == |//
 #if defined( f_1 ) || defined( F_1 )                  //| == |//
     #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
 #endif                                                //| == |//
-//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0656AM|//
+//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
 
 
 //:COMMENTS_SECTION:

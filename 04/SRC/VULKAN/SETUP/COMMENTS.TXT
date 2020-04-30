@@ -1,0 +1,37 @@
+
+//:Comments for: VULKAN/SETUP/main._
+//://////////////////////////////////////////////////////////://
+
+//:BATSIN:
+//:     bat: Branching_Type:
+//:     sin: Sub___Instance:
+
+//: ACTUAL: ARR_SIZ_NUM_RULES:
+//:   TYPO: ARR_SIZ_NAM_RULES:
+//:     "siz,num,arr" may also be built into the
+//:     name of the variable instead of added as
+//:     a "kind". Use whatever combination allows
+//:     you to keep the base-name of the variable
+//:     as xxx_xxx.
+//:         EX: siz(tik_tok)  arr(tik_tok)
+//:         OR:     siz_tok       arr_tok
+//:
+//:     siz,num,arr are all local.
+//:     They are not qualified with the library name
+//:     or obfuscated because they are local variables.
+//:
+//:     Do NOT make them file scope.
+
+//: NESTING:
+//| The answer to that is that if you need more than 3       |//
+//| levels of indentation,you’re screwed anyway,and should   |//
+//| fix your program.                                        |//
+//| www.kernel.org/doc/html/v4.10/process/coding-style.html  |//
+
+
+//:VK_TUT_2018:
+//:     A PDF version of "vulkan-tutorial.com/"
+//:     VK_TUT_2018 is my shortcut name that opens the
+//:     tutorial on my computer.
+
+//://////////////////////////////////////////////////////////://

@@ -1,0 +1,33 @@
+
+//:LT:LoopTable:
+//:LTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLT://
+
+//:Thoughts:
+    //: function: TitleCase
+    //: variable: snake_case
+    //:   struct: alllowercase ( matches file name )
+    //:           (Inspired by ID DOOM codebase)
+
+//:Goal of this class: (The looptable class)
+//:
+//:   To maintain the chainfile concept with minimal
+//:   disruption. Before I tried solving the problem
+//:   using threads. But multi-threading leads to weird
+//:   things happening. So really shouldn't multi-thread
+//:   until you've got something basic working.
+//:
+//:   Basically, when new code that needs to be executed
+//:   every game tick is added, it can register itself
+//:   with the looptable.
+//:
+//:   This way we can still keep the whole idea of:
+//:   "I can remove any number of files from the end"
+//:   "of the list of files to compile and the project"
+//:   "still compiles and runs".
+//:
+//:   This... "Build at any layer" "chainfile" concept is
+//:   my way of making sure when shit goes really wrong
+//:   somewhere I can divide and conquere to see what
+//:   source code is probably responsible.
+
+//:LTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLTLT://

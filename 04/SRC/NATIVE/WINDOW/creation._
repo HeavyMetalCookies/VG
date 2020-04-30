@@ -1,24 +1,107 @@
-#define lib MACRO_project_prefix_HIDDEN  //:Private   //: 01 ://
-#define LIB MACRO_project_prefix_VISIBLE //:Public    //: 02 ://
-#define GM1( a , b )      a## _ ##b      //:GLUEMAC_01//: 03 ://
-#define GM2( a , b ) GM1( a   ,   b )    //:GLUEMAC_02//: 04 ://
-#define K_1( a,b,c )      a## _ ##b## _ ##c  //:KIND  //: 05 ://
-#define K_2( a,b,c ) K_1( a   ,   b   ,   c )//:KIND  //: 06 ://                                   
-#define MAK(  nam  ) K_2( LIB ,MAK, nam )//:MAK:MACRO //: 07 ://   
-#define TYP(  nam  ) K_2( LIB ,TYP, nam )//:TYP:TYPE  //: 08 ://   
-#define INS(  nam  ) K_2( LIB ,INS, nam )//:INS:INST  //: 09 ://   
-#define FUN(  nam  ) K_2( LIB ,FUN, nam )//:FUN:FUNC  //: 10 :// 
-#define EXA(  nam  ) K_2( LIB ,EXA, nam )//:EXAMPLE   //: 11 :// 
-#define VAR(  nam  ) GM2( VAR   ,   nam )//:Local_Var //: 12 ://
-                                                      //: -- ://
-//:Effectively private via obfuscation:               //: -- ://
-#define fun(  nam  ) GM2( f_2020_04_22_0657AM , nam ) //: 13 :// 
-#define  H    fun( Halt )                             //: 14 ://
-#define  D    fun( DebugPrint )                       //: 15 ://
-                                                      //: -- ://
-#define NIL ((void*)0)                                //: 16 ://
-#define ins(  nam  ) GM2( i_2020_04_22_1047PM , nam ) //: 17 ://
-#define MEM(  nam  ) K_2( LIB ,MEM, nam )// Member    //| 18 |//
+//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
+//:ESTABLISH_NAMESPACE::::::::::::::::::::::::::::::////| == |//
+//:SEE[ SRC\PROJECT_PREFIX.DEFINE._ ]:::::::::::::::////| == |//
+//:For definitions of:               :::::::::::::::////| == |//
+//:      1:    MACRO_project_prefix_HIDDEN :::::::::////| == |//
+//:      2:    MACRO_project_prefix_VISIBLE:::::::::////| == |//
+#define    lib MACRO_project_prefix_HIDDEN            //| 01 |//
+#define    LIB MACRO_project_prefix_VISIBLE           //| 02 |//
+//:TEMPORRARY_HELPER_MACROS:::::::::::::::::::::::::////| -- |//
+#define    gm2( a , b )      a## _ ##b                //| 03 |//
+#define    GM2( a , b ) gm2( a   ,   b )              //| 04 |//
+#define    gm3( a,b,c )      a## _ ##b##   _ ##c      //| 05 |//
+#define    GM3( a,b,c ) gm3( a   ,   b     ,   c )    //| 06 |//
+//:USABLE_SCOPES: VISIBLE/PUBLIC/LOCAL/GLOBAL:::::::////| -- |//
+#define    INS( n ) GM3( LIB ,INS, n )  //:INSTANCE:////| 07 |//
+#define    TYP( n ) GM3( LIB ,TYP, n )  //:TYPE:::::////| 08 |//
+#define    EII( n ) GM3( LIB ,EII, n )  //:E.I.I.:::////| 09 |//
+#define    MEM( n ) GM3( LIB ,MEM, n )  //:MEMBER:::////| 10 |//
+#define    FUN( n ) GM3( LIB ,FUN, n )  //:FUNCTION:////| 11 |//
+//:SubBranch.TYPE==BRA, SubBranch.INST==SUB:::::::::////| -- |//
+#define    BRA( n ) GM3( lib, bra,n )   //:TYPE:::::////| 12 |//
+#define    SUB( n ) GM3( lib, sub,n )   //:INSTANCE:////| 13 |//
+//:ARGument+RETurn+VARiable:Local+Public only:::::::////| -- |//
+#define    ARG( n ) GM2(      ARG,n )   //:ARGUMENT:////| 14 |//
+#define    RET( n ) GM2(      RET,n )   //:RET_VAL::////| 15 |//
+#define    VAR( n ) GM2(      VAR,n )   //:LOCALVAR:////| 16 |//
+//:PRIVATE_VIA_OBFUSCATION:Use_As_Local_Or_Global:::////| -- |//
+#define    var( n ) GM2( v_2020_04_29_1127AM_SNWC, n) //| 17 |//
+#define    eii( n ) GM2( e_2020_04_29_1127AM_SNWC, n) //| 18 |//
+#define    mem( n ) GM2( m_2020_04_29_1127AM_SNWC, n) //| 19 |//
+#define    ins( n ) GM2( i_2020_04_29_1127AM_SNWC, n) //| 20 |//
+#define    fun( n ) GM2( f_2020_04_29_1127AM_SNWC, n) //| 21 |//
+#define    typ( n ) GM2( t_2020_04_29_1127AM_SNWC, n) //| 22 |//
+#define    arg( n ) GM2( a_2020_04_29_1127AM_SNWC, n) //| 23 |//
+#define    ret( n ) GM2( r_2020_04_29_1127AM_SNWC, n) //| 24 |//
+#define    bra( n ) GM2( b_2020_04_29_1127AM_SNWC, n) //| 25 |//
+#define    sub( n ) GM2( s_2020_04_29_1127AM_SNWC, n) //| 26 |//
+#define    obj( n ) GM2( o_2020_04_29_1127AM_SNWC, n) //| 27 |//
+#define    poi( n ) GM2( p_2020_04_29_1127AM_SNWC, n) //| 28 |//
+#define    siz( n ) GM2( S_2020_04_29_1127AM_SNWC, n) //| 29 |//
+#define    num( n ) GM2( N_2020_04_29_1127AM_SNWC, n) //| 30 |//
+#define    arr( n ) GM2( A_2020_04_29_1127AM_SNWC, n) //| 31 |//
+#define    dex( n ) GM2( D_2020_04_29_1127AM_SNWC, n) //| 32 |//
+//:PRIVATE_GLOBALS:(Private,but not obfuscated):::::////| -- |//
+#define  GLO_1(G,a    ) G ##_## a                     //| 33 |//
+#define  GLO_2(G,a,b  ) G ##_## a ##_## b             //| 34 |//
+#define  GLO_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 35 |//
+#define    g_1(a      ) GLO_1( lib, a      )          //| 36 |//
+#define    g_2(a,b    ) GLO_2( lib, a,b    )          //| 37 |//
+#define    g_3(a,b,c  ) GLO_3( lib, a,b,c  )          //| 38 |//
+//:Local_Variables:(Namespace=="V_")::::::::::::::::////| -- |//
+#define  VAR_1(V,a    ) V ##_## a                     //| 39 |//
+#define  VAR_2(V,a,b  ) V ##_## a ##_## b             //| 40 |//
+#define  VAR_3(V,a,b,c) V ##_## a ##_## b ##_## c     //| 41 |//
+#define    v_1(a      ) VAR_1(   V, a      )          //| 42 |//
+#define    v_2(a,b    ) VAR_2(   V, a,b    )          //| 43 |//
+#define    v_3(a,b,c  ) VAR_3(   V, a,b,c  )          //| 44 |//
+//:MISC:::::::::::::::::::::::::::::::::::::::::::::////| -- |//
+#define termin //:TERMINAL_STRUCT_NODE://             //| 45 |//
+#define    NIL        ((void*)0)                      //| 46 |//
+#define    E_S(  nam  )   ;  // END_STRUCT            //| 47 |//
+#define    E_F(  nam  )      // END_FUNCTION          //| 48 |//
+#define      s ;                                      //| 49 |//
+#define      S ;                                      //| 50 |//
+#define      _                                        //| 51 |//
+#define      H          fun( Halt )                   //| 52 |//
+#define      D          fun( Dmsg )                   //| 53 |//
+//:PRIMITIVE_TYPES::::::::::::::::::::::::::::::::::////| -- |//
+#define    U32 unsigned           int                 //| 54 |//
+#define    I32 signed             int                 //| 55 |//
+#define    U64 unsigned long long int                 //| 56 |//
+#define    I64 signed   long long int                 //| 57 |//
+//:BANNED_MACROS:SEE[MACRO_BAN_ABOUT]:::::::::::::::////| == |//
+#if defined( MSG ) || defined( msg )                  //| == |//
+    #error DID_WINDOWS_DOT_H_GET_INCLUDED_SOMEHOW?    //| == |//
+#endif                                                //| == |//
+#if defined( PTR ) || defined( ptr )                  //| == |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| == |//
+#endif                                                //| == |//
+#if defined( SIZ )                                    //| == |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( NUM )                                    //| == |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( ARR )                                    //| == |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( OBJ )                                    //| == |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( POI )                                    //| == |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+//:V_* can be confused as a local variable.      :::////| == |//
+//:F_* can be confused as function pyramid type. :::////| == |//
+//:g_ : private global. (File scope variable.)   :::////| == |//
+#if defined( v_1 ) || defined( VAR_1 )                //| == |//
+    //:I found a need for this. Allow it.:::::::::::////| == |//
+#endif                                                //| == |//
+#if defined( f_1 ) || defined( F_1 )                  //| == |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
+#endif                                                //| == |//
+//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
 //:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
 
     //:path to this file:
@@ -223,36 +306,14 @@
 
 //:IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII: INSTANCES://
 
-
-
-
-
-
-//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
-//[H:Halt: The_First_Function_Is_Always_Halt                 ]//
-//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//                                               
-/*-//[*/                                                /*]//-*/
-/*-//[*/    static void                                 /*]//-*/
-/*-//[*/    fun(Halt)( const char* msg ){               /*]//-*/
-/*-//[*/        printf(                                 /*]//-*/
-/*-//[*/            "[2020_04_08:Halt]:%s\n"            /*]//-*/
-/*-//[*/        ,   msg                                 /*]//-*/
-/*-//[*/        );;                                     /*]//-*/
-/*-//[*/        fflush(stdout); exit(64);               /*]//-*/
-/*-//[*/    }                                           /*]//-*/
-/*-//[*/                                                /*]//-*/
-//[HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH]//
-
-    static void
-    fun( DebugPrint )( const char* msg ){
-        printf("[2020_04_22:DebugPrint:MSG]:%s\n",msg);
-        fflush( stdout );
-    }
-
-
-
-
-
+//:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://                                      
+    static void fun(Halt)( const char* msg ){printf( //:- - -://                       
+    "[SRC/NATIVE/WINDOW/creation._:Halt]:%s\n"
+    , msg);;fflush(stdout);exit(0xF0);}//:- - - - - - - - - -://   
+    static void fun(Dmsg)( const char* msg ){printf(
+    "[SRC/NATIVE/WINDOW/creation._:Dmsg]:%s\n"
+    ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
+//:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG:// 
 
 int FUN( SRC_NATIVE_WINDOW_creation )( void ){
 printf("[SRC_NATIVE_WINDOW_creation]\n");
@@ -1142,147 +1203,99 @@ fun(WinMsgHanWndPoc)(
         return( ins(con_win) );
     }
 
-#undef  lib ////////////////////////////////////////////: 01 ://
-#undef  LIB ////////////////////////////////////////////: 02 ://
-#undef  GM1 ////////////////////////////////////////////: 03 ://
-#undef  GM2 ////////////////////////////////////////////: 04 ://
-#undef  K_1 ////////////////////////////////////////////: 05 ://
-#undef  K_2 ////////////////////////////////////////////: 06 ://                                   
-#undef  MAK ////////////////////////////////////////////: 07 ://   
-#undef  TYP ////////////////////////////////////////////: 08 ://   
-#undef  INS ////////////////////////////////////////////: 09 ://   
-#undef  FUN ////////////////////////////////////////////: 10 ://
-#undef  EXA ////////////////////////////////////////////: 11 ://
-#undef  VAR ////////////////////////////////////////////: 12 ://
-#undef  fun ////////////////////////////////////////////: 13 ://
-#undef   H  ////////////////////////////////////////////: 14 ://
-#undef   D  ////////////////////////////////////////////: 15 ://
-#undef  NIL ////////////////////////////////////////////: 16 ://
-#undef  ins ////////////////////////////////////////////: 17 ://
-#undef  MEM ////////////////////////////////////////////: 18 ://
-
-
-//:Comments Section:                                         ://
-//:HBR_BACKGROUND_CAN_BE_NULL_FOR_VULKAN_WINDOW              ://
-//                                                            //
-//      //| Looking at:                            |//        //
-//      //| https://github.com/glfw/glfw/blob/     |//        //
-//      //| master/src/win32_window.c              |//        //
-//      //| does not look like background          |//        //
-//      //| brush color eneds to be set.           |//        //
-//      //|                                        |//        //
-//      //| Code here specifically says:           |//        //
-//      //| "No Background Required For GL"        |//        //
-//      //| http://nehe.gamedev.net/tutorial       |//        //
-//      //| /creating_an_opengl_window_(win32)     |//        //
-//      //| /13001/                                |//        //
-//      //- W.hbrBackground=(                      -//        //
-//      //-     /**/(HBRUSH)                       -//        //
-//      //-     /**/ FP->GDI32.GetStockObject(     -//        //
-//      //-     /**/     FP->GDI32.DATA.BRUSH.BLACK-//        //
-//      //-     /**/)                              -//        //
-//      //- );;                                    -//        //
-//                                                            //
-//      Comment originally taken from:                        //
-//      V:\VG\03\VG03.ALL                                     //
-//                                                            //
-//      And I ran it and got a window that vulkan liked,      //
-//      so I know this to be true.                            //
-//                                                            //
-//      DATE[ 2020_04_22 ]                                    //
-
-
-//:WM:WM_PAINT_COMMENTS_SECTION:
-//:WMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWM://
-////    //:[TODO]:Something to pace the updating            ////
-////    //:of graphics.                                     ////
-////                                                        ////
-////                                                        ////
-////    //+ DELETE THIS BLOCK +//                           ////
-////    //- //:I dont think this is needed:         -//     ////
-////    //- //: You may use the same HDC in both    -//     ////
-////    //- //: threads, but not at the same time.  -//     ////
-////    //- //: SEE[ gl-hdc-thread-quote ]          -//     ////
-////    //- if(GLEB_SWIN.render_tick_function_has){ -//     ////
-////    //-    GLEB_SWIN.render_tick_function();    -//     ////
-////    //- };;                                     -//     ////
-////                                                        ////
-////    //: This might be better done setting a flag        ////
-////    //: than using a callback. In order to prevent      ////
-////    //: drawing code from being invoked on the          ////
-////    //: wrong thread.                                   ////
-////                                                        ////
-////    //: With that said, setting a flag:                 ////
-////    //- ENGETHER.THREADING.InterlockedIncrement64( -//  ////
-////    //-     &( GLEB_SWIN.THREAD_SAFE_FLAGS.        -//  ////
-////    //-        redraw_message_count )              -//  ////
-////    //- );;                                        -//  ////
-////                                                        ////
-////                                                        ////
-////    //+ This call needs to be made from    +//          ////
-////    //+ the same thread as your OpenGL     +//          ////
-////    //+ calls.                             +//          ////
-////    //# DONT_HERE:GLEB_SWIN_SwapBuffers(); #//          ////
-//:WMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWM://
-
-
-//:Stupid needless optimization. You can spare 64bits
-//:to hold onto the function pointer for the duration
-//:of the program.
-///// int fun( DestroyWindow )( void* han_win ){
-///// 
-/////     //:Grab function pointer to: "DestroyWindow":
-/////     ////////////////////////////////////////////////////////////
-/////     TYP(FUN) VAR(DestroyWindow)=
-/////     FUN(GetProcAddress)("dll_u32","DestroyWindow");
-///// 
-/////     if( ((void*)0) != VAR(DestroyWindow) ){
-/////         D("[SUCCESS:GOT_FUNC_PTR:DestroyWindow]");
-/////     }else{
-/////         H("[FAILURE:GOT_FUNC_PTR:DestroyWindow]");
-/////     };;
-/////     ////////////////////////////////////////////////////////////
-///// 
-/////     int RET( DestroyWindow )=((int)
-/////     ((TYP(F_01))VAR(DestroyWindow))(
-/////         han_win
-/////     ));;
-///// 
-/////     return( RET( DestroyWindow ) );
-///// };;
-
-    ////////////////////////////////////////////////////////////
-    //- DONT DO THIS:                                        -//
-    //- 1: Synonymous ways of referring to the same thing    -//
-    //-    in code is BAD. (harder to find all references)   -//
-    //-                                                      -//
-    //- 2: The original reason you were about to do this     -//
-    //-    was you saw TYP(LoadIconA) when it should have    -//
-    //-    been:       INS(LoadIconA).                       -//
-    //-                                                      -//
-    //-    Adding synonym would make bug harder to spot.     -//
-    //-                                                      -//
-    //:In case you want to refer to function pointer's
-    //:type as the name of the function pointer:
-    //: typedef     TYP(CreateWindowExW  ) TYP(FUN);
-    //: typedef     TYP(GetDesktopWindow ) TYP(FUN);
-    //: typedef     TYP(RegisterClassExW ) TYP(FUN);
-    //: typedef     TYP(LoadIconA        ) TYP(FUN);
-    //: typedef     TYP(LoadCursorA      ) TYP(FUN);
-    //: typedef     TYP(GetModuleHandleW ) TYP(FUN);
-    //: typedef     TYP(DefWindowProcW   ) TYP(FUN);
-    //: typedef     TYP(DestroyWindow    ) TYP(FUN);
-    //: typedef     TYP(PostQuitMessage  ) TYP(FUN);    
-    ////////////////////////////////////////////////////////////
-
-    //:Problem with PFN(SomeFunction)
-    //:
-    //:1: Is it a TYPE or the actual pointer?
-    //:2: Since you do: FunctionsThisWay
-    //:   and variables_this_way
-    //:   Is there really any benifit since you can tell:
-    //:
-    //:  INS( SomeThing  )   <-- function pointer instance
-    //:  INS( some_thing )   <-- data instance
-    //:  TYP( FUN )          <-- A TYPE that is "function" (PFN)
-    //:  FUN( SomeThing  )   <-- A function name
+//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
+#undef     lib                                        //| 01 |//
+#undef     LIB                                        //| 02 |//
+//://---------                                        //::--:://
+#undef     gm2                                        //| 03 |//
+#undef     GM2                                        //| 04 |//
+#undef     gm3                                        //| 05 |//
+#undef     GM3                                        //| 06 |//
+//://---------                                        //::--:://
+#undef     INS                                        //| 07 |//
+#undef     TYP                                        //| 08 |//
+#undef     EII                                        //| 09 |//
+#undef     MEM                                        //| 10 |//
+#undef     FUN                                        //| 11 |//
+//://---------                                        //::--:://
+#undef     BRA                                        //| 12 |//
+#undef     SUB                                        //| 13 |//
+//://---------                                        //::--:://
+#undef     ARG                                        //| 14 |//
+#undef     RET                                        //| 15 |//
+#undef     VAR                                        //| 16 |//
+//://---------                                        //::--:://
+#undef     var                                        //| 17 |//
+#undef     eii                                        //| 18 |//
+#undef     mem                                        //| 19 |//
+#undef     ins                                        //| 20 |//
+#undef     fun                                        //| 21 |//
+#undef     typ                                        //| 22 |//
+#undef     arg                                        //| 23 |//
+#undef     ret                                        //| 24 |//
+#undef     bra                                        //| 25 |//
+#undef     sub                                        //| 26 |//
+#undef     obj                                        //| 27 |//
+#undef     poi                                        //| 28 |//
+#undef     siz                                        //| 29 |//
+#undef     num                                        //| 30 |//
+#undef     arr                                        //| 31 |//
+#undef     dex                                        //| 32 |//
+//://---------                                        //::--:://
+#undef   GLO_1                                        //| 33 |//
+#undef   GLO_2                                        //| 34 |//
+#undef   GLO_3                                        //| 35 |//
+#undef     g_1                                        //| 36 |//
+#undef     g_2                                        //| 37 |//
+#undef     g_3                                        //| 38 |//
+//://---------                                        //::--:://
+#undef   VAR_1                                        //| 39 |//
+#undef   VAR_2                                        //| 40 |//
+#undef   VAR_3                                        //| 41 |//
+#undef     v_1                                        //| 42 |//
+#undef     v_2                                        //| 43 |//
+#undef     v_3                                        //| 44 |//
+//://---------                                        //::--:://
+#undef  termin                                        //| 45 |//
+#undef     NIL                                        //| 46 |//
+#undef     E_S                                        //| 47 |//
+#undef     E_F                                        //| 48 |//
+#undef       s                                        //| 49 |//
+#undef       S                                        //| 50 |//
+#undef       _                                        //| 51 |//
+#undef       H                                        //| 52 |//
+#undef       D                                        //| 53 |//
+//://---------                                        //::--:://
+#undef     U32                                        //| 54 |//
+#undef     I32                                        //| 55 |//
+#undef     U64                                        //| 56 |//
+#undef     I64                                        //| 57 |//
+//:BANNED_MACROS:SEE[MACRO_BAN_ABOUT]:::::::::::::::////| == |//
+#if defined( MSG ) || defined( msg )                  //| == |//
+    #error DID_WINDOWS_DOT_H_GET_INCLUDED_SOMEHOW?    //| == |//
+#endif                                                //| == |//
+#if defined( PTR ) || defined( ptr )                  //| == |//
+    #error WE_USE:POI:for_pointer:NOT:PTR             //| == |//
+#endif                                                //| == |//
+#if defined( SIZ )                                    //| == |//
+    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( NUM )                                    //| == |//
+    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( ARR )                                    //| == |//
+    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( OBJ )                                    //| == |//
+    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( POI )                                    //| == |//
+    #error   POI(UPPERCASE):Used_As_Local_Macro       //| == |//
+#endif                                                //| == |//
+#if defined( v_1 ) || defined( VAR_1 )                //| == |//
+    //:I found a need for this. Allow it.:::::::::::////| == |//
+#endif                                                //| == |//
+#if defined( f_1 ) || defined( F_1 )                  //| == |//
+    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
+#endif                                                //| == |//
+//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//

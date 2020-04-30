@@ -1,0 +1,124 @@
+//:Comments Section:                                         ://
+//:HBR_BACKGROUND_CAN_BE_NULL_FOR_VULKAN_WINDOW              ://
+//                                                            //
+//      //| Looking at:                            |//        //
+//      //| https://github.com/glfw/glfw/blob/     |//        //
+//      //| master/src/win32_window.c              |//        //
+//      //| does not look like background          |//        //
+//      //| brush color eneds to be set.           |//        //
+//      //|                                        |//        //
+//      //| Code here specifically says:           |//        //
+//      //| "No Background Required For GL"        |//        //
+//      //| http://nehe.gamedev.net/tutorial       |//        //
+//      //| /creating_an_opengl_window_(win32)     |//        //
+//      //| /13001/                                |//        //
+//      //- W.hbrBackground=(                      -//        //
+//      //-     /**/(HBRUSH)                       -//        //
+//      //-     /**/ FP->GDI32.GetStockObject(     -//        //
+//      //-     /**/     FP->GDI32.DATA.BRUSH.BLACK-//        //
+//      //-     /**/)                              -//        //
+//      //- );;                                    -//        //
+//                                                            //
+//      Comment originally taken from:                        //
+//      V:\VG\03\VG03.ALL                                     //
+//                                                            //
+//      And I ran it and got a window that vulkan liked,      //
+//      so I know this to be true.                            //
+//                                                            //
+//      DATE[ 2020_04_22 ]                                    //
+
+
+//:WM:WM_PAINT_COMMENTS_SECTION:
+//:WMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWM://
+////    //:[TODO]:Something to pace the updating            ////
+////    //:of graphics.                                     ////
+////                                                        ////
+////                                                        ////
+////    //+ DELETE THIS BLOCK +//                           ////
+////    //- //:I dont think this is needed:         -//     ////
+////    //- //: You may use the same HDC in both    -//     ////
+////    //- //: threads, but not at the same time.  -//     ////
+////    //- //: SEE[ gl-hdc-thread-quote ]          -//     ////
+////    //- if(GLEB_SWIN.render_tick_function_has){ -//     ////
+////    //-    GLEB_SWIN.render_tick_function();    -//     ////
+////    //- };;                                     -//     ////
+////                                                        ////
+////    //: This might be better done setting a flag        ////
+////    //: than using a callback. In order to prevent      ////
+////    //: drawing code from being invoked on the          ////
+////    //: wrong thread.                                   ////
+////                                                        ////
+////    //: With that said, setting a flag:                 ////
+////    //- ENGETHER.THREADING.InterlockedIncrement64( -//  ////
+////    //-     &( GLEB_SWIN.THREAD_SAFE_FLAGS.        -//  ////
+////    //-        redraw_message_count )              -//  ////
+////    //- );;                                        -//  ////
+////                                                        ////
+////                                                        ////
+////    //+ This call needs to be made from    +//          ////
+////    //+ the same thread as your OpenGL     +//          ////
+////    //+ calls.                             +//          ////
+////    //# DONT_HERE:GLEB_SWIN_SwapBuffers(); #//          ////
+//:WMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWMWM://
+
+
+//:Stupid needless optimization. You can spare 64bits
+//:to hold onto the function pointer for the duration
+//:of the program.
+///// int fun( DestroyWindow )( void* han_win ){
+///// 
+/////     //:Grab function pointer to: "DestroyWindow":
+/////     ////////////////////////////////////////////////////////////
+/////     TYP(FUN) VAR(DestroyWindow)=
+/////     FUN(GetProcAddress)("dll_u32","DestroyWindow");
+///// 
+/////     if( ((void*)0) != VAR(DestroyWindow) ){
+/////         D("[SUCCESS:GOT_FUNC_PTR:DestroyWindow]");
+/////     }else{
+/////         H("[FAILURE:GOT_FUNC_PTR:DestroyWindow]");
+/////     };;
+/////     ////////////////////////////////////////////////////////////
+///// 
+/////     int RET( DestroyWindow )=((int)
+/////     ((TYP(F_01))VAR(DestroyWindow))(
+/////         han_win
+/////     ));;
+///// 
+/////     return( RET( DestroyWindow ) );
+///// };;
+
+    ////////////////////////////////////////////////////////////
+    //- DONT DO THIS:                                        -//
+    //- 1: Synonymous ways of referring to the same thing    -//
+    //-    in code is BAD. (harder to find all references)   -//
+    //-                                                      -//
+    //- 2: The original reason you were about to do this     -//
+    //-    was you saw TYP(LoadIconA) when it should have    -//
+    //-    been:       INS(LoadIconA).                       -//
+    //-                                                      -//
+    //-    Adding synonym would make bug harder to spot.     -//
+    //-                                                      -//
+    //:In case you want to refer to function pointer's
+    //:type as the name of the function pointer:
+    //: typedef     TYP(CreateWindowExW  ) TYP(FUN);
+    //: typedef     TYP(GetDesktopWindow ) TYP(FUN);
+    //: typedef     TYP(RegisterClassExW ) TYP(FUN);
+    //: typedef     TYP(LoadIconA        ) TYP(FUN);
+    //: typedef     TYP(LoadCursorA      ) TYP(FUN);
+    //: typedef     TYP(GetModuleHandleW ) TYP(FUN);
+    //: typedef     TYP(DefWindowProcW   ) TYP(FUN);
+    //: typedef     TYP(DestroyWindow    ) TYP(FUN);
+    //: typedef     TYP(PostQuitMessage  ) TYP(FUN);    
+    ////////////////////////////////////////////////////////////
+
+    //:Problem with PFN(SomeFunction)
+    //:
+    //:1: Is it a TYPE or the actual pointer?
+    //:2: Since you do: FunctionsThisWay
+    //:   and variables_this_way
+    //:   Is there really any benifit since you can tell:
+    //:
+    //:  INS( SomeThing  )   <-- function pointer instance
+    //:  INS( some_thing )   <-- data instance
+    //:  TYP( FUN )          <-- A TYPE that is "function" (PFN)
+    //:  FUN( SomeThing  )   <-- A function name
