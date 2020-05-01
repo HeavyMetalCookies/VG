@@ -1032,7 +1032,17 @@
                     printf("[RESOLVES_TO:<OPEN_CL*>.dll]\n");
 
             const char* TODO_ADD_ABILITY_TO_SET_SEARCH_PATH_FOR_DLL_FILES=(
-                "C:/Program Files/NVIDIA Corporation/OpenCL/OpenCL64.dll"
+              //:  "C:/Program Files/NVIDIA Corporation/OpenCL/OpenCL64.dll"
+              //:  "C:/Program Files/NVIDIA Corporation/OpenCL/OpenCL.dll"
+                "OpenCL.dll"
+
+                //#TODO#////[TODO]////+TODO+////|TODO|//!!!!!!!!
+                //# Grabbing the WRONG DLL will allow you to #//
+                //# successfully load function pointers, but #//
+                //# when you call: clGetPlatformIDs you will #//
+                //# Get Error:                               #//
+                //# 0xFFFFFC17:CL_PLATFORM_NOT_FOUND_KHR     #//
+
             );;
 
             VAR(Data)=DLLL_LoadLibraryA(
@@ -2867,628 +2877,6 @@ fun(WinMsgHanWndPoc)(
 //++++EXE_CAT:ABOVE+//:./SRC/NATIVE/WINDOW/creation._
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-//{//+EXE_CAT:BELOW+//:./SRC/VULKAN/SETUP/main._
-
-
-//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
-//:ESTABLISH_NAMESPACE::::::::::::::::::::::::::::::////| == |//
-//:SEE[ SRC\PROJECT_PREFIX.DEFINE._ ]:::::::::::::::////| == |//
-//:For definitions of:               :::::::::::::::////| == |//
-//:      1:    MACRO_project_prefix_HIDDEN :::::::::////| == |//
-//:      2:    MACRO_project_prefix_VISIBLE:::::::::////| == |//
-#define    lib MACRO_project_prefix_HIDDEN            //| 01 |//
-#define    LIB MACRO_project_prefix_VISIBLE           //| 02 |//
-//:TEMPORRARY_HELPER_MACROS:::::::::::::::::::::::::////| -- |//
-#define    gm2( a , b )      a## _ ##b                //| 03 |//
-#define    GM2( a , b ) gm2( a   ,   b )              //| 04 |//
-#define    gm3( a,b,c )      a## _ ##b##   _ ##c      //| 05 |//
-#define    GM3( a,b,c ) gm3( a   ,   b     ,   c )    //| 06 |//
-//:USABLE_SCOPES: VISIBLE/PUBLIC/LOCAL/GLOBAL:::::::////| -- |//
-#define    INS( n ) GM3( LIB ,INS, n )  //:INSTANCE:////| 07 |//
-#define    TYP( n ) GM3( LIB ,TYP, n )  //:TYPE:::::////| 08 |//
-#define    EII( n ) GM3( LIB ,EII, n )  //:E.I.I.:::////| 09 |//
-#define    MEM( n ) GM3( LIB ,MEM, n )  //:MEMBER:::////| 10 |//
-#define    FUN( n ) GM3( LIB ,FUN, n )  //:FUNCTION:////| 11 |//
-//:SubBranch.TYPE==BRA, SubBranch.INST==SUB:::::::::////| -- |//
-#define    BRA( n ) GM3( lib, bra,n )   //:TYPE:::::////| 12 |//
-#define    SUB( n ) GM3( lib, sub,n )   //:INSTANCE:////| 13 |//
-//:ARGument+RETurn+VARiable:Local+Public only:::::::////| -- |//
-#define    ARG( n ) GM2(      ARG,n )   //:ARGUMENT:////| 14 |//
-#define    RET( n ) GM2(      RET,n )   //:RET_VAL::////| 15 |//
-#define    VAR( n ) GM2(      VAR,n )   //:LOCALVAR:////| 16 |//
-//:PRIVATE_VIA_OBFUSCATION:Use_As_Local_Or_Global:::////| -- |//
-#define    var( n ) GM2( v_2020_04_29_1121_VK , n )   //| 17 |//
-#define    eii( n ) GM2( e_2020_04_29_1121_VK , n )   //| 18 |//
-#define    mem( n ) GM2( m_2020_04_29_1121_VK , n )   //| 19 |//
-#define    ins( n ) GM2( i_2020_04_29_1121_VK , n )   //| 20 |//
-#define    fun( n ) GM2( f_2020_04_29_1121_VK , n )   //| 21 |//
-#define    typ( n ) GM2( t_2020_04_29_1121_VK , n )   //| 22 |//
-#define    arg( n ) GM2( a_2020_04_29_1121_VK , n )   //| 23 |//
-#define    ret( n ) GM2( r_2020_04_29_1121_VK , n )   //| 24 |//
-#define    bra( n ) GM2( b_2020_04_29_1121_VK , n )   //| 25 |//
-#define    sub( n ) GM2( s_2020_04_29_1121_VK , n )   //| 26 |//
-#define    obj( n ) GM2( o_2020_04_29_1121_VK , n )   //| 27 |//
-#define    poi( n ) GM2( p_2020_04_29_1121_VK , n )   //| 28 |//
-#define    siz( n ) GM2( S_2020_04_29_1121_VK , n )   //| 29 |//
-#define    num( n ) GM2( N_2020_04_29_1121_VK , n )   //| 30 |//
-#define    arr( n ) GM2( A_2020_04_29_1121_VK , n )   //| 31 |//
-#define    dex( n ) GM2( D_2020_04_29_1121_VK , n )   //| 32 |//
-//:PRIVATE_GLOBALS:(Private,but not obfuscated):::::////| -- |//
-#define  GLO_1(G,a    ) G ##_## a                     //| 33 |//
-#define  GLO_2(G,a,b  ) G ##_## a ##_## b             //| 34 |//
-#define  GLO_3(G,a,b,c) G ##_## a ##_## b ##_## c     //| 35 |//
-#define    g_1(a      ) GLO_1( lib, a      )          //| 36 |//
-#define    g_2(a,b    ) GLO_2( lib, a,b    )          //| 37 |//
-#define    g_3(a,b,c  ) GLO_3( lib, a,b,c  )          //| 38 |//
-//:Local_Variables:(Namespace=="V_")::::::::::::::::////| -- |//
-#define  VAR_1(V,a    ) V ##_## a                     //| 39 |//
-#define  VAR_2(V,a,b  ) V ##_## a ##_## b             //| 40 |//
-#define  VAR_3(V,a,b,c) V ##_## a ##_## b ##_## c     //| 41 |//
-#define    v_1(a      ) VAR_1(   V, a      )          //| 42 |//
-#define    v_2(a,b    ) VAR_2(   V, a,b    )          //| 43 |//
-#define    v_3(a,b,c  ) VAR_3(   V, a,b,c  )          //| 44 |//
-//:MISC:::::::::::::::::::::::::::::::::::::::::::::////| -- |//
-#define termin //:TERMINAL_STRUCT_NODE://             //| 45 |//
-#define    NIL        ((void*)0)                      //| 46 |//
-#define    E_S(  nam  )   ;  // END_STRUCT            //| 47 |//
-#define    E_F(  nam  )      // END_FUNCTION          //| 48 |//
-#define      s ;                                      //| 49 |//
-#define      S ;                                      //| 50 |//
-#define      _                                        //| 51 |//
-#define      H          fun( Halt )                   //| 52 |//
-#define      D          fun( Dmsg )                   //| 53 |//
-//:PRIMITIVE_TYPES::::::::::::::::::::::::::::::::::////| -- |//
-#define    U32 unsigned           int                 //| 54 |//
-#define    I32 signed             int                 //| 55 |//
-#define    U64 unsigned long long int                 //| 56 |//
-#define    I64 signed   long long int                 //| 57 |//
-//:BANNED_MACROS:SEE[MACRO_BAN_ABOUT]:::::::::::::::////| == |//
-#if defined( MSG ) || defined( msg )                  //| == |//
-    #error DID_WINDOWS_DOT_H_GET_INCLUDED_SOMEHOW?    //| == |//
-#endif                                                //| == |//
-#if defined( PTR ) || defined( ptr )                  //| == |//
-    #error WE_USE:POI:for_pointer:NOT:PTR             //| == |//
-#endif                                                //| == |//
-#if defined( SIZ )                                    //| == |//
-    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-#if defined( NUM )                                    //| == |//
-    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-#if defined( ARR )                                    //| == |//
-    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-#if defined( OBJ )                                    //| == |//
-    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-#if defined( POI )                                    //| == |//
-    #error   POI(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-//:V_* can be confused as a local variable.      :::////| == |//
-//:F_* can be confused as function pyramid type. :::////| == |//
-//:g_ : private global. (File scope variable.)   :::////| == |//
-#if defined( v_1 ) || defined( VAR_1 )                //| == |//
-    //:I found a need for this. Allow it.:::::::::::////| == |//
-#endif                                                //| == |//
-#if defined( f_1 ) || defined( F_1 )                  //| == |//
-    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
-#endif                                                //| == |//
-//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
-//:CHAINFILE_MACRO:  CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM://
-
-    //[[////////////////////////////////////////////////////]]//
-    //[]////#   Experiment:                            #////[]//
-    //[]////#   Instead of trying to make something    #////[]//
-    //[]////#   pronouncable, abbreviation rules will  #////[]//
-    //[]////#   be the first three letters of word.    #////[]//
-    //[]////#   All variables 2 words long.            #////[]//
-    //[[////////////////////////////////////////////////////]]//
-
-    //:PATH_TO_THIS_FILE_AS_ALL_CAPITAL_MACRO:
-    #define  SRC_VULKAN_SETUP_MAIN ( 7623 )
-
-//:CMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCMCM  :CHAINFILE_MACRO://
-//[1111111111111111111111111111111111111111111111111111111111]//
-
-    //:Things I'd like you to notice first:
-    #define E extern TYP(FUN) //:////////////////////////////://
-            E INS(vkCreateInstance);
-            E INS(vkEnumerateInstanceExtensionProperties);
-    #undef  E //:////////////////////////////////////////////://
-
-//[1111111111111111111111111111111111111111111111111111111111]//
-//:HALT_and_DEBUG: HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD://
-    static void fun(Halt)( const char* msg ){printf( //:- - -://
-    "[SRC_VULKAN_SETUP_MAIN:Halt]:%s\n"
-    , msg);;fflush(stdout);exit(0xF0);}//:- - - - - - - - - -://
-    static void fun(Dmsg)( const char* msg ){printf(
-    "[SRC_VULKAN_SETUP_MAIN:Dmsg]:%s\n"
-    ,msg);;fflush(stdout);}//:- - - - - - - - - - - - - - - -://
-//:HDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHDHD :HALT_and_DEBUG://
-//:VULKAN_DLL_FUNCTION_POINTERS:////:////////////////////////://
-
-    #define F TYP(FUN) //:///////////////////////////////////://
-    #define N =( NIL );//:///////////////////////////////////://
-            F INS(vkCreateInstance)                            N
-            F INS(vkEnumerateInstanceExtensionProperties)      N
-    #undef  N //:////////////////////////////////////////////://
-    #undef  F //:////////////////////////////////////////////://
-
-//:////////////////////////:////:VULKAN_DLL_FUNCTION_POINTERS://
-//:TYPEDEFS_NODEPS: :T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0://
-
-    //:Typedefs that do not rely on struct definitions.
-    typedef void* typ(        vuk_ins) ;//:VkInstance
-
-    struct typ(app_inf) {          //:VkApplicationInfo
-        unsigned int      sType;   //:VkStructureType
-        const void*       pNext;
-        const char*       pApplicationName;
-        unsigned int      applicationVersion; //:uint32_t
-        const char*       pEngineName;
-        unsigned int      engineVersion;      //:unsigned int
-        unsigned int      apiVersion;         //:unsigned int
-    }E_S(app_inf)
-
-    //:VkExtensionProperties
-    struct TYP(ext_pro){
-        //:ext_nam: extensionName
-        char MEM(ext_nam)[ 256 /*VK_MAX_EXTENSION_NAME_SIZE*/ ];
-
-        //:spe_ver: specVersion
-        U32 MEM(spe_ver); /** uint32_t **/
-
-    }E_S(ext_pro)
-
-//:T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0: :TYPEDEFS_NODEPS://
-//:TYPEDEFS_01_DEP:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1://
-    //:-------:cre_inf.vuk_ins:------------------------------://
-    struct typ(cre_inf_vuk_ins) {   //:VkInstanceCreateInfo
-        unsigned int         sType; //:VkStructureType
-        const   void*        pNext;
-        unsigned int         flags;
-
-                             //:AKA:pApplicationInfo
-        const struct         //:AKA:VkApplicationInfo*
-                             typ(app_inf)*
-                             poi(app_inf);
-
-        unsigned      int    enabledLayerCount;
-        const char* const*   ppEnabledLayerNames;
-
-        //:Is "const char**" same as "const char* const*" ?
-        //:In fact.. Both are "char**" with extra constraints.
-
-        unsigned     int     enabledExtensionCount;
-        const char* const*   ppEnabledExtensionNames;
-    }E_S(cre_inf_vuk_ins)
-//:T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1T1:TYPEDEFS_01_DEP://
-//:FILESCOPE_GLOBALS::GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG://
-
-    //:Global variables used to setup our main Vulkan_Struct.
-    //:( Vulkan_Struct == struct typ(vuk_mai) == vulkan_main )
-    //:There should only be ONE reference to these used to
-    //:populate the struct, and then always use the struct
-    //:reference. Failure to do so will result in
-    //:spaghetti code.
-
-    //:wanted_instance_extensions
-    int   g_2(ext_ins,wan_num)=( 2 );
-    char* g_2(ext_ins,wan_arr)[  2 ]={
-        "VK_KHR_surface"
-    ,   "VK_KHR_win32_surface"
-    };
-
-    //:WHAT_INSTANCE_EXTENSIONS_ARE_AVALIABLE:                 _
-    //:SEE[ VK_TUT_2018 ]BOOK_PAGE[ 49 ]                       _
-    //:NO_SUCH_TYPE:VkInstanceExtensionProperties:             _
-    //:THE_TYPE_IS :VkExtensionProperties                      _
-    #define E_P  struct TYP(ext_pro)                           _
-    #define CAP ( 4 ) /** Maximum_Capacity_Of_Array **/        _
-    #define NUM (0-1) /** Number_Of_Valid_Entries:  **/        _
-            int  g_2(ext_ins,pro_cap)=(CAP)                    S
-            int  g_2(ext_ins,pro_num)=(NUM)                    S
-            E_P  g_2(ext_ins,pro_arr)[ CAP ]={0}               S
-    #undef  E_P  ///                                           _
-    #undef  CAP  ///                                           _
-    #undef  NUM  ///                                           _
-
-//:GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG::FILESCOPE_GLOBALS://
-//:VULKAN_STRUCT:VSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVS://
-    struct typ(vuk_mai){ //:vulkan_main.
-
-        struct
-        typ(app_inf)   //:VkApplicationInfo
-        mem(app_inf);  //:VkApplicationInfo
-
-        termin
-        typ(vuk_ins)   //:VkInstance/VulkanInstance
-        mem(vuk_ins);  //:VkInstance/VulkanInstance
-
-        struct bra(ext_ins){//:extensions:INSTANCE
-            int    mem(wan_num);//:wanted_instance_extensions
-            char** mem(wan_arr);//:wanted_instance_extensions
-
-            //:InstanceExtensionProperties  //~//////////////://
-            #define E_P struct TYP(ext_pro) //://////////////://
-                //:typ(vuk_mai).sub(ext_ins).mem(pro_cap);
-                //:typ(vuk_mai).sub(ext_ins).mem(pro_num);
-                //:typ(vuk_mai).sub(ext_ins).mem(pro_arr);
-                int    mem(pro_cap); //: properties_capacity
-                int    mem(pro_num); //: properties_numberof
-                E_P*   mem(pro_arr); //: properties_array
-            #undef E_P //:///////////////////////////////////://
-
-        }sub(ext_ins);
-
-        struct bra(cre_inf){ //:cre_(ate)_inf_(o)
-
-            struct //:ins(vuk_mai).sub(cre_inf).mem(vuk_ins);
-            typ(cre_inf_vuk_ins)   //:VkInstanceCreateInfo
-            mem(        vuk_ins);  //:VkInstanceCreateInfo
-
-        }sub(cre_inf); //:///////////////////////////////////://
-
-
-    }ins(vuk_mai)={
-        0
-    }E_S(vuk_mai)
-//:VSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVSVS:VULKAN_STRUCT://
-
-    //://////////////////////////////////////////////////////://
-    static unsigned int fun(MakVer)( //:VK_MAKE_VERSION://///://
-        unsigned int major
-    ,   unsigned int minor
-    ,   unsigned int patch
-    ){
-        unsigned int ret(mak_ver);
-        ret(mak_ver) =(
-            (((major) << 22) | ((minor) << 12) | (patch))
-        );;
-        return( ret(mak_ver) );
-    }//://///////////////////////////////////////////////////://
-
-//[MAIN:(BELOW):---------------------------------------------]//
-//[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
-
-    void EII(SRC_VULKAN_SETUP_main)( void )  //://///////////://
-    {
-
-    //:Before doing any vulkan setup, front load any needed
-    //:function pointers from vulkan-1.dll:
-
-    //:Use: "GetProcAddress" code for this.
-    //:     Modify it to recognize "vuk_dll" as shorthand
-    //:     code for "vulkan-1.dll"
-
-    INS(vkCreateInstance)=FUN(GetProcAddress)(
-    /**/    "dll_vuk" //:vulkan-1.dll
-    ,       "vkCreateInstance" );;
-
-    //:vkEnumerateInstanceExtensionProperties
-
-    INS(vkEnumerateInstanceExtensionProperties)=
-    FUN(GetProcAddress)(
-    /**/ "dll_vuk"
-    ,    "vkEnumerateInstanceExtensionProperties"
-    );;
-
-
-    #define vkm ins(vuk_mai) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    //:------------------------------------------------------://
-
-        //:W:WantedInstanceExtensions:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
-        //:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW://
-
-        //: Loading: wanted_instance_extensions from
-        //:          private file-scope variable into
-        //:          our private struct.
-
-        //:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW://
-        #define NUM vkm.sub(ext_ins).mem(wan_num)  _ _ _ _ _ _ _
-        #define ARR vkm.sub(ext_ins).mem(wan_arr)  _ _ _ _ _ _ _
-                NUM  =  g_2(ext_ins     ,wan_num)              s
-                ARR  =  g_2(ext_ins     ,wan_arr)              s
-        #undef  ARR  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-        #undef  NUM  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-        //:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW://
-        //:V:WantedInstanceExtensions:_______________________://
-        //:VkApplicationInfo:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
-        //:AIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAI://
-        #define MV fun(MakVer)         _ _ _ _ _ _ _ _ _ _ _ _ _
-        #define AI vkm.mem(app_inf)    _ _ _ _ _ _ _ _ _ _ _ _ _
-                AI.sType /**app_inf**/ =(0 /**app_inf**/ )     s
-                AI.pApplicationName    = "HELLO_TRIANGLE"      s
-                AI.applicationVersion  = MV(1,0,0)             s
-                AI.pEngineName         = "No_Engine"           s
-                AI.engineVersion       = MV(1,0,0)             s
-                AI.apiVersion          = MV(1,0,0)             s
-        #undef  AI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-        #undef  MV /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-        //:AIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAIAI://
-        //:VkApplicationInfo:________________________________://
-        //:VkInstanceCreateInfo:¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯://
-        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
-        //:SEE[ VK_TUT_2018 ]BOOK_PAGE[ 48 ](BottomOfPage)   ://
-        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
-        #define AI vkm.mem(app_inf)              _ _ _ _ _ _ _ _
-        #define VI vkm.mem(vuk_ins)              _ _ _ _ _ _ _ _
-        #define CI vkm.sub(cre_inf).mem(vuk_ins) _ _ _ _ _ _ _ _
-                                                               _
-                CI.sType = 1 /**1==INSTANCE_CREATE_INFO**/     s
-                CI.poi(app_inf) = &( AI )                      s
-                                                               _
-            //:NUM:wanted_instance_extensions_count            _
-            //:ARR:wanted_instance_extensions                  _
-            #define NUM vkm.sub(ext_ins).mem(wan_num)  _ _ _ _ _
-            #define ARR vkm.sub(ext_ins).mem(wan_arr)  _ _ _ _ _
-            #define READONLY (const char* const*)      _ _ _ _ _
-                                                               _
-                CI.enabledExtensionCount  =  (           NUM ) s
-                CI.ppEnabledExtensionNames=  ( READONLY  ARR ) s
-                                                               _
-                //:not going to use the "use_validation_layers"_
-                //:switch like in VG03.ALL. Look how crazy     _
-                //:this code is. You've obviously decided      _
-                //:to play with the safteys off.               _
-                CI.enabledLayerCount  = 0                      s
-                CI.ppEnabledLayerNames=NIL                     s
-                                                               _
-            #undef  READONLY /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-            #undef  ARR      /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-            #undef  NUM      /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-            if( NIL == INS(vkCreateInstance) ){
-                D("[NIL_FUNCTION_PTR:vkCreateInstance!]");
-                H("[DID_YOU_FORGET_TO_LOAD_VULKAN_PTR?]");
-            };;
-
-            unsigned int res=(
-                //:CAST:
-                (unsigned int)(unsigned long long)
-
-                //:FUNC:
-                ( (TYP(F_03)) INS(vkCreateInstance)  )
-
-                //:ARGS:
-                (
-                    &(CI) //:VkInstanceCreateInfo
-                ,  ( NIL )
-                ,   &(VI) //:VkInstance
-                )
-            );;
-            if( 0 != res ){
-                H( "[FAIL:vkCreateInstance]");
-            }else{
-                D( "[PASS:vkCreateInstance]");
-            };;
-
-        #undef  CI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-        #undef  VI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-        #undef  AI /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
-        //:SEE[ VK_TUT_2018 ]BOOK_PAGE[ 48 ](BottomOfPage)   ://
-        //:CICICICICICICICICICICICICICICICICICICICICICICICICI://
-        //:CI:VkInstanceCreateInfo:__________________________://
-
-        //:SizeChecks:
-        ;;;if( sizeof(U32) != 4 ){
-            H("[FAIL:SIZECHECK:U32]");
-        };;if( sizeof( struct TYP(ext_pro)  ) != 260 ){
-            H("[FAIL:SIZECHECK:VkExtensionProperties]");
-        };;
-
-        //:EP:InstanceExtensionProperties:(BELOW):¯¯¯¯¯¯¯¯¯¯¯://
-        //:EPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEP://
-        #define VUK_FUN vkEnumerateInstanceExtensionProperties
-        { //:SCOPE
-            int res=(0-1);//:VkResult
-
-            //:SizeChecks:
-            if( sizeof(I32)!= 4 ){ H("[2020_04_27_0429AM-A]");}
-            if( sizeof(U64)!= 8 ){ H("[2020_04_27_0429AM-B]");}
-
-            int ava_num=(0-1); //:Available_Number(Amount)
-            res=( (I32)(U64)
-            (
-                ((TYP(F_03))INS( VUK_FUN ))
-                (
-                    NIL //:<--Optional:FilterByValidationLayer
-                ,   &( g_2(ext_ins,pro_num) ) //:extensionCount
-                ,   NIL
-                )
-            ));
-            if( res != 0 /**VK_SUCCESS**/ ){
-                H("[2020_04_27:0419AM]");
-            };;
-
-            //:Do we have enough capacity to get everything?
-            //://////////////////////////////////////////////://
-            //:Keep it simple. We are not going to deal with
-            //:malloc unless absolutely necessary. We can
-            //:afford a bit of wasted space.
-            if( ava_num > g_2(ext_ins,pro_cap) ){
-                D("[WARN:CapacityNotLargeEnoughToGetAll]");
-                D("[EXPECT:VK_INCOMPLETE]");
-                g_2(ext_ins,pro_num) = g_2(ext_ins,pro_cap);
-            }else{
-                D("[OKAY:CapacityLargeEnoughToGetAll]");
-                D("[EXPECT:VK_SUCCESS]");
-                g_2(ext_ins,pro_num) = ava_num;
-            };;
-            //://////////////////////////////////////////////://
-
-            res=( (I32)(U64)
-            (
-                ((TYP(F_03))INS( VUK_FUN ))
-                (
-                    //:SEE[ VK_TUT_2018 ]BOOK_PAGE[ 49 ]
-                    //:"It takes an optional first parameter"
-                    //:"that allows us to filter extensions "
-                    //:"by a specific validation layer.     "
-                    NIL //:<--Optional:FilterByValidationLayer
-                ,   &( g_2(ext_ins,pro_num) ) //:extensionCount
-                ,   &( g_2(ext_ins,pro_arr) ) //:pProperties
-                )
-            ));
-
-            //:Did we get the expected success status?
-            if( ava_num > g_2(ext_ins,pro_cap) ){
-                if( res != 5 /**VK_INCOMPLETE**/ ){
-                    H("[2020_04_27:0421AM-A]");
-                };;
-            }else{
-                if( res != 0 /**VK_SUCCESS**/ ){
-                    H("[2020_04_27:0421AM-A]");
-                };;
-            };;
-
-            //:Copy over values to our main vulkan struct:
-            vkm.sub(ext_ins).mem(pro_cap)=g_2(ext_ins,pro_cap);
-            vkm.sub(ext_ins).mem(pro_num)=g_2(ext_ins,pro_num);
-            vkm.sub(ext_ins).mem(pro_arr)=g_2(ext_ins,pro_arr);
-
-            //:Loop over instance extensions as sanity check:
-            #define E_P struct TYP(ext_pro) //://////////////://
-
-                printf("\n[VkExtensionProperties:(BELOW)]\n");
-                int  num(ext) = vkm.sub(ext_ins).mem(pro_num);
-                E_P* arr(ext) = vkm.sub(ext_ins).mem(pro_arr);
-
-                int     dex(ext) = 0;
-                for(
-                /**/    dex(ext)= 0
-                ;       dex(ext) < num(ext)
-                ;       dex(ext)++
-                ){
-                    //:VkExtensionProperties
-                    printf("[extensionName]:%s\n"
-                    , ( arr(ext)[ dex(ext) ] ).MEM(ext_nam)
-                    );;
-                };;
-                fflush(stdout);
-
-            #undef E_P //:///////////////////////////////////://
-
-        } //:SCOPE
-        #undef  VUK_FUN  //://///////////////////////////////://
-        //:EPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEPEP://
-        //:EP:InstanceExtensionProperties:(ABOVE):___________://
-
-        //:WHEN DONE WITH SETUP:
-        //:Do a check of entire struct to make sure every
-        //:member is valid
-
-    //:------------------------------------------------------://
-    #undef  vkm  /// _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    }E_F(SRC_VULKAN_SETUP_main)//:///////////////////////////://
-    //://////////////////////////////////////////////////////://
-
-//[MAIN:MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM]//
-//[MAIN:(ABOVE):---------------------------------------------]//
-
-
-//|¯¯¯¯¯¯¯¯¯|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
-#undef     lib                                        //| 01 |//
-#undef     LIB                                        //| 02 |//
-//://---------                                        //::--:://
-#undef     gm2                                        //| 03 |//
-#undef     GM2                                        //| 04 |//
-#undef     gm3                                        //| 05 |//
-#undef     GM3                                        //| 06 |//
-//://---------                                        //::--:://
-#undef     INS                                        //| 07 |//
-#undef     TYP                                        //| 08 |//
-#undef     EII                                        //| 09 |//
-#undef     MEM                                        //| 10 |//
-#undef     FUN                                        //| 11 |//
-//://---------                                        //::--:://
-#undef     BRA                                        //| 12 |//
-#undef     SUB                                        //| 13 |//
-//://---------                                        //::--:://
-#undef     ARG                                        //| 14 |//
-#undef     RET                                        //| 15 |//
-#undef     VAR                                        //| 16 |//
-//://---------                                        //::--:://
-#undef     var                                        //| 17 |//
-#undef     eii                                        //| 18 |//
-#undef     mem                                        //| 19 |//
-#undef     ins                                        //| 20 |//
-#undef     fun                                        //| 21 |//
-#undef     typ                                        //| 22 |//
-#undef     arg                                        //| 23 |//
-#undef     ret                                        //| 24 |//
-#undef     bra                                        //| 25 |//
-#undef     sub                                        //| 26 |//
-#undef     obj                                        //| 27 |//
-#undef     poi                                        //| 28 |//
-#undef     siz                                        //| 29 |//
-#undef     num                                        //| 30 |//
-#undef     arr                                        //| 31 |//
-#undef     dex                                        //| 32 |//
-//://---------                                        //::--:://
-#undef   GLO_1                                        //| 33 |//
-#undef   GLO_2                                        //| 34 |//
-#undef   GLO_3                                        //| 35 |//
-#undef     g_1                                        //| 36 |//
-#undef     g_2                                        //| 37 |//
-#undef     g_3                                        //| 38 |//
-//://---------                                        //::--:://
-#undef   VAR_1                                        //| 39 |//
-#undef   VAR_2                                        //| 40 |//
-#undef   VAR_3                                        //| 41 |//
-#undef     v_1                                        //| 42 |//
-#undef     v_2                                        //| 43 |//
-#undef     v_3                                        //| 44 |//
-//://---------                                        //::--:://
-#undef  termin                                        //| 45 |//
-#undef     NIL                                        //| 46 |//
-#undef     E_S                                        //| 47 |//
-#undef     E_F                                        //| 48 |//
-#undef       s                                        //| 49 |//
-#undef       S                                        //| 50 |//
-#undef       _                                        //| 51 |//
-#undef       H                                        //| 52 |//
-#undef       D                                        //| 53 |//
-//://---------                                        //::--:://
-#undef     U32                                        //| 54 |//
-#undef     I32                                        //| 55 |//
-#undef     U64                                        //| 56 |//
-#undef     I64                                        //| 57 |//
-//:BANNED_MACROS:SEE[MACRO_BAN_ABOUT]:::::::::::::::////| == |//
-#if defined( MSG ) || defined( msg )                  //| == |//
-    #error DID_WINDOWS_DOT_H_GET_INCLUDED_SOMEHOW?    //| == |//
-#endif                                                //| == |//
-#if defined( PTR ) || defined( ptr )                  //| == |//
-    #error WE_USE:POI:for_pointer:NOT:PTR             //| == |//
-#endif                                                //| == |//
-#if defined( SIZ )                                    //| == |//
-    #error   SIZ(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-#if defined( NUM )                                    //| == |//
-    #error   NUM(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-#if defined( ARR )                                    //| == |//
-    #error   ARR(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-#if defined( OBJ )                                    //| == |//
-    #error   OBJ(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-#if defined( POI )                                    //| == |//
-    #error   POI(UPPERCASE):Used_As_Local_Macro       //| == |//
-#endif                                                //| == |//
-#if defined( v_1 ) || defined( VAR_1 )                //| == |//
-    //:I found a need for this. Allow it.:::::::::::////| == |//
-#endif                                                //| == |//
-#if defined( f_1 ) || defined( F_1 )                  //| == |//
-    #error USE: g_1,g_3,g_3,g_4 (NOT:F_)              //| == |//
-#endif                                                //| == |//
-//|_________|V4_MEGAHEADER:DATE_OF_REVISION:2020_04_29_0937AM|//
-
-//}
-//++++EXE_CAT:ABOVE+//:./SRC/VULKAN/SETUP/main._
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //{//+EXE_CAT:BELOW+//:./SRC/OPENGL/SETUP/main._
 
 
@@ -4441,29 +3829,57 @@ fun(WinMsgHanWndPoc)(
         
         //:DA: Declare & Assert
         //:HackishChecksum:Check hex against decimal for match.
-        DA2( cl_mem_read_write      ,   0x1 , (1<<0) , 01 ) ;
-        DA2( cl_mem_write_only      ,   0x2 , (1<<1) , 02 ) ;
-        DA2( cl_mem_read_only       ,   0x4 , (1<<2) , 03 ) ;
-        DA2( cl_mem_use_host_ptr    ,   0x8 , (1<<3) , 04 ) ;       
-        DA2( cl_mem_alloc_host_ptr  ,  0x10 , (1<<4) , 05 ) ;
-        DA2( cl_mem_copy_host_ptr   ,  0x20 , (1<<5) , 06 ) ;
-        ///( RESERVED               ,  0x40 , (1<<6) , 07 ) ;
-        DA2( cl_mem_host_write_only ,  0x80 , (1<<7) , 08 ) ;
-        DA2( cl_mem_host_read_only  , 0x100 , (1<<8) , 09 ) ;
-        DA2( cl_mem_host_no_access  , 0x200 , (1<<9) , 10 ) ;
+        DA2( cl_mem_read_write      ,   0x1 , (1<<0) , A_01 ) ;
+        DA2( cl_mem_write_only      ,   0x2 , (1<<1) , A_02 ) ;
+        DA2( cl_mem_read_only       ,   0x4 , (1<<2) , A_03 ) ;
+        DA2( cl_mem_use_host_ptr    ,   0x8 , (1<<3) , A_04 ) ;       
+        DA2( cl_mem_alloc_host_ptr  ,  0x10 , (1<<4) , A_05 ) ;
+        DA2( cl_mem_copy_host_ptr   ,  0x20 , (1<<5) , A_06 ) ;
+        ///( RESERVED               ,  0x40 , (1<<6) , A_07 ) ;
+        DA2( cl_mem_host_write_only ,  0x80 , (1<<7) , A_08 ) ;
+        DA2( cl_mem_host_read_only  , 0x100 , (1<<8) , A_09 ) ;
+        DA2( cl_mem_host_no_access  , 0x200 , (1<<9) , A_10 ) ;
+
+        DA2( cl_device_type_default     ,0x1, (1<<0) , B_01 ) ;
+        DA2( cl_device_type_cpu         ,0x2, (1<<1) , B_02 ) ;
+        DA2( cl_device_type_gpu         ,0x4, (1<<2) , B_03 ) ;
+        DA2( cl_device_type_accelerator ,0x8, (1<<3) , B_04 ) ;
+
+        //:cl_platform_info:
+        DA2( cl_platform_profile    ,
+                               0x0900, (0x900 + 0) , C_01 ) ;
+        DA2( cl_platform_version    ,
+                               0x0901, (0x900 + 1) , C_02 ) ;
+        DA2( cl_platform_name       ,
+                               0x0902, (0x900 + 2) , C_03 ) ;
+        DA2( cl_platform_vendor     ,
+                               0x0903, (0x900 + 3) , C_04 ) ;
+        DA2( cl_platform_extensions ,
+                               0x0904, (0x900 + 4) , C_05 ) ;
 
         //:E_#:Exists: Assert these INS(___) types exist
         //:SEE[ STATIC_ASSERT_EXIST_HACK ]
-        E_1( INS( cl_mem_read_write      ) , "eye_tot:01" );
-        E_1( INS( cl_mem_write_only      ) , "eye_tot:02" );
-        E_1( INS( cl_mem_read_only       ) , "eye_tot:03" );
-        E_1( INS( cl_mem_use_host_ptr    ) , "eye_tot:04" );
-        E_1( INS( cl_mem_alloc_host_ptr  ) , "eye_tot:05" );
-        E_1( INS( cl_mem_copy_host_ptr   ) , "eye_tot:06" );
-        ///( INS( RESERVED               ) , "eye_tot:07" );
-        E_1( INS( cl_mem_host_write_only ) , "eye_tot:08" );
-        E_1( INS( cl_mem_host_read_only  ) , "eye_tot:09" );
-        E_1( INS( cl_mem_host_no_access  ) , "eye_tot:10" );
+        E_1( INS(cl_mem_read_write         ) , "eye_tot:A_01" );
+        E_1( INS(cl_mem_write_only         ) , "eye_tot:A_02" );
+        E_1( INS(cl_mem_read_only          ) , "eye_tot:A_03" );
+        E_1( INS(cl_mem_use_host_ptr       ) , "eye_tot:A_04" );
+        E_1( INS(cl_mem_alloc_host_ptr     ) , "eye_tot:A_05" );
+        E_1( INS(cl_mem_copy_host_ptr      ) , "eye_tot:A_06" );
+        ///( INS(RESERVED                  ) , "eye_tot:A_07" );
+        E_1( INS(cl_mem_host_write_only    ) , "eye_tot:A_08" );
+        E_1( INS(cl_mem_host_read_only     ) , "eye_tot:A_09" );
+        E_1( INS(cl_mem_host_no_access     ) , "eye_tot:A_10" );
+
+        E_1( INS(cl_device_type_default    ) , "eye_tot:B_01" );
+        E_1( INS(cl_device_type_cpu        ) , "eye_tot:B_02" );
+        E_1( INS(cl_device_type_gpu        ) , "eye_tot:B_03" );
+        E_1( INS(cl_device_type_accelerator) , "eye_tot:B_04" );
+
+        E_1( INS(cl_platform_profile       ) , "eye_tot:C_01" );
+        E_1( INS(cl_platform_version       ) , "eye_tot:C_02" );
+        E_1( INS(cl_platform_name          ) , "eye_tot:C_03" );
+        E_1( INS(cl_platform_vendor        ) , "eye_tot:C_04" );
+        E_1( INS(cl_platform_extensions    ) , "eye_tot:C_05" );
 
     #undef   E_M    //://////////////////////////////////////://
     #undef   D_T    //://////////////////////////////////////://
@@ -4484,6 +3900,13 @@ fun(WinMsgHanWndPoc)(
 
 //:EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE:OPEN_CL_ENUMERATIONS://
 //:FILESCOPE_WHATEVERS:FWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFWFW://
+
+    //://////////////0xAARRGGBB
+    #define ALT_555 (0x55555555)
+
+    U64 ins(gar_byt_01) = ALT_555;
+    char file_scope_arr[256]={0};
+    U64 ins(gar_byt_02) = ALT_555;
     
     //|RISK: The host side type ‘cl_uint’ is guaranteed to be|//
     //|the same format as the device side type ‘uint’.       |//
@@ -4494,16 +3917,20 @@ fun(WinMsgHanWndPoc)(
     #define VOD void //://///////////////////////////////////://
   
     //:PLATFORM_ID: cl_platform_id[ ] :::::::::::::::::::::::://
-    VOD* g_2(plat_id, pid_arr) =(  NIL  ); //:arr_dat
-    U32  g_2(plat_id, pid_num) =(   0   ); //:arr_num
-    int  g_2(plat_id, pid_cap) =( 0 - 1 ); //:arr_cap
-    int  g_2(plat_id, pid_dex) =( 0 - 1 ); //:sel_dex
+    #define PID_CAP ( 10 ) //:///////////////////////////////://
+    VOD* g_2(plat_id, pid_arr)  [ PID_CAP ]={0}; //:arr_dat
+    U32  g_2(plat_id, pid_num) =(    0    );     //:arr_num
+    int  g_2(plat_id, pid_cap) =( PID_CAP );     //:arr_cap
+    int  g_2(plat_id, pid_dex) =( 0  -  1 );     //:sel_dex
+    #undef PID_CAP //:///////////////////////////////////////://
 
     //:DEVICE_ID:     cl_device_id[ ] :::::::::::::::::::::::://
-    VOD* g_2(devi_id,dev_arr)=(  NIL  ); //:arr_dat
-    U32  g_2(devi_id,dev_num)=(   0   ); //:arr_num
-    int  g_2(devi_id,dev_cap)=( 0 - 1 ); //:arr_cap
-    int  g_2(devi_id,dev_dex)=( 0 - 1 ); //:sel_dex
+    #define DEV_CAP ( 10 ) //:///////////////////////////////://
+    VOD* g_2(devi_id,dev_arr) [ DEV_CAP ]={0}; //:arr_dat
+    U32  g_2(devi_id,dev_num)=(    0    );     //:arr_num
+    int  g_2(devi_id,dev_cap)=( DEV_CAP );     //:arr_cap
+    int  g_2(devi_id,dev_dex)=( 0  -  1 );     //:sel_dex
+    #undef DEV_CAP //:///////////////////////////////////////://
     
     //:CONTEXT:cl_context+cl_context_properties :::::::::::::://
     VOD* g_2(con_com,context)=( NIL ); //:cl_context
@@ -4677,33 +4104,302 @@ fun(WinMsgHanWndPoc)(
     //:BELOW:COG_CreateContext_OpenComputeLanguage:
     //:======================================================://
 
-    #define VOD void //://///////////////////////////////////://
-    extern VOD* g_2(plat_id, pid_arr); //:arr_dat
-    extern U32  g_2(plat_id, pid_num); //:arr_num
-    extern int  g_2(plat_id, pid_cap); //:arr_cap
-    extern int  g_2(plat_id, pid_dex); //:sel_dex
-    #undef  VOD //://////////////////////////////////////////://
 
-        g_2(plat_id, pid_arr)  = NIL;
-        g_2(plat_id, pid_num)  = 0;
-        g_2(plat_id, pid_cap)  = 0;     
-        g_2(plat_id, pid_dex)  = 0;
 
-    //   //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
-    //   INS(clGetPlatformIDs)(	
-    //   /**//**/  0           //: num_entries   01 ://
-    //   ,         NULL        //: platforms     02 ://
-    //   ,       &(PID->num)   //: num_platforms 03 ://
-    //   );;           
-    //   CLEB.MEM.MAL.PID( &(PID->arr), PID->num );
-    //   INS(clGetPlatformIDs)(
-    //   /**//**/  PID->num    //: num_entries   01 ://
-    //   ,         PID->arr    //: platforms     02 ://
-    //   ,         NULL        //: num_platforms 03 ://
-    //   );;
-    //   printf( "[PID->num]:%d\n"
-    //   ,         PID->num    );;    
-    //   //|________________________________________|//
+        { //:SCOPE: GET_PLATFORM_IDS:
+        #define VOD void //://///////////////////////////////://
+        extern VOD* g_2(plat_id, pid_arr)[10]; //:arr_dat
+        extern U32  g_2(plat_id, pid_num); //:arr_num
+        extern int  g_2(plat_id, pid_cap); //:arr_cap
+        extern int  g_2(plat_id, pid_dex); //:sel_dex
+        #undef  VOD //://////////////////////////////////////://
+
+            #define ARR  g_2(plat_id, pid_arr) //:///////////://
+            #define NUM  g_2(plat_id, pid_num) //:///////////://
+            #define CAP  g_2(plat_id, pid_cap) //:///////////://
+            #define DEX  g_2(plat_id, pid_dex) //:///////////://
+
+            int RET(clGetPlatformIDs) = (0-333);
+
+            //|¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|//
+            //://////////////////////////////////////////////://
+            //:Before We call clGetPlatformIDs, make sure it is
+            //:not null. Let's not do this on all calls. Just
+            //:the first one as a sanity check on our function
+            //:pointer fetching macros:
+            //://////////////////////////////////////////////://
+            if(NIL==INS(clGetPlatformIDs)){ H("[NIL:CGPID]");};
+            TYP(F_03) var(fun)=(
+                (TYP(F_03))
+                FUN(SRC_NATIVE_CALLWRAP_GetProcAddress)(
+                    "dll_com"
+                ,   "clGetPlatformIDs"
+                )
+            );;
+            if( var(fun) != INS(clGetPlatformIDs)){
+                H("[FAIL:DIFF:FUNCTION_POINTER]");
+            }else{
+                D("[PASS:SAME:FUNCTION_POINTER]");
+            };;
+            //://////////////////////////////////////////////://
+
+            RET(clGetPlatformIDs)=(U32)(U64)
+            INS(clGetPlatformIDs)(	
+                (void*)(U32)0//: num_entries   01 ://
+            ,         NIL         //: platforms     02 ://
+            ,      &( NUM )       //: num_platforms 03 ://
+            );;       
+                
+            //:CR:Check_Return:CheckReturnCode:
+            //:CRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCR://
+            if( RET(clGetPlatformIDs) != 0 /**CL_SUCCESS**/ ){
+                D("[WHAT_THE_FUCKING_HELL]");
+                printf("[RET(clGetPlatformIDs):%u\n",
+                         RET(clGetPlatformIDs) );;
+
+                if( 0xFFFFFC17 == (U32)RET(clGetPlatformIDs) ){
+                    D("[0xFFFFFC17:CL_PLATFORM_NOT_FOUND_KHR]");
+                    D("[FIX:Load_A_Different:OpenCL*.dll]");
+                };;
+
+                H("[WHAT_THE_FUCKING_HELL]");
+            }else{
+                D("[CL_SUCCES]");
+            };;
+            //:CRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCRCR://
+            
+            //:Truncate capacity if needed:
+            printf( "#1:g_2(plat_id, pid_num)::%d\n",
+                        g_2(plat_id, pid_num) );; 
+            if((int)NUM >      CAP ){
+                    NUM = (U32)CAP ;   
+                D("[WARN:RoomForPlatformsIs:NOT_ENOUGH]");
+            }else{
+                D("[PASS:RoomForPlatformsIs:ENOUGHROOM]");
+            };;
+
+            //:Actually get platforms:
+            INS(clGetPlatformIDs)(
+            /**/ (void*)(U64) NUM       //: num_entries   01 ://
+            ,    (void*)(U64) ARR       //: platforms     02 ://
+            ,    (void*)(U64) NIL       //: num_platforms 03 ://
+            );;
+            printf( "#2:g_2(plat_id, pid_num)::%d\n",
+                        g_2(plat_id, pid_num) );; 
+            //|______________________________________________|//
+
+            //:TODO: More detailed logic on platform
+            //:      selection than simply using the
+            //:      first (zeroth) one.
+            DEX=( 0 ); 
+
+            #undef  ARR  //:////  g_2(plat_id, pid_arr)  ////://
+            #undef  NUM  //:////  g_2(plat_id, pid_num)  ////://
+            #undef  CAP  //:////  g_2(plat_id, pid_cap)  ////://
+            #undef  DEX  //:////  g_2(plat_id, pid_dex)  ////://
+        } //:SCOPE: GET_PLATFORM_IDS:
+        { //:SCOPE: GET_PLATFORM_VERSION:
+
+            D("[LetsGetPlatformInfo...]");
+    
+
+            #define WILD_WEST_CAST (void*)(U64) //://////////://
+
+            int siz=( 0 );
+
+            //:Selected platform handle:
+            void* han_pla=(
+                g_2(plat_id, pid_arr)[
+                g_2(plat_id, pid_dex)]
+            );;
+
+            INS(clGetPlatformInfo)(
+                WILD_WEST_CAST  han_pla
+            ,   WILD_WEST_CAST  INS(cl_platform_version)
+            ,   WILD_WEST_CAST  0
+            ,   WILD_WEST_CAST  NIL
+            ,   WILD_WEST_CAST  &siz
+            );;
+
+            //:platform_version
+           //:  char pid_ver[256]={0}; 
+           //:  if( siz <= 0 ){ H("[WTF_SIZE]"); };
+            if( siz > (256-1) ){
+                D("[NOT_ENOUGH_ROOM_TO_GET_STRING]");
+            }else{
+                D("[ENOUGH_ROOM_TO_GET_STRING]");
+
+               printf( "siz:%d\n", siz );
+
+              // char* platform_version =( 
+              //     malloc(256) 
+              // );
+
+              //  char* platform_version=(
+              //      calloc(1,256)
+              //  );;
+                
+                #error TODO: Fix this mess.
+                #error figure out why declaring random variable
+                #error before calling this function makes the
+                #error string get populated.
+                #error Add the actual function prototype to
+                #error this file to make sure you are calling
+                #error function correctly and read up on valgrind.
+
+              // char str[25];
+              // str[0]='x';
+                //U32 guard_byte = ALT_555;
+               // if( whatever ){ /**NOOP**/ };
+
+               // char* platform_version=NIL; //: ( str );
+
+                //char platform_version[256]={0};
+
+                ///char platform_version[256]="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            
+                INS(clGetPlatformInfo)(
+                    WILD_WEST_CAST  han_pla
+                ,   WILD_WEST_CAST  INS(cl_platform_version)
+                ,   WILD_WEST_CAST  siz  
+
+              //  ,   WILD_WEST_CAST  &(platform_version[0])
+
+                ,   WILD_WEST_CAST  file_scope_arr
+               // ,   WILD_WEST_CAST  &(str[0])
+
+
+                ,   WILD_WEST_CAST  NIL
+                );; 
+            
+                
+                printf("[pid_ver/platform_version]:%s\n"
+                        ,file_scope_arr
+                );;
+             //  printf("[pid_ver/platform_version]:%s\n"
+             //          ,&(platform_version[0])
+             //  );;
+
+                fflush(stdout);
+
+               // if( guard_byte != ALT_555 ){
+               //     H("gottouched]");
+               // };; 
+                if( ins(gar_byt_01) != ALT_555 ){
+                    H("gottouched]");
+                };; 
+                if( ins(gar_byt_02) != ALT_555 ){
+                    H("gottouched]");
+                };; 
+            
+                //free( platform_version );
+            };;
+
+
+
+            #undef  WILD_WEST_CAST //:///////////////////////://
+
+//       size_t siz = 0;
+//       CLEB_AF_Success( "[ERROR:GPI#1]",
+//           CLEB.clGetPlatformInfo(
+//           /**/PID->arr[P] //:<---1st plaform
+//           ,   CL_PLATFORM_VERSION //:param_name
+//           ,   0     //:param_value_size
+//           ,   NULL  //:param_value
+//           ,   &siz  //:param_value_size_ret
+//           )
+//       );;CLEB_PV_size_t("[siz]",siz);
+//       char* platform_version =( malloc(siz) );
+//       CLEB_AF_Success( "[ERROR:GPI#2]",
+//           CLEB.clGetPlatformInfo(
+//           /**/PID->arr[P]
+//           ,   CL_PLATFORM_VERSION
+//           ,   siz
+//           ,   platform_version
+//           ,   NULL
+//           )
+//       );;CLEB_PV_STR("[platform_version]"
+//                       ,platform_version );
+//
+//       free( platform_version );
+
+        } //:SCOPE:GET_PLATFORM_VERSION
+////    { //:SCOPE: clGetDeviceIDs ::::::::::::::::::::::::::://
+////    //://////////////////////////////////////////////////://
+////    #define VOD void //://///////////////////////////////://
+////    extern VOD* g_2(devi_id, dev_arr)[10]; //:arr_dat
+////    extern U32  g_2(devi_id, dev_num);     //:arr_num
+////    extern int  g_2(devi_id, dev_cap);     //:arr_cap
+////    extern int  g_2(devi_id, dev_dex);     //:sel_dex
+////    #undef  VOD //://////////////////////////////////////://
+////        
+////        #define dev_ARR  g_2(devi_id, dev_arr) //:///////://
+////        #define dev_NUM  g_2(devi_id, dev_num) //:///////://
+////        #define dev_CAP  g_2(devi_id, dev_cap) //:///////://
+////        #define dev_DEX  g_2(devi_id, dev_dex) //:///////://
+////
+////        int err=(0 - 444);
+////        U32 typ_gpu=( INS(cl_device_type_gpu) );
+////       
+////        //:Get target platform handle:
+////        //:han_pla == pid_arr[ pid_dex ]
+////        //:platform_handle=platform_array[ selected_index ]
+////        void* han_pla=(
+////            g_2(plat_id, pid_arr)[
+////            g_2(plat_id, pid_dex)]
+////        );;
+////
+////        if(NIL==han_pla){  H("[PlatformHandleIsNull]"); };
+////        
+////        err=(int)(U64)INS(clGetDeviceIDs)(
+////        /**/(void*)(U64)  han_pla    //:platform
+////        ,   (void*)(U64)  typ_gpu    //:device_type
+////        ,   (void*)(U64)  0          //:num_entries
+////        ,   (void*)(U64)  NIL        //:devices
+////        ,   (void*)(U64)&(dev_NUM)   //:num_devices
+////        );;
+////
+////        //:Does pre allocated array have enough room
+////        //:for all devices?
+////        if( err != 0 ){ 
+////            printf("[err]:%d\n", err );
+////            printf("[err]:%0x\n", err );
+////            if( err == (0-32)/**CL_INVALID_PLATFORM**/){
+////                D("[(0-32):0xFFFFFFE0:INVALID_PLATFORM]");
+////            };;
+////            H("[2020_04_30:1238PM-A]");
+////        };;
+////
+////        if( dev_NUM <= 0 ){ H("[NO_DEVICES]"); };
+////        if( (int)dev_NUM > (int)dev_CAP ){
+////            dev_NUM = (U32)dev_CAP;
+////            D("[WARNING:Not_Enough_Slots:DEVICES]");
+////        }else{
+////            D("[OK:ENOUGH_ROOM_FOR_ALL_DEVICES]");
+////        };;
+////
+////        printf("[NUM_DEVICES:%d\n",dev_NUM);
+////        
+////        err=(int)(U64)INS(clGetDeviceIDs)(
+////        /**/(void*)(U64) han_pla      //:platform
+////        ,   (void*)(U64) typ_gpu      //:device_type
+////        ,   (void*)(U64) dev_NUM      //:num_entries
+////        ,   (void*)(U64) dev_ARR      //:devices
+////        ,   (void*)(U64) NIL          //:num_devices
+////        );;
+////
+////        if( err != 0 ){ H("[2020_04_30:1238PM-B]");};
+////
+////        dev_DEX=( 0 );
+////        D("[TODO: Logic for selecting device index]");
+////
+////        #undef  dev_ARR  //:    g_2(plat_id, pid_arr)    :// 
+////        #undef  dev_NUM  //:    g_2(plat_id, pid_num)    :// 
+////        #undef  dev_CAP  //:    g_2(plat_id, pid_cap)    :// 
+////        #undef  dev_DEX  //:    g_2(plat_id, pid_dex)    :// 
+////
+////    //://////////////////////////////////////////////////://
+////    }//:SCOPE: clGetDeviceIDs  ::::::::::::::::::::::::::://
 
 
 
@@ -4913,14 +4609,14 @@ int main( void ){
 
         //:SETUP_LIBRARIES:
     
-        //://////////////////////////////////////////////////://
-        //:VULKAN:
-        #if(    SRC_VULKAN_SETUP_MAIN  >= 1 )
-            ASS( INS( AT_END_OF_CHAIN ) <= 0 );
-            EII(SRC_VULKAN_SETUP_main)();
-        #else
-            INS(AT_END_OF_CHAIN)++;
-        #endif
+/////   //://////////////////////////////////////////////////://
+/////   //:VULKAN:
+/////   #if(    SRC_VULKAN_SETUP_MAIN  >= 1 )
+/////       ASS( INS( AT_END_OF_CHAIN ) <= 0 );
+/////       EII(SRC_VULKAN_SETUP_main)();
+/////   #else
+/////       INS(AT_END_OF_CHAIN)++;
+/////   #endif
         //://////////////////////////////////////////////////://
         //:OPENGL:
         #if(    SRC_OPENGL_SETUP_MAIN  >= 1 )

@@ -333,7 +333,17 @@
                     printf("[RESOLVES_TO:<OPEN_CL*>.dll]\n");
 
             const char* TODO_ADD_ABILITY_TO_SET_SEARCH_PATH_FOR_DLL_FILES=(
-                "C:/Program Files/NVIDIA Corporation/OpenCL/OpenCL64.dll"
+              //:  "C:/Program Files/NVIDIA Corporation/OpenCL/OpenCL64.dll"
+              //:  "C:/Program Files/NVIDIA Corporation/OpenCL/OpenCL.dll"
+                "OpenCL.dll"
+
+                //#TODO#////[TODO]////+TODO+////|TODO|//!!!!!!!!
+                //# Grabbing the WRONG DLL will allow you to #//
+                //# successfully load function pointers, but #//
+                //# when you call: clGetPlatformIDs you will #//
+                //# Get Error:                               #//
+                //# 0xFFFFFC17:CL_PLATFORM_NOT_FOUND_KHR     #//
+
             );;
 
             VAR(Data)=DLLL_LoadLibraryA(
